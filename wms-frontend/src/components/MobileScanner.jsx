@@ -38,7 +38,7 @@ function MobileScanner({ userId = '1', onClose }) {
 
       try {
         // 使用相对路径或动态获取的主机名进行请求，避免写死 localhost 导致手机端连不上电脑
-        const backendUrl = `http://${window.location.hostname}:8080/api/scan/push`;
+        const backendUrl = `http://${window.location.hostname}:8081/api/scan/push`;
         
         // 向后端发送 POST 请求
         const response = await axios.post(backendUrl, {

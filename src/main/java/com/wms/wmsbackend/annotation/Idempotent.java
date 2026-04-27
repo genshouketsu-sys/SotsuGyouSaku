@@ -1,15 +1,13 @@
 package com.wms.wmsbackend.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Idempotent {
-    /**
-     * 防抖/幂等超时时间，默认 3000 毫秒 (3秒)
-     */
-    long timeout() default 3000;
+    // 确保有这一行！
+    String message() default "请勿重复提交"; 
+    
+    // 可能还有其他属性，比如 expire 等
+    long expire() default 1;
 }

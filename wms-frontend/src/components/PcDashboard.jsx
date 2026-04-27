@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductCatalog from '../ProductCatalog';
 import ScanningLogs from '../ScanningLogs';
 
@@ -9,6 +10,39 @@ function PcDashboard({
   connectionStatus, 
   setIsMobileMode 
 }) {
+  const [totalSkus, setTotalSkus] = useState(0);
+  const [sortOrder, setSortOrder] = useState('desc'); // 'desc' or 'asc'
+
+  useEffect(() => {
+    if (currentView === 'dashboard') {
+      fetchSkuCount();
+    }
+  }, [currentView]);
+
+  const fetchSkuCount = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/products/count');
+      if (response.data.success) {
+        setTotalSkus(response.data.count);
+      }
+    } catch (err) {
+      console.error('Failed to fetch SKU count:', err);
+    }
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+  };
+
+  // 排序 scans 数组
+  const sortedScans = [...scans].sort((a, b) => {
+    if (sortOrder === 'desc') {
+      return b.time.localeCompare(a.time); // 假设时间格式可以直接字符串比较，或者可以解析成 Date 比较
+    } else {
+      return a.time.localeCompare(b.time);
+    }
+  });
+
   const renderContent = () => {
     if (currentView === 'catalog') {
       return <ProductCatalog />;
@@ -47,7 +81,7 @@ function PcDashboard({
             </div>
             <div>
               <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">Total Active SKUs</h3>
-              <p className="text-4xl font-bold text-white mt-1">4,821</p>
+              <p className="text-4xl font-bold text-white mt-1">{totalSkus}</p>
             </div>
           </div>
 
@@ -79,23 +113,30 @@ function PcDashboard({
         {/* System Health & Activity */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-8 pb-12">
           {/* Activity Table (Left) */}
-          <div className="lg:col-span-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden">
+          <div className="lg:col-span-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden flex flex-col h-full">
             <div className="p-6 border-b border-white/5 flex justify-between items-center">
               <h3 className="text-white text-xl font-medium">Recent Scanning Activity</h3>
               <span className="material-symbols-outlined text-zinc-500 cursor-pointer hover:text-white">filter_list</span>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto flex-1">
               <table className="w-full text-left">
                 <thead className="bg-white/5 text-zinc-400 text-xs uppercase tracking-widest">
                   <tr>
                     <th className="px-6 py-4 font-semibold">SKU ID</th>
-                    <th className="px-6 py-4 font-semibold">Timestamp</th>
+                    <th className="px-6 py-4 font-semibold cursor-pointer group hover:text-white transition-colors select-none" onClick={toggleSortOrder}>
+                      <div className="flex items-center gap-1">
+                        Timestamp
+                        <span className={`material-symbols-outlined text-[16px] transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-0' : 'rotate-180'}`}>
+                          arrow_drop_down
+                        </span>
+                      </div>
+                    </th>
                     <th className="px-6 py-4 font-semibold">Relay Status</th>
                     <th className="px-6 py-4 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {scans.map((scan, i) => (
+                  {sortedScans.map((scan, i) => (
                     <tr key={i} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4 font-medium text-white">{scan.id}</td>
                       <td className="px-6 py-4 text-zinc-400 text-sm">{scan.time}</td>

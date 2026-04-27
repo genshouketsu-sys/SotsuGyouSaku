@@ -24,6 +24,15 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Object>> getCount() {
+        Map<String, Object> response = new HashMap<>();
+        long count = productService.getProductCount();
+        response.put("success", true);
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     public ResponseEntity<Map<String, Object>> add(@RequestBody Product product) {
         Map<String, Object> response = new HashMap<>();
@@ -37,8 +46,35 @@ public class ProductController {
         return ResponseEntity.status(500).body(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Product product) {
+        Map<String, Object> response = new HashMap<>();
+        product.setId(id); // 确保 ID 一致
+        if (productService.updateProduct(product)) {
+            response.put("success", true);
+            response.put("message", "商品更新成功");
+            return ResponseEntity.ok(response);
+        }
+        response.put("success", false);
+        response.put("message", "商品更新失败");
+        return ResponseEntity.status(500).body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        if (productService.deleteProduct(id)) {
+            response.put("success", true);
+            response.put("message", "商品删除成功");
+            return ResponseEntity.ok(response);
+        }
+        response.put("success", false);
+        response.put("message", "商品删除失败");
+        return ResponseEntity.status(500).body(response);
+    }
+
     @PostMapping("/batch-inbound")
-    @Idempotent(timeout = 3000) // 使用防抖注解 (デバウンスアノテーション)
+    @Idempotent(expire = 3000) // 使用防抖注解 (デバウンスアノテーション)
     public ResponseEntity<Map<String, Object>> batchInbound(@RequestBody List<String> barcodes) {
         // 真实调用：遍历条码，更新数据库库存 (在庫更新)
         productService.batchInbound(barcodes);

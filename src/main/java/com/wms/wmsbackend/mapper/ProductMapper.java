@@ -25,4 +25,16 @@ public interface ProductMapper {
     // 更新库存 (在庫の更新 - 中文解释：更新库存)
     @Update("UPDATE product SET stock = stock + #{amount} WHERE barcode = #{barcode}")
     int updateStock(@Param("barcode") String barcode, @Param("amount") int amount);
+
+    // 修改商品
+    @Update("UPDATE product SET sku_code = #{skuCode}, name = #{name}, barcode = #{barcode}, stock = #{stock} WHERE id = #{id}")
+    int update(Product product);
+
+    // 删除商品
+    @Delete("DELETE FROM product WHERE id = #{id}")
+    int deleteById(Long id);
+
+    // 获取总SKU数量
+    @Select("SELECT COUNT(*) FROM product")
+    long countProducts();
 }

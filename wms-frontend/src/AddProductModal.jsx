@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function AddProductModal({ isOpen, onClose, onAdd }) {
+function AddProductModal({ isOpen, onClose, onAdd, initialData }) {
   const [formData, setFormData] = useState({
     skuCode: '',
     name: '',
     barcode: '',
     stock: 0
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        skuCode: initialData.skuCode || '',
+        name: initialData.name || '',
+        barcode: initialData.barcode || '',
+        stock: initialData.stock || 0
+      });
+    } else {
+      setFormData({
+        skuCode: '',
+        name: '',
+        barcode: '',
+        stock: 0
+      });
+    }
+  }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -27,7 +45,7 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-[#1e1e1e] rounded-xl border border-[#27272a] shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200 font-['Space_Grotesk']">
         <div className="px-6 py-4 border-b border-[#27272a] flex justify-between items-center bg-[#1a1a1a]">
-          <h2 className="text-xl font-bold text-[#f4f4f5]">Add New Product</h2>
+          <h2 className="text-xl font-bold text-[#f4f4f5]">{initialData ? 'Edit Product' : 'Add New Product'}</h2>
           <button 
             onClick={onClose}
             className="text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors"
@@ -80,7 +98,7 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
           </div>
           
           <div className="space-y-1">
-            <label htmlFor="stock" className="block text-sm font-medium text-[#a1a1aa]">Initial Stock</label>
+            <label htmlFor="stock" className="block text-sm font-medium text-[#a1a1aa]">Current Stock</label>
             <input 
               type="number" 
               id="stock" 
@@ -104,8 +122,8 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
               type="submit" 
               className="px-4 py-2 bg-[#ccff00] text-black rounded-lg font-bold hover:bg-opacity-90 transition-colors shadow-sm flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-sm">save</span>
-              Save Product
+              <span className="material-symbols-outlined text-sm">{initialData ? 'update' : 'save'}</span>
+              {initialData ? 'Update Product' : 'Save Product'}
             </button>
           </div>
         </form>

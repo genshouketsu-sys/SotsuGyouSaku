@@ -7,6 +7,7 @@ function ProductCatalog() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -15,7 +16,7 @@ function ProductCatalog() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/products');
+      const response = await axios.get('http://localhost:8081/api/products');
 
       // 将后端返回的真实数据展示
       const backendData = response.data.map(p => ({
@@ -28,24 +29,58 @@ function ProductCatalog() {
       setError(null);
     } catch (err) {
       console.error('Failed to fetch products:', err);
-      setError('Failed to load products. Please ensure the backend server is running on http://localhost:8080.');
+      setError('Failed to load products. Please ensure the backend server is running on http://localhost:8081.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddProduct = async (newProductData) => {
+  const handleAddProduct = async (productData) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/products', newProductData);
+      if (editingProduct) {
+        // Update
+        const response = await axios.put(`http://localhost:8081/api/products/${editingProduct.id}`, productData);
+        if (response.data.success || response.status === 200) {
+          setIsAddModalOpen(false);
+          setEditingProduct(null);
+          await fetchProducts();
+        }
+      } else {
+        // Add
+        const response = await axios.post('http://localhost:8081/api/products', productData);
+        if (response.data.success || response.status === 200) {
+          setIsAddModalOpen(false);
+          await fetchProducts();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save product:', err);
+      alert('Failed to save product: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleDeleteProduct = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    
+    try {
+      const response = await axios.delete(`http://localhost:8081/api/products/${id}`);
       if (response.data.success || response.status === 200) {
-        setIsAddModalOpen(false);
-        // 重新获取列表
         await fetchProducts();
       }
     } catch (err) {
-      console.error('Failed to add product:', err);
-      alert('Failed to add product: ' + (err.response?.data?.message || err.message));
+      console.error('Failed to delete product:', err);
+      alert('Failed to delete product: ' + (err.response?.data?.message || err.message));
     }
+  };
+
+  const openEditModal = (product) => {
+    setEditingProduct(product);
+    setIsAddModalOpen(true);
+  };
+
+  const openAddModal = () => {
+    setEditingProduct(null);
+    setIsAddModalOpen(true);
   };
 
   const formatDateTime = (timeInput) => {
@@ -75,7 +110,7 @@ function ProductCatalog() {
             <p className="text-zinc-400 mt-1">Manage your inventory products, SKUs, and stock levels.</p>
           </div>
           <button 
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={openAddModal}
             className="bg-[#c5ff4a] text-black px-5 py-2.5 rounded font-medium hover:bg-opacity-90 transition-colors flex items-center gap-2 shadow-sm active:scale-95"
           >
             <span className="material-symbols-outlined text-sm">add</span>
@@ -180,10 +215,10 @@ function ProductCatalog() {
                         {formatDateTime(product.createTime)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-zinc-500 hover:text-white transition-colors p-1">
+                        <button onClick={() => openEditModal(product)} className="text-zinc-500 hover:text-white transition-colors p-1">
                           <span className="material-symbols-outlined text-sm">edit</span>
                         </button>
-                        <button className="text-zinc-500 hover:text-red-500 transition-colors p-1 ml-2">
+                        <button onClick={() => handleDeleteProduct(product.id)} className="text-zinc-500 hover:text-red-500 transition-colors p-1 ml-2">
                           <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
                       </td>
@@ -211,8 +246,12 @@ function ProductCatalog() {
 
       <AddProductModal 
         isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingProduct(null);
+        }} 
         onAdd={handleAddProduct} 
+        initialData={editingProduct}
       />
     </div>
   );

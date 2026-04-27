@@ -15,7 +15,7 @@ function ScanningLogs() {
   useEffect(() => {
     // 模拟连接到 WebSocket 后端
     const clientId = 'pc_1'; // 硬编码模拟 PC 端 ID
-    const wsUrl = `ws://localhost:8080/ws/scan?clientId=${clientId}`;
+    const wsUrl = `ws://localhost:8081/ws/scan?clientId=${clientId}`;
 
     wsRef.current = new WebSocket(wsUrl);
 
