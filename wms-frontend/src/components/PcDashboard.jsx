@@ -15,13 +15,35 @@ function PcDashboard({
 }) {
   const { t, language, setLanguage } = useTranslation();
   const navigate = useNavigate();
-  const username = localStorage.getItem('wms_username') || 'Admin Node-01';
+  const [userProfile, setUserProfile] = useState({
+    username: localStorage.getItem('wms_username') || 'Admin',
+    displayName: '',
+    avatarUrl: ''
+  });
   const [showQr, setShowQr] = useState(false);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showAdminSettings, setShowAdminSettings] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await axios.get('/api/user/profile');
+      if (response.data) {
+        setUserProfile(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchProfile();
+    window.addEventListener('wms-profile-updated', fetchProfile);
+    return () => window.removeEventListener('wms-profile-updated', fetchProfile);
+  }, []);
+
   
   // Predictive Restocking State
   const [predictions, setPredictions] = useState([]);
@@ -516,8 +538,14 @@ function PcDashboard({
                 className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-colors"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <img alt="User profile" className="w-8 h-8 rounded-full border border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYNj53lBGrxai69qsW3mDAsRrXKoTv5SbjVvId_9fOVPJtFyH40YjbExepiZ_oR6R3MJGPLWDceB_9b-_nirk0_NNZZKLxbYWSLT5_o_ZFtRD0ml4qodNXu7nC4KJZNDtJgwnxQW2bi6IAFvdE2Fxz6O3Q2vjDD_3ek-_z3JQto5Vv8ga0-TFrurSkkGTC3p6O5cnj6Gbvy6F2eGeXFCBmR1ct49nJO9UZt72sk1W5jSUpSHA5E6rc0rhFTq2yaOWEhQrQtWz8MxcR" />
-                <span className="text-zinc-400 font-medium text-sm">{username}</span>
+                <div className="w-8 h-8 rounded-full border border-white/20 overflow-hidden bg-zinc-800 flex items-center justify-center">
+                  {userProfile.avatarUrl ? (
+                    <img alt="User profile" className="w-full h-full object-cover" src={userProfile.avatarUrl} />
+                  ) : (
+                    <span className="material-symbols-outlined text-zinc-500 text-sm">person</span>
+                  )}
+                </div>
+                <span className="text-zinc-400 font-medium text-sm">{userProfile.displayName || userProfile.username}</span>
                 <span className="material-symbols-outlined text-zinc-500 text-sm transition-transform duration-200" style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none' }}>expand_more</span>
               </div>
               

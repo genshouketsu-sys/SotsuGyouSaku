@@ -1,17 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../i18n/LanguageContext';
+import axios from 'axios';
 
 function AdminSettingsModal({ isOpen, onClose }) {
   const { t } = useTranslation();
+  const fileInputRef = useRef(null);
   
   const [formData, setFormData] = useState({
-    displayName: 'Admin Node-01',
-    email: 'admin.node01@omni-wms.local',
+    displayName: '',
+    email: '',
+    avatarUrl: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
     notificationsEnabled: true,
   });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchProfile();
+    }
+  }, [isOpen]);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await axios.get('/api/user/profile');
+      const data = response.data;
+      setFormData(prev => ({
+        ...prev,
+        displayName: data.displayName || '',
+        email: data.email || '',
+        avatarUrl: data.avatarUrl || ''
+      }));
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -23,14 +48,58 @@ function AdminSettingsModal({ isOpen, onClose }) {
     }));
   };
 
-  const handleSave = () => {
-    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
-      alert("New passwords do not match!");
-      return;
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image size should be less than 2MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, avatarUrl: reader.result }));
+      };
+      reader.readAsDataURL(file);
     }
-    // Simulate save
-    alert("Admin settings saved successfully!");
-    onClose();
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // 1. Update Profile (Base64 avatar included)
+      await axios.post('/api/user/update-profile', {
+        displayName: formData.displayName,
+        email: formData.email,
+        avatarUrl: formData.avatarUrl
+      });
+
+      // 2. Update Password if provided
+      if (formData.newPassword) {
+        if (formData.newPassword !== formData.confirmPassword) {
+          alert("New passwords do not match!");
+          setLoading(false);
+          return;
+        }
+        await axios.post('/api/user/update-password', {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword
+        });
+      }
+
+      alert("Settings saved successfully!");
+      onClose();
+      // Trigger a global event to refresh avatar in other components
+      window.dispatchEvent(new CustomEvent('wms-profile-updated'));
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      alert(error.response?.data?.message || "Failed to save settings");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,6 +108,14 @@ function AdminSettingsModal({ isOpen, onClose }) {
         className="bg-[#1e2020] border border-white/10 rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl relative overflow-hidden font-['Space_Grotesk']"
         onClick={e => e.stopPropagation()}
       >
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept="image/*" 
+          className="hidden" 
+        />
+        
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#c5ff4a]/5 rounded-full blur-[80px] pointer-events-none"></div>
 
@@ -61,14 +138,16 @@ function AdminSettingsModal({ isOpen, onClose }) {
           
           {/* Profile Section */}
           <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-            <div className="relative group cursor-pointer">
-              <img 
-                alt="User profile" 
-                className="w-16 h-16 rounded-full border-2 border-[#c5ff4a]/50 object-cover group-hover:opacity-50 transition-opacity" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYNj53lBGrxai69qsW3mDAsRrXKoTv5SbjVvId_9fOVPJtFyH40YjbExepiZ_oR6R3MJGPLWDceB_9b-_nirk0_NNZZKLxbYWSLT5_o_ZFtRD0ml4qodNXu7nC4KJZNDtJgwnxQW2bi6IAFvdE2Fxz6O3Q2vjDD_3ek-_z3JQto5Vv8ga0-TFrurSkkGTC3p6O5cnj6Gbvy6F2eGeXFCBmR1ct49nJO9UZt72sk1W5jSUpSHA5E6rc0rhFTq2yaOWEhQrQtWz8MxcR" 
-              />
+            <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+              <div className="w-16 h-16 rounded-full border-2 border-[#c5ff4a]/50 overflow-hidden bg-zinc-800 flex items-center justify-center group-hover:opacity-70 transition-opacity">
+                {formData.avatarUrl ? (
+                  <img alt="User profile" className="w-full h-full object-cover" src={formData.avatarUrl} />
+                ) : (
+                  <span className="material-symbols-outlined text-zinc-600 text-3xl">person</span>
+                )}
+              </div>
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="material-symbols-outlined text-white">edit</span>
+                <span className="material-symbols-outlined text-white text-sm bg-black/50 rounded-full p-1">edit</span>
               </div>
             </div>
             <div className="flex-1">
@@ -162,16 +241,22 @@ function AdminSettingsModal({ isOpen, onClose }) {
           <div className="pt-6 flex gap-3 justify-end border-t border-white/10">
             <button 
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
             >
               {t('cancel')}
             </button>
             <button 
               onClick={handleSave}
-              className="bg-[#c5ff4a] text-black px-6 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all flex items-center gap-2 active:scale-95"
+              disabled={loading}
+              className="bg-[#c5ff4a] text-black px-6 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-[18px]">save</span>
-              {t('saveChanges') || 'Save Changes'}
+              {loading ? (
+                <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined text-[18px]">save</span>
+              )}
+              {t('saveChanges') || 'saveChanges'}
             </button>
           </div>
         </div>
@@ -181,3 +266,4 @@ function AdminSettingsModal({ isOpen, onClose }) {
 }
 
 export default AdminSettingsModal;
+
