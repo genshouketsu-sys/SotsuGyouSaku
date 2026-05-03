@@ -34,4 +34,10 @@ public interface ProductMapper {
     // 删除商品 (商品の削除)
     @Delete("DELETE FROM product WHERE id = #{id}")
     int deleteById(Long id);
+
+    @Select("SELECT COUNT(*) FROM product")
+    int countActiveSKUs();
+
+    @Select("SELECT COUNT(*) FROM product WHERE stock < safety_stock")
+    int countLowStockAlerts();
 }

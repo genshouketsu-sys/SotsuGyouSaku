@@ -7,7 +7,8 @@ function ScanQrModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   // __LOCAL_IP__ 由 vite.config.js 在构建时注入，值为本机局域网 IP
-  const lanUrl = `https://${__LOCAL_IP__}:5173`;
+  const username = localStorage.getItem('wms_username') || '1';
+  const lanUrl = `https://${__LOCAL_IP__}:5173/scanner?userId=${username}`;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>

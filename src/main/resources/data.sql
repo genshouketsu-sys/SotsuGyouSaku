@@ -1,3 +1,6 @@
+-- Add Default Admin User ('00-X-ALPHA', password 'admin')
+INSERT IGNORE INTO wms_user (username, password_hash, role) VALUES ('00-X-ALPHA', '$2a$10$w0hR3jM80b95V0p.J4T5V.1hP2B/y5Q0aW/Zg22S.Gv1sH83W9P.q', 'ROLE_ADMIN');
+
 -- 原始 3 个产品
 INSERT IGNORE INTO product (sku_code, name, barcode, stock, create_time) VALUES ('PRD-X92-BLA', 'Black T-Shirt', '690123456789', 45, NOW());
 INSERT IGNORE INTO product (sku_code, name, barcode, stock, create_time) VALUES ('SKU-441-MET', 'Metal Water Bottle', '690987654321', 12, NOW());

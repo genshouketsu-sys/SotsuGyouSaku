@@ -10,8 +10,15 @@ public class RestockSuggestionDto {
     private Integer reorderPoint;
     private Integer suggestedOrderQuantity;
     private Integer daysUntilDepletion;
+    private String urgency; // "High", "Medium", "Low"
+    private String reason;
 
     // Getters and Setters
+    public String getUrgency() { return urgency; }
+    public void setUrgency(String urgency) { this.urgency = urgency; }
+
+    public String getReason() { return reason; }
+    public void setReason(String reason) { this.reason = reason; }
     public String getSkuCode() { return skuCode; }
     public void setSkuCode(String skuCode) { this.skuCode = skuCode; }
 

@@ -1,45 +1,65 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 import PcDashboard from './components/PcDashboard';
 import MobileScanner from './components/MobileScanner';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Configure Axios Interceptors
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('wms_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('wms_token');
+      localStorage.removeItem('wms_username');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
-  const [isMobileMode, setIsMobileMode] = useState(false);
   const [scans, setScans] = useState([
     { id: 'PRD-X92-BLA', name: 'Black T-Shirt', time: '14:02:11', status: 'Verified' },
     { id: 'SKU-441-MET', name: 'Metal Water Bottle', time: '14:01:58', status: 'Verified' },
     { id: 'LOG-772-GRN', name: 'Green Notebook', time: '14:01:45', status: 'Secondary' },
   ]);
 
-  const [connectionStatus, setConnectionStatus] = useState('CONNECTING');
+  const [connectionStatus, setConnectionStatus] = useState('OFFLINE');
   const wsRef = useRef(null);
   const productsCache = useRef([]);
 
-  // 获取产品列表用于名称查询
+  // Fetch products for name lookup
   useEffect(() => {
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(data => { productsCache.current = data; })
-      .catch(() => {});
+    const token = localStorage.getItem('wms_token');
+    if (token) {
+      axios.get('/api/products')
+        .then(res => { productsCache.current = res.data; })
+        .catch(() => {});
+    }
   }, []);
 
-  // 监听窗口大小，决定是否默认展示移动端模式
+  // WebSocket for receiving scans (Dashboard logic)
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setIsMobileMode(true);
-      } else {
-        setIsMobileMode(false);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    const token = localStorage.getItem('wms_token');
+    if (!token) return;
 
-  useEffect(() => {
-    const clientId = 'pc_1';
+    const username = localStorage.getItem('wms_username') || '1';
+    const clientId = `pc_${username}`;
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${wsProtocol}//${window.location.host}/ws/scan?clientId=${clientId}`;
 
@@ -52,17 +72,21 @@ function App() {
 
     wsRef.current.onmessage = (event) => {
       const barcode = event.data;
+      console.log(`[Global WS] Received barcode: ${barcode}`);
+      
       const now = new Date();
       const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
-      // 从缓存中查找产品名称
       const product = productsCache.current.find(p => p.barcode === barcode || p.skuCode === barcode);
       const productName = product ? product.name : 'Unknown Product';
 
       setScans(prev => [
         { id: barcode, name: productName, time: timeString, status: 'Verified' },
-        ...prev.slice(0, 9) // 保持最多10条记录
+        ...prev.slice(0, 9)
       ]);
+
+      // Dispatch global event for other components to refresh
+      window.dispatchEvent(new CustomEvent('wms-new-scan', { detail: { barcode } }));
     };
 
     wsRef.current.onclose = () => {
@@ -71,32 +95,43 @@ function App() {
     };
 
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      if (wsRef.current) wsRef.current.close();
     };
   }, []);
 
-  // 如果处于移动端模式，或者强制开启了扫码器，直接返回全屏的 MobileScanner
-  if (isMobileMode) {
-    return <MobileScanner onClose={() => {
-      // 如果屏幕依然很小，不允许关闭（强制保持在手机视图）
-      if (window.innerWidth > 768) {
-        setIsMobileMode(false);
-      }
-    }} />;
-  }
-
-  // 否则，渲染电脑端的大屏面板
   return (
-    <PcDashboard 
-      currentView={currentView}
-      setCurrentView={setCurrentView}
-      scans={scans}
-      setScans={setScans}
-      connectionStatus={connectionStatus}
-      setIsMobileMode={setIsMobileMode}
-    />
+    <Router>
+      <Routes>
+        {/* Public Login Route */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected Dashboard Route */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <PcDashboard 
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+                scans={scans}
+                setScans={setScans}
+                connectionStatus={connectionStatus}
+                setIsMobileMode={() => {}} // Not used in router mode
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Mobile Scanner Route (Can be accessed directly or protected) */}
+        <Route 
+          path="/scanner" 
+          element={<MobileScanner onClose={() => window.location.href = '/'} />} 
+        />
+
+        {/* Fallback to Dashboard */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

@@ -1,11 +1,30 @@
-CREATE TABLE IF NOT EXISTS product (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    sku_code VARCHAR(50) NOT NULL COMMENT 'SKU 编码',
-    name VARCHAR(100) NOT NULL COMMENT '商品名称',
-    barcode VARCHAR(50) NOT NULL UNIQUE COMMENT '条形码',
-    stock INT NOT NULL DEFAULT 0 COMMENT '当前库存',
-    daily_usage DOUBLE NOT NULL DEFAULT 0.0 COMMENT '日均消耗量',
-    lead_time_days INT NOT NULL DEFAULT 7 COMMENT '交货天数',
-    safety_stock INT NOT NULL DEFAULT 10 COMMENT '安全库存',
-    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品表';
+CREATE TABLE IF NOT EXISTS `product` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `sku_code` varchar(50) NOT NULL UNIQUE,
+  `name` varchar(100) NOT NULL,
+  `barcode` varchar(100),
+  `stock` int NOT NULL DEFAULT 0,
+  `daily_usage` decimal(10,2) DEFAULT 0.0,
+  `lead_time_days` int DEFAULT 7,
+  `safety_stock` int DEFAULT 10,
+  `create_time` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `wms_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL UNIQUE,
+  `password_hash` varchar(255) NOT NULL,
+  `role` varchar(20) NOT NULL DEFAULT 'ROLE_ADMIN',
+  `create_time` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `wms_scan_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `barcode` varchar(100) NOT NULL,
+  `user_id` varchar(50),
+  `scan_time` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

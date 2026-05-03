@@ -18,7 +18,7 @@ export const translations = {
     actions: "Actions",
 
     // Sidebar
-    omniWMS: "OmniWMS",
+    omniWMS: "SpeedWMS",
     predictiveLogistics: "Predictive Logistics",
     dashboard: "Dashboard",
     productCatalog: "Product Catalog",
@@ -70,6 +70,7 @@ export const translations = {
     login: "Login",
     logout: "Logout",
     editAdmin: "Edit Admin Options",
+    openScanner: "Open Mobile Scanner",
     
     // Admin Settings
     adminSettingsDesc: "Manage profile & security",
@@ -120,7 +121,30 @@ export const translations = {
     scannerRelay: "Scanner Relay",
     connected: "Connected",
     tapToScan: "Tap to Scan",
-    lastScanned: "Last Scanned"
+    lastScanned: "Last Scanned",
+
+    // Login Page
+    signIn: "Sign In",
+    register: "Register",
+    operatorId: "Operator ID",
+    accessKey: "Access Key",
+    logisticsCoreDesc: "Enter credentials to access the logistics core.",
+    registerDesc: "Create new administrator credentials.",
+    authenticate: "Authenticate",
+    registerAccount: "Register Account",
+    processing: "Processing...",
+    backToSignIn: "Back to Sign In",
+    adminRegister: "Admin Registration",
+    resetTerminal: "Reset Terminal",
+    systemNominal: "System Nominal",
+    terminalId: "Terminal 01-A",
+    registrationSuccess: "Registration successful! You can now sign in.",
+    confirmStockIn: "Confirm Stock In",
+    batchStockIn: "Batch Stock In",
+    clearAll: "Clear / Reset",
+    scansPending: "Scans Pending",
+    confirmClearScans: "Are you sure you want to clear all scan records?",
+    noPendingScans: "No pending scans to process."
   },
   zh: {
     // General
@@ -141,7 +165,7 @@ export const translations = {
     actions: "操作",
 
     // Sidebar
-    omniWMS: "仓储中枢",
+    omniWMS: "极速仓管",
     predictiveLogistics: "预测性物流",
     dashboard: "数据看板",
     productCatalog: "商品目录",
@@ -193,6 +217,7 @@ export const translations = {
     login: "登录",
     logout: "登出",
     editAdmin: "编辑管理者选项",
+    openScanner: "打开移动扫描器",
 
     // Admin Settings
     adminSettingsDesc: "管理个人资料与安全",
@@ -243,7 +268,30 @@ export const translations = {
     scannerRelay: "扫描中继器",
     connected: "已连接",
     tapToScan: "点击扫描",
-    lastScanned: "最近扫描"
+    lastScanned: "最近扫描",
+
+    // Login Page
+    signIn: "登录",
+    register: "注册",
+    operatorId: "管理员 ID",
+    accessKey: "访问密钥",
+    logisticsCoreDesc: "输入凭据以访问物流核心系统。",
+    registerDesc: "创建新的管理员凭据。",
+    authenticate: "身份验证",
+    registerAccount: "注册账号",
+    processing: "处理中...",
+    backToSignIn: "返回登录",
+    adminRegister: "管理员注册",
+    resetTerminal: "重置终端",
+    systemNominal: "系统运行正常",
+    terminalId: "终端 01-A",
+    registrationSuccess: "注册成功！您现在可以登录了。",
+    confirmStockIn: "确认入库",
+    batchStockIn: "一键提交入库",
+    clearAll: "清空 / 撤销",
+    scansPending: "待处理扫描",
+    confirmClearScans: "确定要清空所有扫描记录吗？",
+    noPendingScans: "没有待处理的扫描记录。"
   },
   ja: {
     // General
@@ -264,7 +312,7 @@ export const translations = {
     actions: "アクション",
 
     // Sidebar
-    omniWMS: "OmniWMS",
+    omniWMS: "SpeedWMS",
     predictiveLogistics: "予測ロジスティクス",
     dashboard: "ダッシュボード",
     productCatalog: "商品カタログ",
@@ -316,6 +364,7 @@ export const translations = {
     login: "ログイン",
     logout: "ログアウト",
     editAdmin: "管理者オプションを編集",
+    openScanner: "モバイルスキャナーを開く",
 
     // Admin Settings
     adminSettingsDesc: "プロフィールとセキュリティの管理",
@@ -366,6 +415,29 @@ export const translations = {
     scannerRelay: "スキャナーリレー",
     connected: "接続済み",
     tapToScan: "タップしてスキャン",
-    lastScanned: "前回スキャン"
+    lastScanned: "前回スキャン",
+
+    // Login Page
+    signIn: "サインイン",
+    register: "登録",
+    operatorId: "オペレーターID",
+    accessKey: "アクセスキー",
+    logisticsCoreDesc: "ロジスティクスコアにアクセスするための認証情報を入力してください。",
+    registerDesc: "新しい管理者認証情報を作成します。",
+    authenticate: "認証する",
+    registerAccount: "アカウント登録",
+    processing: "処理中...",
+    backToSignIn: "サインインに戻る",
+    adminRegister: "管理者登録",
+    resetTerminal: "端末をリセット",
+    systemNominal: "システム正常",
+    terminalId: "端末 01-A",
+    registrationSuccess: "登録が完了しました！サインインしてください。",
+    confirmStockIn: "入库確認",
+    batchStockIn: "一括入庫",
+    clearAll: "クリア / キャンセル",
+    scansPending: "未処理のスキャン",
+    confirmClearScans: "すべてのスキャン記録を消去してもよろしいですか？",
+    noPendingScans: "処理待ちのスキャン記録はありません。"
   }
 };

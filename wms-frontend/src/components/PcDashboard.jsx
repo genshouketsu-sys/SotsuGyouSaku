@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import ProductCatalog from '../ProductCatalog';
-import ScanningLogs from '../ScanningLogs';
 import ScanQrModal from './ScanQrModal';
 import AdminSettingsModal from './AdminSettingsModal';
 import { useTranslation } from '../i18n/LanguageContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function PcDashboard({ 
   currentView, 
   setCurrentView, 
   scans, 
   setScans,
-  connectionStatus, 
-  setIsMobileMode 
+  connectionStatus
 }) {
   const { t, language, setLanguage } = useTranslation();
+  const navigate = useNavigate();
+  const username = localStorage.getItem('wms_username') || 'Admin Node-01';
   const [showQr, setShowQr] = useState(false);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
@@ -24,6 +26,56 @@ function PcDashboard({
   // Predictive Restocking State
   const [predictions, setPredictions] = useState([]);
   const [showPredictionsModal, setShowPredictionsModal] = useState(false);
+  
+  // Latency state
+  const [latency, setLatency] = useState(12);
+
+  // Dashboard Stats State
+  const [stats, setStats] = useState({
+    totalActiveSKUs: 0,
+    scansToday: 0,
+    lowStockAlerts: 0
+  });
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get('/api/dashboard/stats');
+      if (response.data) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 10000); // refresh every 10s
+    return () => clearInterval(interval);
+  }, []);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const measureLatency = async () => {
+      try {
+        const start = performance.now();
+        await fetch('/api/scan/ping', { method: 'GET', cache: 'no-cache' });
+        const end = performance.now();
+        if (isMounted) {
+          setLatency(Math.round(end - start));
+        }
+      } catch (e) {
+        if (isMounted) setLatency(999);
+      }
+    };
+    
+    measureLatency();
+    const pingInterval = setInterval(measureLatency, 2000);
+    return () => {
+      isMounted = false;
+      clearInterval(pingInterval);
+    };
+  }, []);
 
   React.useEffect(() => {
     // Fetch predictions on mount and interval
@@ -68,6 +120,65 @@ function PcDashboard({
     }
   };
 
+  const handleStockIn = async (scanId) => {
+    try {
+      const response = await axios.post('/api/products/batch-inbound', [scanId]);
+      if (response.data && response.data.success) {
+        if (setScans) {
+          setScans(prev => prev.map(s => s.id === scanId ? { ...s, status: 'Stocked' } : s));
+        }
+      } else {
+        alert(t('errorStockIn') || '入库失败 (Failed to stock in)');
+      }
+    } catch (e) {
+      console.error(e);
+      alert(t('errorConnection') || '网络错误 (Network error)');
+    }
+  };
+
+  const handleBatchStockIn = async () => {
+    const pendingBarcodes = scans
+      .filter(s => s.status !== 'Stocked')
+      .map(s => s.id);
+    
+    if (pendingBarcodes.length === 0) {
+      alert(t('noPendingScans') || '没有待处理的扫描 (No pending scans)');
+      return;
+    }
+
+    try {
+      const response = await axios.post('/api/products/batch-inbound', pendingBarcodes);
+      if (response.data && response.data.success) {
+        if (setScans) {
+          setScans(prev => prev.map(s => pendingBarcodes.includes(s.id) ? { ...s, status: 'Stocked' } : s));
+        }
+      } else {
+        alert(t('errorStockIn') || '批量入库失败');
+      }
+    } catch (e) {
+      console.error(e);
+      alert(t('errorConnection') || '网络错误');
+    }
+  };
+
+  const handleClearScans = () => {
+    if (window.confirm(t('confirmClearScans') || '确定要清空所有扫描记录吗？')) {
+      if (setScans) {
+        setScans([]);
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        handleBatchStockIn();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [scans]);
+
   const handleExecuteOrder = async (skuCode, quantity) => {
     try {
       // In a real app, this would hit an order execution endpoint
@@ -83,10 +194,6 @@ function PcDashboard({
   const renderContent = () => {
     if (currentView === 'catalog') {
       return <ProductCatalog />;
-    }
-
-    if (currentView === 'logs') {
-      return <ScanningLogs />;
     }
 
     // Dashboard View
@@ -110,42 +217,42 @@ function PcDashboard({
 
         {/* Metric Cards (Bento Style) */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          {/* Metric 1 */}
+          {/* Metric 1: Total SKUs */}
           <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border border-white/10 hover:border-[#c5ff4a]/30 transition-all group">
             <div className="flex justify-between items-start">
               <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#c5ff4a]">category</span>
-              <span className="text-[#c5ff4a] font-bold text-xs bg-[#c5ff4a]/10 px-2 py-1 rounded">+12%</span>
+              <span className="text-[#c5ff4a] font-bold text-xs bg-[#c5ff4a]/10 px-2 py-1 rounded">LIVE</span>
             </div>
             <div>
               <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">{t('totalActiveSKUs')}</h3>
-              <p className="text-4xl font-bold text-white mt-1">4,821</p>
+              <p className="text-4xl font-bold text-white mt-1">{stats.totalActiveSKUs.toLocaleString()}</p>
             </div>
           </div>
-
-          {/* Metric 2 */}
+          
+          {/* Metric 2: Scans Today */}
           <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border border-white/10 hover:border-[#c5ff4a]/30 transition-all group">
             <div className="flex justify-between items-start">
               <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#c5ff4a]">qr_code_scanner</span>
-              <span className="text-zinc-400 font-bold text-xs bg-white/5 px-2 py-1 rounded">99.9% {t('uptime')}</span>
+              <span className="text-zinc-400 font-bold text-xs bg-white/5 px-2 py-1 rounded">TODAY</span>
             </div>
             <div>
               <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">{t('scansToday')}</h3>
-              <p className="text-4xl font-bold text-white mt-1">2.1M</p>
+              <p className="text-4xl font-bold text-white mt-1">{stats.scansToday.toLocaleString()}</p>
             </div>
           </div>
-
-          {/* Metric 3 */}
+          
+          {/* Metric 3: Low Stock Alerts */}
           <div 
             onClick={() => predictions.length > 0 && setShowPredictionsModal(true)}
-            className={`bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border transition-all group ${predictions.length > 0 ? 'border-red-500/20 hover:border-red-500 cursor-pointer' : 'border-white/10'}`}
+            className={`bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border transition-all group ${stats.lowStockAlerts > 0 ? 'border-red-500/20 hover:border-red-500 cursor-pointer' : 'border-white/10'}`}
           >
             <div className="flex justify-between items-start">
-              <span className={`material-symbols-outlined ${predictions.length > 0 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>warning</span>
-              <span className={`font-bold text-xs px-2 py-1 rounded uppercase tracking-wider ${predictions.length > 0 ? 'text-red-200 bg-red-900/50' : 'text-zinc-400 bg-white/5'}`}>{t('actionRequired')}</span>
+              <span className={`material-symbols-outlined ${stats.lowStockAlerts > 0 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>warning</span>
+              <span className={`font-bold text-xs px-2 py-1 rounded uppercase tracking-wider ${stats.lowStockAlerts > 0 ? 'text-red-200 bg-red-900/50' : 'text-zinc-400 bg-white/5'}`}>{stats.lowStockAlerts > 0 ? t('actionRequired') : t('systemNominal')}</span>
             </div>
             <div>
               <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">{t('lowStockAlerts')}</h3>
-              <p className="text-4xl font-bold text-white mt-1">{predictions.length}</p>
+              <p className="text-4xl font-bold text-white mt-1">{stats.lowStockAlerts}</p>
             </div>
           </div>
         </section>
@@ -154,24 +261,45 @@ function PcDashboard({
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-8 pb-12">
           {/* Activity Table (Left) */}
           <div className="lg:col-span-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center">
-              <h3 className="text-white text-xl font-medium">{t('recentScanningActivity')}</h3>
-              <button 
-                onClick={() => setStatusFilter(prev => prev === 'All' ? 'Verified' : 'All')}
-                className={`flex items-center gap-2 px-3 py-1 rounded text-sm transition-colors ${statusFilter !== 'All' ? 'bg-[#c5ff4a]/20 text-[#c5ff4a]' : 'text-zinc-500 hover:text-white'}`}
-              >
-                <span className="material-symbols-outlined text-sm">filter_list</span>
-                {statusFilter === 'All' ? t('filterAll') : t('filterVerified')}
-              </button>
+            <div className="px-4 py-3 border-b border-white/5 flex flex-row justify-between items-center gap-3 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-3 shrink-0">
+                <h3 className="text-white text-base font-medium whitespace-nowrap">{t('recentScanningActivity')}</h3>
+                <span className="text-zinc-500 text-[10px] bg-white/5 px-2 py-0.5 rounded-full whitespace-nowrap">{t('scansPending')}: {scans.filter(s => s.status !== 'Stocked').length}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button 
+                  onClick={handleClearScans}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20 whitespace-nowrap"
+                >
+                  <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                  {t('clearAll')}
+                </button>
+                <button 
+                  onClick={handleBatchStockIn}
+                  className="group relative flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#c5ff4a] text-black hover:brightness-110 transition-all font-bold text-[11px] whitespace-nowrap"
+                >
+                  <span className="material-symbols-outlined text-sm">inventory</span>
+                  {t('batchStockIn')}
+                  <span className="ml-1 text-[9px] text-black/50 font-normal">Ctrl+↵</span>
+                </button>
+                <div className="h-4 w-px bg-white/10 mx-1"></div>
+                <button 
+                  onClick={() => setStatusFilter(prev => prev === 'All' ? 'Verified' : 'All')}
+                  title={statusFilter === 'All' ? t('filterAll') : t('filterVerified')}
+                  className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${statusFilter !== 'All' ? 'bg-[#c5ff4a]/20 text-[#c5ff4a]' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                >
+                  <span className="material-symbols-outlined text-sm">filter_list</span>
+                </button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-white/5 text-zinc-400 text-xs uppercase tracking-widest">
+                <thead className="bg-white/5 text-zinc-400 text-[10px] uppercase tracking-widest">
                   <tr>
-                    <th className="px-6 py-4 font-semibold">{t('skuId')}</th>
-                    <th className="px-6 py-4 font-semibold">{t('productName')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('productName')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('skuId')}</th>
                     <th 
-                      className="px-6 py-4 font-semibold cursor-pointer hover:text-white transition-colors select-none"
+                      className="px-4 py-3 font-semibold cursor-pointer hover:text-white transition-colors select-none"
                       onClick={() => onSort('time')}
                     >
                       <span className="flex items-center gap-1">
@@ -182,7 +310,7 @@ function PcDashboard({
                       </span>
                     </th>
                     <th 
-                      className="px-6 py-4 font-semibold cursor-pointer hover:text-white transition-colors select-none"
+                      className="px-4 py-3 font-semibold cursor-pointer hover:text-white transition-colors select-none"
                       onClick={() => onSort('status')}
                     >
                       <span className="flex items-center gap-1">
@@ -192,35 +320,48 @@ function PcDashboard({
                         </span>
                       </span>
                     </th>
-                    <th className="px-6 py-4 font-semibold text-right">{t('action')}</th>
+                    <th className="px-4 py-3 font-semibold text-left">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {sortedScans.map((scan, i) => (
                     <tr key={i} className="hover:bg-white/5 transition-colors group">
-                      <td className="px-6 py-4 font-medium text-white">{scan.id}</td>
-                      <td className="px-6 py-4 text-zinc-300 text-sm">{scan.name || '—'}</td>
-                      <td className="px-6 py-4 text-zinc-400 text-sm">{scan.time}</td>
-                      <td className="px-6 py-4">
-                        <span className={`flex items-center gap-2 text-xs ${scan.status === 'Verified' ? 'text-[#c5ff4a]' : 'text-zinc-500'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${scan.status === 'Verified' ? 'bg-[#c5ff4a]' : 'bg-zinc-500'}`}></span>
+                      <td className="px-4 py-3 font-medium text-white text-sm">{scan.name || '—'}</td>
+                      <td className="px-4 py-3 text-zinc-400 text-xs font-mono">{scan.id}</td>
+                      <td className="px-4 py-3 text-zinc-400 text-[11px]">{scan.time}</td>
+                      <td className="px-4 py-3">
+                        <span className={`flex items-center gap-1.5 text-[10px] ${scan.status === 'Verified' ? 'text-[#c5ff4a]' : 'text-zinc-500'}`}>
+                          <span className={`w-1 h-1 rounded-full ${scan.status === 'Verified' ? 'bg-[#c5ff4a]' : 'bg-zinc-500'}`}></span>
                           {scan.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3">
+                      <div className="flex justify-start items-center gap-2 h-full">
+                        {scan.status !== 'Stocked' && (
+                          <button 
+                            onClick={() => handleStockIn(scan.id)}
+                            title={t('confirmStockIn')}
+                            className="text-[#c5ff4a] hover:bg-[#c5ff4a]/10 hover:text-white transition-colors flex items-center gap-1 text-[10px] border border-[#c5ff4a]/30 px-1.5 py-1 rounded"
+                          >
+                            <span className="material-symbols-outlined text-sm">inventory_2</span>
+                            <span className="whitespace-nowrap">{t('confirmStockIn')}</span>
+                          </button>
+                        )}
                         <button 
                           onClick={() => handleDeleteScan(scan.id)}
-                          title="Remove from Activity Log"
-                          className="text-zinc-500 hover:text-red-500 material-symbols-outlined transition-colors"
+                          title={t('remove')}
+                          className="text-zinc-500 hover:text-red-500 material-symbols-outlined text-sm transition-colors p-1"
                         >
                           delete
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
           </div>
 
           {/* System Health (Right) */}
@@ -264,7 +405,7 @@ function PcDashboard({
                   </svg>
                   <div className="absolute top-2 left-2 flex items-center gap-2">
                     <span className="text-[10px] font-bold text-[#c5ff4a] uppercase tracking-widest">{t('networkLatency')}</span>
-                    <span className="text-[10px] text-zinc-500">12ms avg</span>
+                    <span className={`text-[10px] ${latency > 200 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>{latency}ms</span>
                   </div>
                 </div>
               </div>
@@ -332,17 +473,6 @@ function PcDashboard({
               <span className="material-symbols-outlined">inventory_2</span>
               <span className="font-medium text-left">{t('productCatalog')}</span>
             </button>
-            <button
-              onClick={() => setCurrentView('logs')}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ease-in-out duration-200 ${
-                currentView === 'logs' 
-                  ? 'bg-[#c5ff4a]/10 text-[#c5ff4a] border-r-2 border-[#c5ff4a]' 
-                  : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-200'
-              }`}
-            >
-              <span className="material-symbols-outlined">barcode_scanner</span>
-              <span className="font-medium text-left">{t('scanningLogs')}</span>
-            </button>
           </nav>
         </div>
         <div className="mt-auto p-6">
@@ -368,7 +498,7 @@ function PcDashboard({
         {/* TopAppBar */}
         <header className="sticky top-0 z-30 flex justify-between items-center w-full px-6 py-3 bg-[#0c0f0f]/80 backdrop-blur-2xl border-b border-white/10 shadow-none">
           <div className="flex items-center gap-4">
-            <span className="text-xl font-bold text-[#c5ff4a] tracking-tighter">WMS Core</span>
+            <span className="text-xl font-bold text-[#c5ff4a] tracking-tighter">SpeedWMS</span>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex bg-white/5 rounded-lg border border-white/10 overflow-hidden">
@@ -387,15 +517,18 @@ function PcDashboard({
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <img alt="User profile" className="w-8 h-8 rounded-full border border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYNj53lBGrxai69qsW3mDAsRrXKoTv5SbjVvId_9fOVPJtFyH40YjbExepiZ_oR6R3MJGPLWDceB_9b-_nirk0_NNZZKLxbYWSLT5_o_ZFtRD0ml4qodNXu7nC4KJZNDtJgwnxQW2bi6IAFvdE2Fxz6O3Q2vjDD_3ek-_z3JQto5Vv8ga0-TFrurSkkGTC3p6O5cnj6Gbvy6F2eGeXFCBmR1ct49nJO9UZt72sk1W5jSUpSHA5E6rc0rhFTq2yaOWEhQrQtWz8MxcR" />
-                <span className="text-zinc-400 font-medium text-sm">Admin Node-01</span>
+                <span className="text-zinc-400 font-medium text-sm">{username}</span>
                 <span className="material-symbols-outlined text-zinc-500 text-sm transition-transform duration-200" style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none' }}>expand_more</span>
               </div>
               
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-[#1e2020] border border-white/10 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                  <button className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">login</span>
-                    {t('login') || 'Login'}
+                  <button 
+                    onClick={() => navigate('/scanner')}
+                    className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">barcode_scanner</span>
+                    {t('openScanner') || 'Open Scanner'}
                   </button>
                   <button 
                     onClick={() => { setShowAdminSettings(true); setShowUserMenu(false); }}
@@ -405,7 +538,14 @@ function PcDashboard({
                     {t('editAdmin') || 'Edit Admin Options'}
                   </button>
                   <div className="h-px bg-white/10 my-1"></div>
-                  <button className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors flex items-center gap-2">
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('wms_token');
+                      localStorage.removeItem('wms_username');
+                      navigate('/login');
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors flex items-center gap-2"
+                  >
                     <span className="material-symbols-outlined text-[18px]">logout</span>
                     {t('logout') || 'Logout'}
                   </button>
@@ -456,21 +596,42 @@ function PcDashboard({
               ) : (
                 <div className="space-y-4">
                   {predictions.map((p, i) => (
-                    <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between md:items-center">
+                    <div key={i} className={`bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between md:items-center relative overflow-hidden`}>
+                      {/* Urgency Stripe */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${p.urgency === 'High' ? 'bg-red-500' : p.urgency === 'Medium' ? 'bg-orange-500' : 'bg-blue-500'}`}></div>
+                      
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                            p.urgency === 'High' ? 'bg-red-500/20 text-red-400' : 
+                            p.urgency === 'Medium' ? 'bg-orange-500/20 text-orange-400' : 
+                            'bg-blue-500/20 text-blue-400'
+                          }`}>
+                            {p.urgency || 'Low'}
+                          </span>
                           <span className="font-mono text-xs px-2 py-1 bg-white/10 rounded text-zinc-300">{p.skuCode}</span>
                           <h4 className="font-medium text-white">{p.name}</h4>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2 text-xs text-zinc-400">
-                          <div>Current: <span className="text-white font-medium">{p.currentStock}</span></div>
-                          <div>ROP: <span className="text-[#c5ff4a] font-medium">{p.reorderPoint}</span></div>
-                          <div>Daily: <span className="text-white font-medium">{p.dailyUsage}</span>/d</div>
-                          <div>Depletion in: <span className="text-red-400 font-bold">{p.daysUntilDepletion} days</span></div>
+                        <p className="text-[10px] text-zinc-500 italic mt-1">{p.reason}</p>
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3 text-[11px] text-zinc-400">
+                          <div className="flex flex-col">
+                            <span className="text-zinc-500 uppercase text-[9px] font-bold tracking-widest">Current</span>
+                            <span className="text-white font-medium">{p.currentStock}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-zinc-500 uppercase text-[9px] font-bold tracking-widest">Threshold</span>
+                            <span className="text-[#c5ff4a] font-medium">{p.reorderPoint || p.safetyStock}</span>
+                          </div>
+                          {p.daysUntilDepletion !== undefined && (
+                            <div className="flex flex-col">
+                              <span className="text-zinc-500 uppercase text-[9px] font-bold tracking-widest">Est. Depletion</span>
+                              <span className={`font-bold ${p.daysUntilDepletion <= 3 ? 'text-red-400' : 'text-white'}`}>{p.daysUntilDepletion} days</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <div className="text-xs text-zinc-400">Suggested: <span className="text-white font-bold text-base">{p.suggestedOrderQuantity}</span> units</div>
+                        <div className="text-[10px] text-zinc-400">Suggested: <span className="text-white font-bold text-base">{p.suggestedOrderQuantity}</span> units</div>
                         <button 
                           onClick={() => handleExecuteOrder(p.skuCode, p.suggestedOrderQuantity)}
                           className="bg-[#c5ff4a] text-black px-4 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all flex items-center gap-1 active:scale-95"

@@ -49,8 +49,31 @@ public class RestockPredictionService {
                     int daysLeft = (int) Math.floor(currentStock / dailyUsage);
                     dto.setDaysUntilDepletion(daysLeft);
 
+                    // Determine urgency
+                    if (daysLeft <= product.getLeadTimeDays()) {
+                        dto.setUrgency("High");
+                        dto.setReason("Stock will deplete before lead time replenishment.");
+                    } else if (currentStock <= safetyStock) {
+                        dto.setUrgency("Medium");
+                        dto.setReason("Stock is below safety levels.");
+                    } else {
+                        dto.setUrgency("Low");
+                        dto.setReason("Approaching reorder point.");
+                    }
+
                     suggestions.add(dto);
                 }
+            } else if (currentStock <= safetyStock) {
+                // If no usage data, but stock is below safety, still alert
+                RestockSuggestionDto dto = new RestockSuggestionDto();
+                dto.setSkuCode(product.getSkuCode());
+                dto.setName(product.getName());
+                dto.setCurrentStock(currentStock);
+                dto.setSafetyStock(safetyStock);
+                dto.setUrgency("Medium");
+                dto.setReason("Static stock below safety threshold.");
+                dto.setSuggestedOrderQuantity(safetyStock * 2);
+                suggestions.add(dto);
             }
         }
 

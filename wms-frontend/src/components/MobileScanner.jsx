@@ -3,8 +3,11 @@ import { Html5Qrcode } from 'html5-qrcode';
 import axios from 'axios';
 import { useTranslation } from '../i18n/LanguageContext';
 
-function MobileScanner({ userId = '1', onClose }) {
+function MobileScanner({ onClose }) {
   const { t } = useTranslation();
+  const queryParams = new URLSearchParams(window.location.search);
+  const urlUserId = queryParams.get('userId');
+  const userId = urlUserId || localStorage.getItem('wms_username') || '1';
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -41,25 +44,39 @@ function MobileScanner({ userId = '1', onClose }) {
 
         try {
           const backendUrl = `/api/scan/push`;
+          console.log(`Sending scan to ${backendUrl} for user: ${userId}`);
           const response = await axios.post(backendUrl, {
             barcode: decodedText,
             userId: userId 
           });
-          console.log("推送成功:", response.data);
+          console.log("Push Success:", response.data);
+          
+          // Show success state for 2 seconds
           setTimeout(() => {
-            scannerRef.current.stop().then(() => {
-              setIsCameraActive(false);
+            if (scannerRef.current) {
+              scannerRef.current.resume();
+              setIsScanning(true);
               setScanResult(null);
-            });
+            }
           }, 2000);
         } catch (error) {
-          console.error("推送失败:", error);
-          alert("推送失败，请检查网络或PC端是否在线");
+          console.error("Push Error Details:", error);
+          let errorMsg = "Transmission failed.";
+          if (error.response) {
+            errorMsg += ` Server responded with ${error.response.status}`;
+          } else if (error.request) {
+            errorMsg += " No response from server. Check if PC is on the same network and SSL certificate is trusted.";
+          } else {
+            errorMsg += " Error: " + error.message;
+          }
+          alert(errorMsg);
+          
           setTimeout(() => {
-            scannerRef.current.stop().then(() => {
-              setIsCameraActive(false);
+            if (scannerRef.current) {
+              scannerRef.current.resume();
+              setIsScanning(true);
               setScanResult(null);
-            });
+            }
           }, 2000);
         }
       };
