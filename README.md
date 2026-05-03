@@ -5,63 +5,113 @@
 ---
 
 <a name="english"></a>
-## 🇬🇧 English: High-Performance Real-Time WMS
+## 🇬🇧 English: Advanced Implementation & Deployment Guide
 
-SpeedWMS is a next-generation Warehouse Management System designed for high-density logistics environments. It features a robust real-time scanning relay system and AI-driven inventory forecasting.
+### 🏗 Architecture
+SpeedWMS is a full-stack Warehouse Management System built for high reliability.
+- **Backend**: Java 17, Spring Boot 3.2, Spring Security (JWT), MyBatis, MySQL 8.
+- **Frontend**: React 18, Vite, Tailwind CSS, WebSockets (STOMP).
+- **Relay**: Real-time barcode transmission from mobile cameras to PC dashboard using STOMP over WebSocket.
 
-### 🏗 Architecture & Core Technologies
-- **Real-Time Telemetry**: Bi-directional communication via **WebSockets (STOMP)**, enabling sub-100ms latency barcode relay from mobile scanners to the PC dashboard.
-- **Predictive Analytics**: A custom forecasting engine utilizing historical usage rates and lead-time analysis to predict stock depletion and suggest optimized reorder points.
-- **Security Stack**: Stateless authentication using **JWT (JSON Web Tokens)** integrated with **Spring Security**, featuring custom filters for cross-origin mobile access.
-- **Data Layer**: High-concurrency persistence via **MyBatis** with an optimized **MySQL** schema.
+### 🚀 Step-by-Step Deployment
 
-### 🚀 Setup & Installation
-1. **Prerequisites**: Java 17+, Node.js 18+, MySQL 8.0+.
-2. **Database**: Create `wms_db` and execute `schema.sql` and `data.sql`.
-3. **Backend**: Update `application.yml` with your DB credentials, then run `./mvnw spring-boot:run`.
-4. **Frontend**: Navigate to `wms-frontend`, run `npm install` and `npm run dev`.
+#### 1. Database Initialization
+- Create schema: `wms_db`
+- Character Set: `utf8mb4` | Collation: `utf8mb4_unicode_ci`
+- Execute `src/main/resources/schema.sql` (Tables: product, wms_user, wms_scan_log).
+- Execute `src/main/resources/data.sql` (Initial catalog and admin user).
+
+#### 2. Backend Configuration
+- Edit `src/main/resources/application.yml`:
+  - Set `spring.datasource.password` to your MySQL root password.
+  - Ensure `server.address: 0.0.0.0` is set to allow remote connections from the mobile scanner.
+- Build: `./mvnw clean package`
+- Run: `java -jar target/wms-backend-0.0.1-SNAPSHOT.jar` (Port: 8080).
+
+#### 3. Frontend Configuration
+- Edit `wms-frontend/vite.config.js`:
+  - Ensure the proxy points to `http://localhost:8080`.
+  - Set `server.host: true` to expose the UI to your local network.
+- Install: `cd wms-frontend && npm install`
+- Dev: `npm run dev` (Port: 5173).
+
+#### 4. Mobile Integration (SSL Bypass)
+- Open phone browser -> `https://<YOUR_PC_IP>:5173/scanner`.
+- **IMPORTANT**: You will see a "Your connection is not private" error because of the self-signed dev certificate.
+- Click **Advanced** -> **Proceed to <IP> (unsafe)**. This is required for the browser to allow camera access and WebSocket connection.
 
 ---
 
 <a name="简体中文"></a>
-## 🇨🇳 简体中文: 高性能实时仓管系统
+## 🇨🇳 简体中文: 深度部署指南
 
-SpeedWMS（极速仓管）是专为高密度物流环境设计的下一代仓库管理系统。该系统集成了强大的实时扫描中继系统和基于 AI 的库存预测功能。
+### 🏗 系统架构
+SpeedWMS 是一个为高可靠性设计的全栈仓库管理系统。
+- **后端**: Java 17, Spring Boot 3.2, Spring Security (JWT), MyBatis, MySQL 8.
+- **前端**: React 18, Vite, Tailwind CSS, WebSockets (STOMP).
+- **中继**: 通过 WebSocket STOMP 协议实现手机摄像头扫描条码实时传输至 PC 端。
 
-### 🏗 架构与核心技术
-- **实时遥测**: 采用 **WebSockets (STOMP)** 实现双向通信，确保手机扫描端到 PC 端仪表的条码传输延迟低于 100ms。
-- **预测分析**: 内置自定义预测引擎，利用历史消耗率和交货周期分析，预测库存耗尽时间并建议最优订货点。
-- **安全体系**: 基于 **Spring Security** 和 **JWT** 的无状态认证，配备针对移动端跨域访问的自定义安全过滤器。
-- **数据层**: 使用 **MyBatis** 进行高并发持久化，并配合优化的 **MySQL** 数据库架构。
+### 🚀 详细部署步骤
 
-### 🚀 安装与启动
-1. **环境准备**: Java 17+, Node.js 18+, MySQL 8.0+。
-2. **数据库**: 创建 `wms_db` 数据库，并依次执行 `schema.sql` 和 `data.sql`。
-3. **后端**: 在 `application.yml` 中配置你的数据库账号密码，运行 `./mvnw spring-boot:run`。
-4. **前端**: 进入 `wms-frontend` 目录，执行 `npm install` 后运行 `npm run dev`。
+#### 1. 数据库初始化
+- 创建数据库: `wms_db`
+- 字符集: `utf8mb4` | 排序规则: `utf8mb4_unicode_ci`
+- 运行 `src/main/resources/schema.sql` (创建 product, wms_user, wms_scan_log 表)。
+- 运行 `src/main/resources/data.sql` (导入初始商品和管理员账号)。
+
+#### 2. 后端配置与启动
+- 编辑 `src/main/resources/application.yml`:
+  - 将 `spring.datasource.password` 修改为你的 MySQL 密码。
+  - 确保 `server.address: 0.0.0.0` 已设置，以便接收手机端的访问。
+- 构建项目: `./mvnw clean package`
+- 运行: `java -jar target/wms-backend-0.0.1-SNAPSHOT.jar` (默认端口: 8080)。
+
+#### 3. 前端配置与启动
+- 编辑 `wms-frontend/vite.config.js`:
+  - 确认代理指向 `http://localhost:8080`。
+  - 设置 `server.host: true` 使局域网内的设备可以访问 UI。
+- 安装依赖: `cd wms-frontend && npm install`
+- 启动: `npm run dev` (默认端口: 5173)。
+
+#### 4. 移动端扫码连接 (SSL 绕过)
+- 手机浏览器打开 `https://<电脑局域网IP>:5173/scanner`。
+- **注意**: 由于开发环境下使用的是自签名证书，会提示“您的连接不是私密连接”。
+- 必须点击 **高级** -> **继续前往 (不安全)**。只有这样，浏览器才会允许调用摄像头并建立 WebSocket 连接。
 
 ---
 
 <a name="日本語"></a>
-## 🇯🇵 日本語: 高性能リアルタイム倉庫管理システム
+## 🇯🇵 日本語: 詳細デプロイ・ガイド
 
-SpeedWMS（スピードWMS）は、高密度な物流環境向けに設計された次世代倉庫管理システムです。強力なリアルタイム・スキャン・リレー・システムと、AIによる在庫予測機能を搭載しています。
+### 🏗 システム構成
+SpeedWMS は、高い信頼性を備えたフルスタック倉庫管理システムです。
+- **バックエンド**: Java 17, Spring Boot 3.2, Spring Security (JWT), MyBatis, MySQL 8.
+- **フロントエンド**: React 18, Vite, Tailwind CSS, WebSockets (STOMP).
+- **リレー機能**: WebSocket STOMP プロトコルにより、モバイル端末のカメラでスキャンしたバーコードをリアルタイムでPCダッシュボードへ送信。
 
-### 🏗 アーキテクチャとコア技術
-- **リアルタイム・テレメトリ**: **WebSockets (STOMP)** を採用した双方向通信により、モバイル端末からPCダッシュボードへのバーコード転送レイテンシを100ms以下に抑制。
-- **予測分析**: 過去の消費率とリードタイム分析を利用した独自の予測エンジンを搭載。在庫枯渇時期を予測し、最適な再発注ポイントを提案。
-- **セキュリティ**: **Spring Security** と **JWT** を組み合わせたステートレス認証。モバイル端末からのクロスドメイン・アクセスに対応したカスタムフィルタを実装。
-- **データレイヤー**: **MyBatis** による高並列処理と、最適化された **MySQL** スキーマによる永続化。
+### 🚀 デプロイ手順
 
-### 🚀 セットアップと実行
-1. **前提条件**: Java 17+, Node.js 18+, MySQL 8.0+。
-2. **データベース**: `wms_db` を作成し、`schema.sql` と `data.sql` を実行してください。
-3. **バックエンド**: `application.yml` にDB情報を設定し、`./mvnw spring-boot:run` を実行。
-4. **フロントエンド**: `wms-frontend` ディレクトリで `npm install` を行い、`npm run dev` を実行。
+#### 1. データベース初期化
+- データベース作成: `wms_db`
+- 文字コード: `utf8mb4` | 照合順序: `utf8mb4_unicode_ci`
+- `src/main/resources/schema.sql` を実行（product, wms_user, wms_scan_log テーブルの作成）。
+- `src/main/resources/data.sql` を実行（初期カタログと管理者ユーザーのインポート）。
 
----
+#### 2. バックエンドの設定と起動
+- `src/main/resources/application.yml` を編集:
+  - `spring.datasource.password` を使用環境の MySQL パスワードに変更。
+  - `server.address: 0.0.0.0` が設定されていることを確認（モバイル端末からのアクセスを許可するため）。
+- ビルド: `./mvnw clean package`
+- 実行: `java -jar target/wms-backend-0.0.1-SNAPSHOT.jar` (ポート: 8080)。
 
-### ⚠️ Mobile Connection Warning (局域网连接注意事项)
-For physical mobile scanning, your PC and Phone must be on the same Wi-Fi. Access `https://YOUR_PC_IP:5173/scanner`. **You must manually accept the self-signed SSL certificate on your mobile browser.**
-手机扫描时，请确保手机与电脑处于同一 Wi-Fi。访问 `https://电脑IP:5173/scanner`。**必须在手机浏览器中手动点击“继续访问（不安全）”以通过自签名证书校验。**
-モバイル端末でスキャンする場合、PCと同じWi-Fiに接続し、`https://PCのIP:5173/scanner` にアクセスしてください。**ブラウザのセキュリティ警告で「詳細」から「アクセスを続行」を必ず選択してください。**
+#### 3. フロントエンドの設定と起動
+- `wms-frontend/vite.config.js` を確認:
+  - プロキシが `http://localhost:8080` を向いていることを確認。
+  - `server.host: true` を設定し、ローカルネットワーク内からUIにアクセス可能にする。
+- インストール: `cd wms-frontend && npm install`
+- 起動: `npm run dev` (ポート: 5173)。
+
+#### 4. モバイル端末の接続 (SSL 回避)
+- 携帯のブラウザで `https://<PCのIP>:5173/scanner` を開く。
+- **重要**: 開発環境の自己署名証明書のため、「接続はプライベートではありません」という警告が表示されます。
+- 必ず **詳細** または **詳細設定** をクリックし、「**<IP> にアクセスする（安全ではありません）**」を選択してください。これを行わないと、カメラの使用許可や WebSocket 通信がブラウザによってブロックされます。
