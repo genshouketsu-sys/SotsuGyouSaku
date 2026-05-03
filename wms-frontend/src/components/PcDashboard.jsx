@@ -50,7 +50,21 @@ function PcDashboard({
   const [showPredictionsModal, setShowPredictionsModal] = useState(false);
   
   // Latency state
-  const [latency, setLatency] = useState(12);
+  const [latencyHistory, setLatencyHistory] = useState(new Array(20).fill(12));
+
+  const generateLatencyPath = () => {
+    const maxLatency = 500;
+    const width = 100;
+    const height = 100;
+    const step = width / (latencyHistory.length - 1);
+    
+    return latencyHistory.map((l, i) => {
+      const x = i * step;
+      const normalizedLatency = Math.min(l, maxLatency);
+      const y = height - (normalizedLatency / maxLatency) * height * 0.8 - 10;
+      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+    }).join(' ');
+  };
 
   // Dashboard Stats State
   const [stats, setStats] = useState({
@@ -83,16 +97,17 @@ function PcDashboard({
         const start = performance.now();
         await fetch('/api/scan/ping', { method: 'GET', cache: 'no-cache' });
         const end = performance.now();
+        const currentLatency = Math.round(end - start);
         if (isMounted) {
-          setLatency(Math.round(end - start));
+          setLatencyHistory(prev => [...prev.slice(1), currentLatency]);
         }
       } catch (e) {
-        if (isMounted) setLatency(999);
+        if (isMounted) setLatencyHistory(prev => [...prev.slice(1), 999]);
       }
     };
     
     measureLatency();
-    const pingInterval = setInterval(measureLatency, 2000);
+    const pingInterval = setInterval(measureLatency, 1500);
     return () => {
       isMounted = false;
       clearInterval(pingInterval);
@@ -422,12 +437,24 @@ function PcDashboard({
                 <div className="h-32 w-full relative overflow-hidden rounded-lg bg-[#0c0f0f]">
                   <div className="absolute inset-0 bg-gradient-to-t from-[#c5ff4a]/20 to-transparent"></div>
                   <svg className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                    <path d="M0,80 Q10,75 20,85 T40,60 T60,70 T80,40 T100,50 L100,100 L0,100 Z" fill="rgba(197, 255, 74, 0.15)"></path>
-                    <path d="M0,80 Q10,75 20,85 T40,60 T60,70 T80,40 T100,50" fill="none" stroke="#C5FF4A" strokeWidth="1.5"></path>
+                    <path 
+                      d={`${generateLatencyPath()} L 100 100 L 0 100 Z`} 
+                      fill="rgba(197, 255, 74, 0.1)" 
+                      className="transition-all duration-700 ease-in-out"
+                    />
+                    <path 
+                      d={generateLatencyPath()} 
+                      fill="none" 
+                      stroke="#C5FF4A" 
+                      strokeWidth="1.5"
+                      className="transition-all duration-700 ease-in-out"
+                    />
                   </svg>
                   <div className="absolute top-2 left-2 flex items-center gap-2">
                     <span className="text-[10px] font-bold text-[#c5ff4a] uppercase tracking-widest">{t('networkLatency')}</span>
-                    <span className={`text-[10px] ${latency > 200 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>{latency}ms</span>
+                    <span className={`text-[10px] ${latencyHistory[latencyHistory.length - 1] > 200 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>
+                      {latencyHistory[latencyHistory.length - 1]}ms
+                    </span>
                   </div>
                 </div>
               </div>
