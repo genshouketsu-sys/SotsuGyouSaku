@@ -7,36 +7,41 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isMobileMode, setIsMobileMode] = useState(false);
   const [scans, setScans] = useState([
-    { id: 'PRD-X92-BLA', time: '14:02:11.23', status: 'Verified' },
-    { id: 'SKU-441-MET', time: '14:01:58.09', status: 'Verified' },
-    { id: 'LOG-772-GRN', time: '14:01:45.55', status: 'Secondary' },
+    { id: 'PRD-X92-BLA', name: 'Black T-Shirt', time: '14:02:11', status: 'Verified' },
+    { id: 'SKU-441-MET', name: 'Metal Water Bottle', time: '14:01:58', status: 'Verified' },
+    { id: 'LOG-772-GRN', name: 'Green Notebook', time: '14:01:45', status: 'Secondary' },
   ]);
 
   const [connectionStatus, setConnectionStatus] = useState('CONNECTING');
   const wsRef = useRef(null);
+  const productsCache = useRef([]);
+
+  // 获取产品列表用于名称查询
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => { productsCache.current = data; })
+      .catch(() => {});
+  }, []);
 
   // 监听窗口大小，决定是否默认展示移动端模式
   useEffect(() => {
     const handleResize = () => {
-      // 在移动端设备上（比如屏幕宽度较小），或者是用户强行点击了打开扫描器
       if (window.innerWidth <= 768) {
         setIsMobileMode(true);
       } else {
         setIsMobileMode(false);
       }
     };
-    
-    // 初始化检测
     handleResize();
-    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
-    // 模拟连接到 WebSocket 后端
-    const clientId = 'pc_1'; // 硬编码模拟 PC 端 ID
-    const wsUrl = `ws://localhost:8081/ws/scan?clientId=${clientId}`;
+    const clientId = 'pc_1';
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws/scan?clientId=${clientId}`;
 
     wsRef.current = new WebSocket(wsUrl);
 
@@ -46,14 +51,17 @@ function App() {
     };
 
     wsRef.current.onmessage = (event) => {
-      console.log('Received message:', event.data);
-      // 将接收到的条码添加到扫描列表头部
+      const barcode = event.data;
       const now = new Date();
       const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
+      // 从缓存中查找产品名称
+      const product = productsCache.current.find(p => p.barcode === barcode || p.skuCode === barcode);
+      const productName = product ? product.name : 'Unknown Product';
+
       setScans(prev => [
-        { id: event.data, time: timeString, status: 'Verified' },
-        ...prev.slice(0, 4) // 保持最多5条记录
+        { id: barcode, name: productName, time: timeString, status: 'Verified' },
+        ...prev.slice(0, 9) // 保持最多10条记录
       ]);
     };
 
@@ -85,6 +93,7 @@ function App() {
       currentView={currentView}
       setCurrentView={setCurrentView}
       scans={scans}
+      setScans={setScans}
       connectionStatus={connectionStatus}
       setIsMobileMode={setIsMobileMode}
     />

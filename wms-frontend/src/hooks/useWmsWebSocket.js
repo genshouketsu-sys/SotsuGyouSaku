@@ -12,7 +12,8 @@ export const useWmsWebSocket = (clientId, onMessageReceived) => {
   useEffect(() => {
     // 连接到 Spring Boot 后端的 WebSocket 端点
     // 动态获取当前 IP，适配手机端通过局域网连接 WebSocket
-    const wsUrl = `ws://${window.location.hostname}:8081/ws/scan?clientId=${clientId}`;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws/scan?clientId=${clientId}`;
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {

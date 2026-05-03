@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AddProductModal from './AddProductModal';
+import EditProductModal from './EditProductModal';
+import { useTranslation } from './i18n/LanguageContext';
 
 function ProductCatalog() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [stockFilter, setStockFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -16,7 +27,7 @@ function ProductCatalog() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8081/api/products');
+      const response = await axios.get('/api/products');
 
       // 将后端返回的真实数据展示
       const backendData = response.data.map(p => ({
@@ -29,41 +40,48 @@ function ProductCatalog() {
       setError(null);
     } catch (err) {
       console.error('Failed to fetch products:', err);
-      setError('Failed to load products. Please ensure the backend server is running on http://localhost:8081.');
+      setError('Failed to load products. Please ensure the backend server is running on http://localhost:8080.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddProduct = async (productData) => {
+  const handleAddProduct = async (newProductData) => {
     try {
-      if (editingProduct) {
-        // Update
-        const response = await axios.put(`http://localhost:8081/api/products/${editingProduct.id}`, productData);
-        if (response.data.success || response.status === 200) {
-          setIsAddModalOpen(false);
-          setEditingProduct(null);
-          await fetchProducts();
-        }
-      } else {
-        // Add
-        const response = await axios.post('http://localhost:8081/api/products', productData);
-        if (response.data.success || response.status === 200) {
-          setIsAddModalOpen(false);
-          await fetchProducts();
-        }
+      const response = await axios.post('/api/products', newProductData);
+      if (response.data.success || response.status === 200) {
+        setIsAddModalOpen(false);
+        // 重新获取列表
+        await fetchProducts();
       }
     } catch (err) {
-      console.error('Failed to save product:', err);
-      alert('Failed to save product: ' + (err.response?.data?.message || err.message));
+      console.error('Failed to add product:', err);
+      alert('Failed to add product: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
-    
+  const handleEditClick = (product) => {
+    setProductToEdit(product);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (updatedData) => {
     try {
-      const response = await axios.delete(`http://localhost:8081/api/products/${id}`);
+      const response = await axios.put(`/api/products/${updatedData.id}`, updatedData);
+      if (response.data.success || response.status === 200) {
+        setIsEditModalOpen(false);
+        await fetchProducts();
+      }
+    } catch (err) {
+      console.error('Failed to update product:', err);
+      alert('Failed to update product: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const response = await axios.delete(`/api/products/${id}`);
       if (response.data.success || response.status === 200) {
         await fetchProducts();
       }
@@ -73,15 +91,62 @@ function ProductCatalog() {
     }
   };
 
-  const openEditModal = (product) => {
-    setEditingProduct(product);
-    setIsAddModalOpen(true);
+  const handleExportCSV = () => {
+    const headers = ['ID', 'SKU', 'Name', 'Barcode', 'Stock', 'Create Time'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredProducts.map(p => 
+        [p.id, p.skuCode, `"${p.name}"`, p.barcode, p.stock, formatDateTime(p.createTime)].join(',')
+      )
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'products_export.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const openAddModal = () => {
-    setEditingProduct(null);
-    setIsAddModalOpen(true);
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(paginatedProducts.map(p => p.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
   };
+
+  const toggleSelect = (id) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  // Data transformation
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = (p.skuCode && p.skuCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (p.barcode && p.barcode.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesStock = stockFilter === 'all' ? true : (stockFilter === 'low' ? p.stock < 20 : true);
+    return matchesSearch && matchesStock;
+  });
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to page 1 on filter/search change
+  }, [searchTerm, stockFilter]);
 
   const formatDateTime = (timeInput) => {
     if (!timeInput) return '-';
@@ -106,15 +171,15 @@ function ProductCatalog() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">Product Catalog</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white">{t('productCatalog')}</h1>
             <p className="text-zinc-400 mt-1">Manage your inventory products, SKUs, and stock levels.</p>
           </div>
           <button 
-            onClick={openAddModal}
+            onClick={() => setIsAddModalOpen(true)}
             className="bg-[#c5ff4a] text-black px-5 py-2.5 rounded font-medium hover:bg-opacity-90 transition-colors flex items-center gap-2 shadow-sm active:scale-95"
           >
             <span className="material-symbols-outlined text-sm">add</span>
-            Add New Product
+            {t('addNewProduct')}
           </button>
         </div>
 
@@ -126,18 +191,26 @@ function ProductCatalog() {
               </div>
               <input 
                 className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-lg bg-zinc-950/50 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-shadow sm:text-sm" 
-                placeholder="Search by SKU, Name, or Barcode..." 
+                placeholder={t('searchPlaceholder')}
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors w-full sm:w-auto justify-center text-white">
+              <button 
+                onClick={() => setStockFilter(prev => prev === 'all' ? 'low' : 'all')}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center ${stockFilter === 'low' ? 'border-[#c5ff4a] text-[#c5ff4a] bg-[#c5ff4a]/10' : 'border-white/10 text-white hover:bg-white/5'}`}
+              >
                 <span className="material-symbols-outlined text-sm">filter_list</span>
-                Filters
+                {stockFilter === 'low' ? t('lowStockOnly') : t('allStock')}
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors w-full sm:w-auto justify-center text-white">
+              <button 
+                onClick={handleExportCSV}
+                className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors w-full sm:w-auto justify-center text-white"
+              >
                 <span className="material-symbols-outlined text-sm">download</span>
-                Export
+                {t('export')}
               </button>
             </div>
           </div>
@@ -149,14 +222,19 @@ function ProductCatalog() {
               <thead className="bg-[#0c0f0f]/50">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-10" scope="col">
-                    <input className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" type="checkbox"/>
+                    <input 
+                      className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
+                      type="checkbox"
+                      checked={paginatedProducts.length > 0 && selectedIds.size === paginatedProducts.length}
+                      onChange={toggleSelectAll}
+                    />
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">SKU Code</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">Barcode</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">Current Stock</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">Create Time</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('skuCode')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('name')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('barcode')}</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('currentStock')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('createTime')}</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 bg-transparent">
@@ -165,7 +243,7 @@ function ProductCatalog() {
                     <td colSpan="7" className="px-6 py-8 text-center text-zinc-500">
                       <div className="flex items-center justify-center gap-2">
                         <span className="material-symbols-outlined animate-spin">refresh</span>
-                        Loading products...
+                        {t('loading')}
                       </div>
                     </td>
                   </tr>
@@ -175,17 +253,22 @@ function ProductCatalog() {
                       {error}
                     </td>
                   </tr>
-                ) : products.length === 0 ? (
+                ) : paginatedProducts.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="px-6 py-8 text-center text-zinc-500">
-                      No products found in the database.
+                      {t('noProducts')}
                     </td>
                   </tr>
                 ) : (
-                  products.map((product) => (
+                  paginatedProducts.map((product) => (
                     <tr key={product.id} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <input className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" type="checkbox"/>
+                        <input 
+                          className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
+                          type="checkbox"
+                          checked={selectedIds.has(product.id)}
+                          onChange={() => toggleSelect(product.id)}
+                        />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                         {product.skuCode || '-'}
@@ -215,10 +298,16 @@ function ProductCatalog() {
                         {formatDateTime(product.createTime)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => openEditModal(product)} className="text-zinc-500 hover:text-white transition-colors p-1">
+                        <button 
+                          onClick={() => handleEditClick(product)}
+                          className="text-zinc-500 hover:text-white transition-colors p-1"
+                        >
                           <span className="material-symbols-outlined text-sm">edit</span>
                         </button>
-                        <button onClick={() => handleDeleteProduct(product.id)} className="text-zinc-500 hover:text-red-500 transition-colors p-1 ml-2">
+                        <button 
+                          onClick={() => handleDelete(product.id)}
+                          className="text-zinc-500 hover:text-red-500 transition-colors p-1 ml-2"
+                        >
                           <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
                       </td>
@@ -230,14 +319,22 @@ function ProductCatalog() {
           </div>
           <div className="bg-white/5 px-6 py-4 border-t border-white/10 flex items-center justify-between">
             <div className="text-sm text-zinc-400">
-              Showing <span className="font-medium text-white">{Math.min(products.length, 1)}</span> to <span className="font-medium text-white">{Math.min(products.length, 10)}</span> of <span className="font-medium text-white">{products.length}</span> results
+              {t('showing')} <span className="font-medium text-white">{filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> {t('to')} <span className="font-medium text-white">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> {t('of')} <span className="font-medium text-white">{filteredProducts.length}</span> {t('results')}
             </div>
             <div className="flex gap-2">
-              <button className="px-3 py-1 border border-white/10 rounded bg-white/5 text-sm font-medium disabled:opacity-50 text-white" disabled>
-                Previous
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-white/10 rounded bg-white/5 text-sm font-medium disabled:opacity-50 text-white hover:bg-white/10 transition-colors"
+              >
+                {t('previous')}
               </button>
-              <button className="px-3 py-1 border border-white/10 rounded bg-white/5 text-sm font-medium hover:bg-white/10 transition-colors text-white">
-                Next
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages || totalPages === 0}
+                className="px-3 py-1 border border-white/10 rounded bg-white/5 text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 text-white"
+              >
+                {t('next')}
               </button>
             </div>
           </div>
@@ -246,12 +343,15 @@ function ProductCatalog() {
 
       <AddProductModal 
         isOpen={isAddModalOpen} 
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setEditingProduct(null);
-        }} 
+        onClose={() => setIsAddModalOpen(false)} 
         onAdd={handleAddProduct} 
-        initialData={editingProduct}
+      />
+
+      <EditProductModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onEdit={handleEditSubmit}
+        initialData={productToEdit}
       />
     </div>
   );

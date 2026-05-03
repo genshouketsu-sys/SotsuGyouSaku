@@ -1,14 +1,45 @@
 package com.wms.wmsbackend.entity;
 
-import lombok.Data;
 import java.time.LocalDateTime;
 
-@Data // Lombok 注解，自动生成 getter/setter/toString
 public class Product {
     private Long id;
     private String skuCode;     // SKU 编码 (SKUコード)
     private String name;        // 商品名称 (商品名)
     private String barcode;     // 条形码 (バーコード)
     private Integer stock;      // 当前库存 (現在の在庫)
+    
+    // ROP Prediction Fields
+    private Double dailyUsage;  // 日均消耗量
+    private Integer leadTimeDays; // 交货天数
+    private Integer safetyStock; // 安全库存
+    
     private LocalDateTime createTime; // 创建时间 (作成日時)
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getSkuCode() { return skuCode; }
+    public void setSkuCode(String skuCode) { this.skuCode = skuCode; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getBarcode() { return barcode; }
+    public void setBarcode(String barcode) { this.barcode = barcode; }
+
+    public Integer getStock() { return stock; }
+    public void setStock(Integer stock) { this.stock = stock; }
+
+    public Double getDailyUsage() { return dailyUsage; }
+    public void setDailyUsage(Double dailyUsage) { this.dailyUsage = dailyUsage; }
+
+    public Integer getLeadTimeDays() { return leadTimeDays; }
+    public void setLeadTimeDays(Integer leadTimeDays) { this.leadTimeDays = leadTimeDays; }
+
+    public Integer getSafetyStock() { return safetyStock; }
+    public void setSafetyStock(Integer safetyStock) { this.safetyStock = safetyStock; }
+
+    public LocalDateTime getCreateTime() { return createTime; }
+    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
 }

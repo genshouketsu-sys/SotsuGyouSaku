@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from './i18n/LanguageContext';
 
 function ScanningLogs() {
+  const { t } = useTranslation();
   const [currentScan, setCurrentScan] = useState(null);
   const [recentScans, setRecentScans] = useState([
     { id: '7721-ALP-001', name: 'Logic Board' },
@@ -15,7 +17,8 @@ function ScanningLogs() {
   useEffect(() => {
     // 模拟连接到 WebSocket 后端
     const clientId = 'pc_1'; // 硬编码模拟 PC 端 ID
-    const wsUrl = `ws://localhost:8081/ws/scan?clientId=${clientId}`;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws/scan?clientId=${clientId}`;
 
     wsRef.current = new WebSocket(wsUrl);
 
@@ -79,7 +82,7 @@ function ScanningLogs() {
             <div className="absolute top-8 left-8 flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${connectionStatus === 'ACTIVE' ? 'bg-[#bcf540] animate-pulse' : 'bg-red-500'}`}></div>
               <span className="font-medium text-xs text-[#c3c9af] uppercase tracking-widest">
-                {connectionStatus === 'ACTIVE' ? 'Live Feed Active' : 'Disconnected'}
+                {connectionStatus === 'ACTIVE' ? t('liveFeedActive') : t('disconnected')}
               </span>
             </div>
             
@@ -88,9 +91,9 @@ function ScanningLogs() {
             
             {/* Core Data */}
             <div className="mb-8">
-              <span className="font-medium text-xs text-[#bcf540] border border-[#bcf540]/30 bg-[#bcf540]/5 px-3 py-1 rounded-full mb-6 inline-block animate-pulse">Just Scanned</span>
+              <span className="font-medium text-xs text-[#bcf540] border border-[#bcf540]/30 bg-[#bcf540]/5 px-3 py-1 rounded-full mb-6 inline-block animate-pulse">{t('justScanned')}</span>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">{currentScan.name}</h2>
-              <p className="text-lg text-[#c3c9af] max-w-2xl mx-auto">High-density computational unit logged via Sector 4 Relay.</p>
+              <p className="text-lg text-[#c3c9af] max-w-2xl mx-auto">{t('scanDesc')}</p>
             </div>
             
             {/* Massive Barcode Visual */}
@@ -107,15 +110,15 @@ function ScanningLogs() {
             {/* Meta Details */}
             <div className="grid grid-cols-3 gap-8 w-full max-w-2xl border-t border-white/5 pt-8">
               <div className="flex flex-col items-center">
-                <span className="font-medium text-xs text-[#c3c9af] mb-1 uppercase">Weight</span>
+                <span className="font-medium text-xs text-[#c3c9af] mb-1 uppercase">{t('weight')}</span>
                 <span className="text-xl text-[#e2e2e2] font-mono">{currentScan.weight}</span>
               </div>
               <div className="flex flex-col items-center border-l border-r border-white/5">
-                <span className="font-medium text-xs text-[#c3c9af] mb-1 uppercase">Destination</span>
+                <span className="font-medium text-xs text-[#c3c9af] mb-1 uppercase">{t('destination')}</span>
                 <span className="text-xl text-[#e2e2e2]">{currentScan.destination}</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="font-medium text-xs text-[#c3c9af] mb-1 uppercase">Timestamp</span>
+                <span className="font-medium text-xs text-[#c3c9af] mb-1 uppercase">{t('timestamp')}</span>
                 <span className="text-xl text-[#bcf540] font-mono">{currentScan.time}</span>
               </div>
             </div>
@@ -125,12 +128,12 @@ function ScanningLogs() {
              <div className="absolute top-8 left-8 flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${connectionStatus === 'ACTIVE' ? 'bg-[#bcf540] animate-pulse' : 'bg-red-500'}`}></div>
               <span className="font-medium text-xs text-[#c3c9af] uppercase tracking-widest">
-                {connectionStatus === 'ACTIVE' ? 'Waiting for Scan...' : 'Disconnected'}
+                {connectionStatus === 'ACTIVE' ? t('waitingForScan') : t('disconnected')}
               </span>
             </div>
             <span className="material-symbols-outlined text-6xl text-[#474746] mb-4">barcode_scanner</span>
-            <h2 className="text-2xl font-bold text-[#c3c9af] mb-2">Ready to Scan</h2>
-            <p className="text-[#656464]">Use the mobile app to scan a product barcode.<br/>The result will instantly appear here.</p>
+            <h2 className="text-2xl font-bold text-[#c3c9af] mb-2">{t('readyToScan')}</h2>
+            <p className="text-[#656464]">{t('scanInstruction')}</p>
           </div>
         )}
       </div>
@@ -139,7 +142,7 @@ function ScanningLogs() {
       <div className="h-16 border-t border-white/10 bg-[#0c0f0f]/80 backdrop-blur-md flex items-center overflow-hidden whitespace-nowrap w-full">
         <div className="flex items-center font-medium text-xs text-[#c3c9af] py-2 px-8 bg-[#282a2b] border-r border-white/10 z-10 shadow-[10px_0_20px_rgba(0,0,0,0.5)] h-full">
           <span className="material-symbols-outlined text-[16px] mr-2">history</span>
-          RECENT SCANS
+          {t('recentScans')}
         </div>
         
         {/* Ticker Content Container */}

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from './i18n/LanguageContext';
 
-function AddProductModal({ isOpen, onClose, onAdd }) {
+function EditProductModal({ isOpen, onClose, onEdit, initialData }) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
+    id: null,
     skuCode: '',
     name: '',
     barcode: '',
@@ -12,6 +13,21 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
     leadTimeDays: 7,
     safetyStock: 10
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        id: initialData.id,
+        skuCode: initialData.skuCode || '',
+        name: initialData.name || '',
+        barcode: initialData.barcode || '',
+        stock: initialData.stock || 0,
+        dailyUsage: initialData.dailyUsage || 0.0,
+        leadTimeDays: initialData.leadTimeDays || 7,
+        safetyStock: initialData.safetyStock || 10
+      });
+    }
+  }, [initialData]);
 
   if (!isOpen) return null;
 
@@ -29,14 +45,14 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd(formData);
+    onEdit(formData);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-[#1e1e1e] rounded-xl border border-[#27272a] shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200 font-['Space_Grotesk']">
         <div className="px-6 py-4 border-b border-[#27272a] flex justify-between items-center bg-[#1a1a1a]">
-          <h2 className="text-xl font-bold text-[#f4f4f5]">{t('addNewProduct')}</h2>
+          <h2 className="text-xl font-bold text-[#f4f4f5]">{t('editProduct')}</h2>
           <button 
             onClick={onClose}
             className="text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors"
@@ -101,7 +117,7 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
                 className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
               />
             </div>
-            
+
             <div className="space-y-1">
               <label htmlFor="dailyUsage" className="block text-sm font-medium text-[#a1a1aa]">{t('dailyUsage')}</label>
               <input 
@@ -156,7 +172,7 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
               className="px-4 py-2 bg-[#ccff00] text-black rounded-lg font-bold hover:bg-opacity-90 transition-colors shadow-sm flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">save</span>
-              {t('saveProduct')}
+              {t('updateProduct')}
             </button>
           </div>
         </form>
@@ -165,4 +181,4 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
   );
 }
 
-export default AddProductModal;
+export default EditProductModal;

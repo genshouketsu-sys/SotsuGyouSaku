@@ -26,18 +26,6 @@ public class ProductService {
         return productMapper.insert(product) > 0;
     }
 
-    public boolean updateProduct(Product product) {
-        return productMapper.update(product) > 0;
-    }
-
-    public boolean deleteProduct(Long id) {
-        return productMapper.deleteById(id) > 0;
-    }
-
-    public long getProductCount() {
-        return productMapper.countProducts();
-    }
-
     @Transactional // 开启事务，保证批量入库要么全成功，要么全失败
     public void batchInbound(List<String> barcodes) {
         if (barcodes != null && !barcodes.isEmpty()) {
@@ -46,5 +34,13 @@ public class ProductService {
                 productMapper.updateStock(barcode, 1);
             }
         }
+    }
+
+    public boolean updateProduct(Product product) {
+        return productMapper.update(product) > 0;
+    }
+
+    public boolean deleteProduct(Long id) {
+        return productMapper.deleteById(id) > 0;
     }
 }

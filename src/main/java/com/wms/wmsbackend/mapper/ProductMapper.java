@@ -17,8 +17,8 @@ public interface ProductMapper {
     Product findByBarcode(String barcode);
 
     // 新增商品 (商品の追加 - 中文解释：新增商品)
-    @Insert("INSERT INTO product(sku_code, name, barcode, stock, create_time) " +
-            "VALUES(#{skuCode}, #{name}, #{barcode}, #{stock}, NOW())")
+    @Insert("INSERT INTO product(sku_code, name, barcode, stock, daily_usage, lead_time_days, safety_stock, create_time) " +
+            "VALUES(#{skuCode}, #{name}, #{barcode}, #{stock}, #{dailyUsage}, #{leadTimeDays}, #{safetyStock}, NOW())")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Product product);
     
@@ -26,15 +26,12 @@ public interface ProductMapper {
     @Update("UPDATE product SET stock = stock + #{amount} WHERE barcode = #{barcode}")
     int updateStock(@Param("barcode") String barcode, @Param("amount") int amount);
 
-    // 修改商品
-    @Update("UPDATE product SET sku_code = #{skuCode}, name = #{name}, barcode = #{barcode}, stock = #{stock} WHERE id = #{id}")
+    // 更新商品 (商品の更新)
+    @Update("UPDATE product SET sku_code = #{skuCode}, name = #{name}, barcode = #{barcode}, stock = #{stock}, " +
+            "daily_usage = #{dailyUsage}, lead_time_days = #{leadTimeDays}, safety_stock = #{safetyStock} WHERE id = #{id}")
     int update(Product product);
 
-    // 删除商品
+    // 删除商品 (商品の削除)
     @Delete("DELETE FROM product WHERE id = #{id}")
     int deleteById(Long id);
-
-    // 获取总SKU数量
-    @Select("SELECT COUNT(*) FROM product")
-    long countProducts();
 }

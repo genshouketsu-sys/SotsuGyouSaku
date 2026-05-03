@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  address: 0.0.0.0
 
 spring:
   datasource:
@@ -13,3 +13,7 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
