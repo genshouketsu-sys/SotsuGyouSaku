@@ -12,6 +12,8 @@ SpeedWMS is a full-stack Warehouse Management System built for high reliability.
 - **Backend**: Java 17, Spring Boot 3.2, Spring Security (JWT), MyBatis, MySQL 8.
 - **Frontend**: React 18, Vite, Tailwind CSS, WebSockets (STOMP).
 - **Relay**: Real-time barcode transmission from mobile cameras to PC dashboard using STOMP over WebSocket.
+- **Scanner Pro**: High-speed recognition (25 FPS), hardware acceleration, Precision Center Focus, and real-time Undo/Pause control.
+- **Database**: Pre-populated with 500+ Japanese beverage SKUs (JAN codes/Images).
 
 ### 🚀 Step-by-Step Deployment
 
@@ -50,6 +52,8 @@ SpeedWMS 是一个为高可靠性设计的全栈仓库管理系统。
 - **后端**: Java 17, Spring Boot 3.2, Spring Security (JWT), MyBatis, MySQL 8.
 - **前端**: React 18, Vite, Tailwind CSS, WebSockets (STOMP).
 - **中继**: 通过 WebSocket STOMP 协议实现手机摄像头扫描条码实时传输至 PC 端。
+- **专业扫码**: 25 FPS 高频采样、硬件加速、精准中心对焦、实时撤回/暂停控制。
+- **数据库**: 内置 500+ 款日本饮品 SKU 数据（包含 JAN 码与真实图片）。
 
 ### 🚀 详细部署步骤
 
@@ -88,6 +92,8 @@ SpeedWMS は、高い信頼性を備えたフルスタック倉庫管理シス�
 - **バックエンド**: Java 17, Spring Boot 3.2, Spring Security (JWT), MyBatis, MySQL 8.
 - **フロントエンド**: React 18, Vite, Tailwind CSS, WebSockets (STOMP).
 - **リレー機能**: WebSocket STOMP プロトコルにより、モバイル端末のカメラでスキャンしたバーコードをリアルタイムでPCダッシュボードへ送信。
+- **プロスキャナー**: 25 FPS 高速サンプリング、ハードウェア加速、高精度センターフォーカス、リアルタイム撤回（Undo）/一時停止機能。
+- **データベース**: 500種類以上の日本飲料SKUデータ（JANコード・画像付き）をプリセット。
 
 ### 🚀 デプロイ手順
 
