@@ -201,10 +201,10 @@ function ProductCatalog() {
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="relative w-full sm:max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="material-symbols-outlined text-zinc-500">search</span>
+                <span className="material-symbols-outlined text-zinc-500 text-[20px]">search</span>
               </div>
               <input 
-                className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-lg bg-zinc-950/50 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-shadow sm:text-sm" 
+                className="block w-full pl-10 pr-3 h-[44px] border border-white/10 rounded-lg bg-zinc-950/50 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-shadow text-sm" 
                 placeholder={t('searchPlaceholder')}
                 type="text"
                 value={searchTerm}
@@ -214,23 +214,23 @@ function ProductCatalog() {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setIsScanModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 border border-[#c5ff4a]/40 rounded-lg text-sm font-medium text-[#c5ff4a] hover:bg-[#c5ff4a]/10 transition-colors w-full sm:w-auto justify-center"
+                className="flex items-center gap-2 px-4 h-[44px] border border-[#c5ff4a]/40 rounded-lg text-sm font-medium text-[#c5ff4a] hover:bg-[#c5ff4a]/10 transition-colors w-full sm:w-auto justify-center"
               >
-                <span className="material-symbols-outlined text-sm">barcode_scanner</span>
+                <span className="material-symbols-outlined text-[18px]">barcode_scanner</span>
                 スキャン
               </button>
               <button 
                 onClick={() => setStockFilter(prev => prev === 'all' ? 'low' : 'all')}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center ${stockFilter === 'low' ? 'border-[#c5ff4a] text-[#c5ff4a] bg-[#c5ff4a]/10' : 'border-white/10 text-white hover:bg-white/5'}`}
+                className={`flex items-center gap-2 px-4 h-[44px] border rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center ${stockFilter === 'low' ? 'border-[#c5ff4a] text-[#c5ff4a] bg-[#c5ff4a]/10' : 'border-white/10 text-white hover:bg-white/5'}`}
               >
-                <span className="material-symbols-outlined text-sm">filter_list</span>
+                <span className="material-symbols-outlined text-[18px]">filter_list</span>
                 {stockFilter === 'low' ? t('lowStockOnly') : t('allStock')}
               </button>
               <button 
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors w-full sm:w-auto justify-center text-white"
+                className="flex items-center gap-2 px-4 h-[44px] border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors w-full sm:w-auto justify-center text-white"
               >
-                <span className="material-symbols-outlined text-sm">download</span>
+                <span className="material-symbols-outlined text-[18px]">download</span>
                 {t('export')}
               </button>
             </div>
@@ -238,11 +238,11 @@ function ProductCatalog() {
         </div>
 
         <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[680px]">
             <table className="min-w-full divide-y divide-white/5">
               <thead className="bg-[#0c0f0f]/50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-10" scope="col">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-16" scope="col">
                     <input 
                       className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
                       type="checkbox"
@@ -250,12 +250,12 @@ function ProductCatalog() {
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('skuCode')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-40" scope="col">{t('skuCode')}</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('name')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('barcode')}</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('currentStock')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('createTime')}</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('actions')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-48" scope="col">{t('barcode')}</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider w-32" scope="col">{t('currentStock')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-56" scope="col">{t('createTime')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-28" scope="col">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 bg-transparent">
@@ -285,9 +285,9 @@ function ProductCatalog() {
                     <tr
                       key={product.id}
                       ref={product.barcode === highlightedBarcode ? highlightRef : null}
-                      className={`hover:bg-white/5 transition-colors group ${product.barcode === highlightedBarcode ? 'bg-[#c5ff4a]/10 ring-1 ring-[#c5ff4a]/40' : ''}`}
+                      className={`hover:bg-white/5 transition-colors group h-[72px] ${product.barcode === highlightedBarcode ? 'bg-[#c5ff4a]/10 ring-1 ring-[#c5ff4a]/40' : ''}`}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         <input 
                           className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
                           type="checkbox"
@@ -295,10 +295,10 @@ function ProductCatalog() {
                           onChange={() => toggleSelect(product.id)}
                         />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-white">
                         {product.skuCode || '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0 bg-[#0c0f0f]/50 rounded-md border border-white/10 flex items-center justify-center overflow-hidden">
                             {product.image ? (
@@ -307,34 +307,36 @@ function ProductCatalog() {
                               <span className="material-symbols-outlined text-zinc-500 opacity-50">image</span>
                             )}
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-white">{product.name || '-'}</div>
-                            <div className="text-xs text-zinc-500">{product.category || 'General Category'}</div>
+                          <div className="ml-4 max-w-[240px]">
+                            <div className="text-sm font-medium text-white break-words whitespace-normal leading-tight line-clamp-2">{product.name || '-'}</div>
+                            <div className="text-[10px] text-zinc-500 mt-1 uppercase tracking-wider">{product.category || 'General Category'}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-zinc-400 font-mono">
                         {product.barcode || '-'}
                       </td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${product.stock < 20 ? 'text-red-500' : 'text-white'}`}>
+                      <td className={`px-6 py-2 whitespace-nowrap text-sm text-right font-medium ${product.stock < 20 ? 'text-red-500' : 'text-white'}`}>
                         {product.stock || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-zinc-400">
                         {formatDateTime(product.createTime)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button 
-                          onClick={() => handleEditClick(product)}
-                          className="text-zinc-500 hover:text-white transition-colors p-1"
-                        >
-                          <span className="material-symbols-outlined text-sm">edit</span>
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(product.id)}
-                          className="text-zinc-500 hover:text-red-500 transition-colors p-1 ml-2"
-                        >
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
+                      <td className="px-6 py-2 whitespace-nowrap text-left text-sm font-medium">
+                        <div className="flex justify-start gap-2">
+                          <button 
+                            onClick={() => handleEditClick(product)}
+                            className="text-zinc-500 hover:text-white transition-colors p-1"
+                          >
+                            <span className="material-symbols-outlined text-sm">edit</span>
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(product.id)}
+                            className="text-zinc-500 hover:text-red-500 transition-colors p-1"
+                          >
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -342,7 +344,7 @@ function ProductCatalog() {
               </tbody>
             </table>
           </div>
-          <div className="bg-white/5 px-6 py-4 border-t border-white/10 flex items-center justify-between">
+          <div className="bg-[#0c0f0f]/30 px-6 h-[64px] border-t border-white/10 flex items-center justify-between">
             <div className="text-sm text-zinc-400">
               {t('showing')} <span className="font-medium text-white">{filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> {t('to')} <span className="font-medium text-white">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> {t('of')} <span className="font-medium text-white">{filteredProducts.length}</span> {t('results')}
             </div>
@@ -350,14 +352,14 @@ function ProductCatalog() {
               <button 
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-white/10 rounded bg-white/5 text-sm font-medium disabled:opacity-50 text-white hover:bg-white/10 transition-colors"
+                className="px-4 h-[36px] border border-white/10 rounded-lg bg-white/5 text-sm font-medium disabled:opacity-30 text-white hover:bg-white/10 transition-colors flex items-center"
               >
                 {t('previous')}
               </button>
               <button 
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages || totalPages === 0}
-                className="px-3 py-1 border border-white/10 rounded bg-white/5 text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 text-white"
+                className="px-4 h-[36px] border border-white/10 rounded-lg bg-white/5 text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-30 text-white flex items-center"
               >
                 {t('next')}
               </button>

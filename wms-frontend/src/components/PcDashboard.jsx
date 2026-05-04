@@ -255,41 +255,41 @@ function PcDashboard({
         {/* Metric Cards (Bento Style) */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           {/* Metric 1: Total SKUs */}
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border border-white/10 hover:border-[#c5ff4a]/30 transition-all group">
+          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl space-y-4 border border-white/10 hover:border-[#bcf540]/30 transition-all group shadow-sm">
             <div className="flex justify-between items-start">
-              <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#c5ff4a]">category</span>
-              <span className="text-[#c5ff4a] font-bold text-xs bg-[#c5ff4a]/10 px-2 py-1 rounded">LIVE</span>
+              <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#bcf540] transition-colors">category</span>
+              <span className="text-[#bcf540] font-black text-[9px] bg-[#bcf540]/10 px-2 py-1 rounded tracking-widest uppercase">Live Database</span>
             </div>
             <div>
-              <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">{t('totalActiveSKUs')}</h3>
-              <p className="text-4xl font-bold text-white mt-1">{stats.totalActiveSKUs.toLocaleString()}</p>
+              <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('totalActiveSKUs')}</h3>
+              <p className="text-4xl font-black text-white tracking-tighter">{stats.totalActiveSKUs.toLocaleString()}</p>
             </div>
           </div>
           
           {/* Metric 2: Scans Today */}
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border border-white/10 hover:border-[#c5ff4a]/30 transition-all group">
+          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl space-y-4 border border-white/10 hover:border-[#bcf540]/30 transition-all group shadow-sm">
             <div className="flex justify-between items-start">
-              <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#c5ff4a]">qr_code_scanner</span>
-              <span className="text-zinc-400 font-bold text-xs bg-white/5 px-2 py-1 rounded">TODAY</span>
+              <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#bcf540] transition-colors">qr_code_scanner</span>
+              <span className="text-zinc-500 font-black text-[9px] bg-white/5 px-2 py-1 rounded tracking-widest uppercase">Daily Metrics</span>
             </div>
             <div>
-              <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">{t('scansToday')}</h3>
-              <p className="text-4xl font-bold text-white mt-1">{stats.scansToday.toLocaleString()}</p>
+              <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('scansToday')}</h3>
+              <p className="text-4xl font-black text-white tracking-tighter">{stats.scansToday.toLocaleString()}</p>
             </div>
           </div>
           
           {/* Metric 3: Low Stock Alerts */}
           <div 
             onClick={() => predictions.length > 0 && setShowPredictionsModal(true)}
-            className={`bg-white/5 backdrop-blur-md p-6 rounded-xl space-y-4 border transition-all group ${stats.lowStockAlerts > 0 ? 'border-red-500/20 hover:border-red-500 cursor-pointer' : 'border-white/10'}`}
+            className={`bg-white/5 backdrop-blur-md p-6 rounded-2xl space-y-4 border transition-all group shadow-sm ${stats.lowStockAlerts > 0 ? 'border-red-500/30 hover:border-red-500 cursor-pointer' : 'border-white/10'}`}
           >
             <div className="flex justify-between items-start">
               <span className={`material-symbols-outlined ${stats.lowStockAlerts > 0 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>warning</span>
-              <span className={`font-bold text-xs px-2 py-1 rounded uppercase tracking-wider ${stats.lowStockAlerts > 0 ? 'text-red-200 bg-red-900/50' : 'text-zinc-400 bg-white/5'}`}>{stats.lowStockAlerts > 0 ? t('actionRequired') : t('systemNominal')}</span>
+              <span className={`font-black text-[9px] px-2 py-1 rounded uppercase tracking-widest ${stats.lowStockAlerts > 0 ? 'text-white bg-red-600' : 'text-zinc-500 bg-white/5'}`}>{stats.lowStockAlerts > 0 ? t('actionRequired') : t('systemNominal')}</span>
             </div>
             <div>
-              <h3 className="text-zinc-400 text-xs uppercase tracking-tighter mb-1">{t('lowStockAlerts')}</h3>
-              <p className="text-4xl font-bold text-white mt-1">{stats.lowStockAlerts}</p>
+              <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('lowStockAlerts')}</h3>
+              <p className="text-4xl font-black text-white tracking-tighter">{stats.lowStockAlerts}</p>
             </div>
           </div>
         </section>
@@ -297,99 +297,74 @@ function PcDashboard({
         {/* System Health & Activity */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-8 pb-12">
           {/* Activity Table (Left) */}
-          <div className="lg:col-span-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/5 flex flex-row justify-between items-center gap-3 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-3 shrink-0">
-                <h3 className="text-white text-base font-medium whitespace-nowrap">{t('recentScanningActivity')}</h3>
-                <span className="text-zinc-500 text-[10px] bg-white/5 px-2 py-0.5 rounded-full whitespace-nowrap">{t('scansPending')}: {scans.filter(s => s.status !== 'Stocked').length}</span>
+          <div className="lg:col-span-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-sm">
+            <div className="px-5 py-4 border-b border-white/5 flex flex-row justify-between items-center gap-4 bg-[#0c0f0f]/50">
+              <div className="flex items-center gap-3">
+                <h3 className="text-white text-sm font-bold tracking-tight">{t('recentScanningActivity')}</h3>
+                <span className="text-[#bcf540] text-[9px] font-black bg-[#bcf540]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">{scans.filter(s => s.status !== 'Stocked').length} Pending</span>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2">
                 <button 
                   onClick={handleClearScans}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20 whitespace-nowrap"
+                  className="flex items-center gap-1.5 h-[36px] px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition-all border border-red-500/20"
                 >
-                  <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                  <span className="material-symbols-outlined text-[16px]">delete_sweep</span>
                   {t('clearAll')}
                 </button>
                 <button 
                   onClick={handleBatchStockIn}
-                  className="group relative flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#c5ff4a] text-black hover:brightness-110 transition-all font-bold text-[11px] whitespace-nowrap"
+                  className="flex items-center gap-1.5 h-[36px] px-4 rounded-lg bg-[#bcf540] text-black hover:brightness-110 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg"
                 >
-                  <span className="material-symbols-outlined text-sm">inventory</span>
+                  <span className="material-symbols-outlined text-[16px]">inventory</span>
                   {t('batchStockIn')}
-                  <span className="ml-1 text-[9px] text-black/50 font-normal">Ctrl+↵</span>
                 </button>
-                <div className="h-4 w-px bg-white/10 mx-1"></div>
+                <div className="h-6 w-[1px] bg-white/10 mx-1"></div>
                 <button 
                   onClick={() => setStatusFilter(prev => prev === 'All' ? 'Verified' : 'All')}
-                  title={statusFilter === 'All' ? t('filterAll') : t('filterVerified')}
-                  className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${statusFilter !== 'All' ? 'bg-[#c5ff4a]/20 text-[#c5ff4a]' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                  className={`flex items-center justify-center w-9 h-9 rounded-lg transition-all border ${statusFilter !== 'All' ? 'bg-[#bcf540] text-black border-[#bcf540]' : 'text-zinc-500 border-white/10 hover:border-white/20'}`}
                 >
-                  <span className="material-symbols-outlined text-sm">filter_list</span>
+                  <span className="material-symbols-outlined text-[18px]">filter_list</span>
                 </button>
               </div>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[400px]">
               <table className="w-full text-left">
-                <thead className="bg-white/5 text-zinc-400 text-[10px] uppercase tracking-widest">
+                <thead className="bg-[#0c0f0f]/30 text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">{t('productName')}</th>
-                    <th className="px-4 py-3 font-semibold">{t('skuId')}</th>
-                    <th 
-                      className="px-4 py-3 font-semibold cursor-pointer hover:text-white transition-colors select-none"
-                      onClick={() => onSort('time')}
-                    >
-                      <span className="flex items-center gap-1">
-                        {t('timestamp')}
-                        <span className="material-symbols-outlined text-sm">
-                          {sortColumn === 'time' ? (sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-                        </span>
-                      </span>
-                    </th>
-                    <th 
-                      className="px-4 py-3 font-semibold cursor-pointer hover:text-white transition-colors select-none"
-                      onClick={() => onSort('status')}
-                    >
-                      <span className="flex items-center gap-1">
-                        {t('relayStatus')}
-                        <span className="material-symbols-outlined text-sm">
-                          {sortColumn === 'status' ? (sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
-                        </span>
-                      </span>
-                    </th>
-                    <th className="px-4 py-3 font-semibold text-left">{t('action')}</th>
+                    <th className="px-5 py-3 border-b border-white/5">{t('productName')}</th>
+                    <th className="px-5 py-3 border-b border-white/5">{t('skuId')}</th>
+                    <th className="px-5 py-3 border-b border-white/5">{t('timestamp')}</th>
+                    <th className="px-5 py-3 border-b border-white/5">{t('relayStatus')}</th>
+                    <th className="px-5 py-3 border-b border-white/5 text-left">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {sortedScans.map((scan, i) => (
-                    <tr key={i} className="hover:bg-white/5 transition-colors group">
-                      <td className="px-4 py-3 font-medium text-white text-sm">{scan.name || '—'}</td>
-                      <td className="px-4 py-3 text-zinc-400 text-xs font-mono">{scan.id}</td>
-                      <td className="px-4 py-3 text-zinc-400 text-[11px]">{scan.time}</td>
-                      <td className="px-4 py-3">
-                        <span className={`flex items-center gap-1.5 text-[10px] ${scan.status === 'Verified' ? 'text-[#c5ff4a]' : 'text-zinc-500'}`}>
-                          <span className={`w-1 h-1 rounded-full ${scan.status === 'Verified' ? 'bg-[#c5ff4a]' : 'bg-zinc-500'}`}></span>
+                    <tr key={i} className="hover:bg-white/5 transition-all group h-[56px]">
+                      <td className="px-5 py-3 font-bold text-white text-xs">{scan.name || '—'}</td>
+                      <td className="px-5 py-3 text-zinc-500 text-[11px] font-mono tracking-tight">{scan.id}</td>
+                      <td className="px-5 py-3 text-zinc-500 text-[10px] font-medium">{scan.time}</td>
+                      <td className="px-5 py-3">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${scan.status === 'Verified' ? 'text-[#bcf540] bg-[#bcf540]/10' : 'text-zinc-500 bg-white/5'}`}>
+                          <span className={`w-1 h-1 rounded-full ${scan.status === 'Verified' ? 'bg-[#bcf540]' : 'bg-zinc-500'}`}></span>
                           {scan.status}
                         </span>
                       </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-start items-center gap-2 h-full">
+                    <td className="px-5 py-3 text-left">
+                      <div className="flex justify-start items-center gap-2">
                         {scan.status !== 'Stocked' && (
                           <button 
                             onClick={() => handleStockIn(scan.id)}
-                            title={t('confirmStockIn')}
-                            className="text-[#c5ff4a] hover:bg-[#c5ff4a]/10 hover:text-white transition-colors flex items-center gap-1 text-[10px] border border-[#c5ff4a]/30 px-1.5 py-1 rounded"
+                            className="h-[30px] px-3 rounded-md bg-[#bcf540]/10 text-[#bcf540] hover:bg-[#bcf540] hover:text-black transition-all text-[9px] font-black uppercase tracking-widest border border-[#bcf540]/20"
                           >
-                            <span className="material-symbols-outlined text-sm">inventory_2</span>
-                            <span className="whitespace-nowrap">{t('confirmStockIn')}</span>
+                            {t('confirmStockIn')}
                           </button>
                         )}
                         <button 
                           onClick={() => handleDeleteScan(scan.id)}
-                          title={t('remove')}
-                          className="text-zinc-500 hover:text-red-500 material-symbols-outlined text-sm transition-colors p-1"
+                          className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-red-500 transition-colors"
                         >
-                          delete
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
                         </button>
                       </div>
                     </td>
@@ -488,121 +463,129 @@ function PcDashboard({
   return (
     <>
       {/* SideNavBar */}
-      <aside className="fixed left-0 top-0 flex flex-col h-full z-40 bg-[#0c0f0f]/90 backdrop-blur-xl w-64 border-r rounded-none border-white/10 font-['Space_Grotesk'] antialiased">
+      <aside className="fixed left-0 top-0 flex flex-col h-full z-40 bg-[#0c0f0f]/95 backdrop-blur-2xl w-64 border-r border-white/10 font-['Space_Grotesk'] antialiased">
         <div className="p-6">
-          <div className="flex items-center gap-3 mb-8 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
-            <div className="w-10 h-10 rounded-lg bg-[#c5ff4a] flex items-center justify-center">
-              <span className="material-symbols-outlined text-black" style={{ fontVariationSettings: "'FILL' 1" }}>dataset</span>
+          <div className="flex items-center gap-3 mb-10 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
+            <div className="w-10 h-10 rounded-lg bg-[#bcf540] flex items-center justify-center shadow-[0_0_20px_rgba(188,245,64,0.2)]">
+              <span className="material-symbols-outlined text-black font-variation-fill" style={{ fontVariationSettings: "'FILL' 1" }}>dataset</span>
             </div>
             <div>
-              <h2 className="text-lg font-black text-[#c5ff4a]">{t('omniWMS')}</h2>
-              <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">{t('predictiveLogistics')}</p>
+              <h2 className="text-lg font-black text-white tracking-tighter leading-none">SpeedWMS</h2>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mt-1">{t('predictiveLogistics')}</p>
             </div>
           </div>
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             <button
               onClick={() => setCurrentView('dashboard')}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ease-in-out duration-200 ${
+              className={`w-full h-[48px] flex items-center gap-3 px-4 rounded-xl transition-all duration-200 ${
                 currentView === 'dashboard' 
-                  ? 'bg-[#c5ff4a]/10 text-[#c5ff4a] border-r-2 border-[#c5ff4a]' 
+                  ? 'bg-[#bcf540]/10 text-[#bcf540] border border-[#bcf540]/20' 
                   : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-200'
               }`}
             >
-              <span className="material-symbols-outlined">dashboard</span>
-              <span className="font-medium text-left">{t('dashboard')}</span>
+              <span className="material-symbols-outlined text-[20px]">dashboard</span>
+              <span className="font-bold text-sm">{t('dashboard')}</span>
             </button>
             <button
               onClick={() => setCurrentView('catalog')}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ease-in-out duration-200 ${
+              className={`w-full h-[48px] flex items-center gap-3 px-4 rounded-xl transition-all duration-200 ${
                 currentView === 'catalog' 
-                  ? 'bg-[#c5ff4a]/10 text-[#c5ff4a] border-r-2 border-[#c5ff4a]' 
+                  ? 'bg-[#bcf540]/10 text-[#bcf540] border border-[#bcf540]/20' 
                   : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-200'
               }`}
             >
-              <span className="material-symbols-outlined">inventory_2</span>
-              <span className="font-medium text-left">{t('productCatalog')}</span>
+              <span className="material-symbols-outlined text-[20px]">inventory_2</span>
+              <span className="font-bold text-sm">{t('productCatalog')}</span>
             </button>
           </nav>
         </div>
         <div className="mt-auto p-6">
           <button 
             onClick={() => setShowQr(true)}
-            className="w-full bg-[#c5ff4a] text-black py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95"
+            className="w-full h-[48px] bg-[#bcf540] text-black rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:brightness-110 shadow-[0_4px_15px_rgba(188,245,64,0.2)] active:scale-[0.98] transition-all"
           >
-            <span className="material-symbols-outlined text-sm">add</span>
+            <span className="material-symbols-outlined text-sm font-bold">add</span>
             {t('newScan')}
           </button>
         </div>
       </aside>
 
       {/* Content Wrapper */}
-      <main className="flex-1 ml-64 min-h-screen bg-[#121414] relative font-['Space_Grotesk']">
+      <main className="flex-1 ml-64 min-h-screen bg-[#0a0a0a] relative font-['Space_Grotesk']">
 
         {/* Background Grid Pattern */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(197, 255, 74, 0.05) 1px, transparent 0)',
-          backgroundSize: '40px 40px'
+        <div className="absolute inset-0 pointer-events-none opacity-[0.4]" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(188, 245, 64, 0.1) 1px, transparent 0)',
+          backgroundSize: '32px 32px'
         }}></div>
 
         {/* TopAppBar */}
-        <header className="sticky top-0 z-30 flex justify-between items-center w-full px-6 py-3 bg-[#0c0f0f]/80 backdrop-blur-2xl border-b border-white/10 shadow-none">
+        <header className="sticky top-0 z-30 flex justify-between items-center w-full px-8 h-[64px] bg-[#0c0f0f]/80 backdrop-blur-2xl border-b border-white/5">
           <div className="flex items-center gap-4">
-            <span className="text-xl font-bold text-[#c5ff4a] tracking-tighter">SpeedWMS</span>
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{currentView === 'dashboard' ? 'Overview' : 'Inventory Management'}</span>
           </div>
           <div className="flex items-center gap-6">
-            <div className="flex bg-white/5 rounded-lg border border-white/10 overflow-hidden">
-              <button onClick={() => setLanguage('en')} className={`px-3 py-1 text-xs font-medium transition-colors ${language === 'en' ? 'bg-[#c5ff4a] text-black' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>EN</button>
-              <button onClick={() => setLanguage('zh')} className={`px-3 py-1 text-xs font-medium transition-colors ${language === 'zh' ? 'bg-[#c5ff4a] text-black' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>中</button>
-              <button onClick={() => setLanguage('ja')} className={`px-3 py-1 text-xs font-medium transition-colors ${language === 'ja' ? 'bg-[#c5ff4a] text-black' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>日</button>
+            <div className="flex bg-white/5 rounded-lg border border-white/10 p-0.5">
+              {['en', 'zh', 'ja'].map(lang => (
+                <button 
+                  key={lang}
+                  onClick={() => setLanguage(lang)} 
+                  className={`w-8 h-7 text-[10px] font-bold rounded transition-all ${language === lang ? 'bg-[#bcf540] text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-4">
-              <span className="material-symbols-outlined text-zinc-400 cursor-pointer hover:text-[#c5ff4a]">sensors</span>
-              <span className="material-symbols-outlined text-zinc-400 cursor-pointer hover:text-[#c5ff4a]">wifi</span>
-            </div>
-            <div className="h-8 w-[1px] bg-white/10"></div>
+            
+            <div className="h-6 w-[1px] bg-white/10"></div>
+            
             <div className="relative">
               <div 
-                className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-colors"
+                className="flex items-center gap-3 cursor-pointer hover:bg-white/5 px-3 h-10 rounded-xl transition-all border border-transparent hover:border-white/10"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-8 h-8 rounded-full border border-white/20 overflow-hidden bg-zinc-800 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full border border-[#bcf540]/30 overflow-hidden bg-zinc-900 flex items-center justify-center p-[2px]">
                   {userProfile.avatarUrl ? (
-                    <img alt="User profile" className="w-full h-full object-cover" src={userProfile.avatarUrl} />
+                    <img alt="User profile" className="w-full h-full rounded-full object-cover" src={userProfile.avatarUrl} />
                   ) : (
-                    <span className="material-symbols-outlined text-zinc-500 text-sm">person</span>
+                    <span className="material-symbols-outlined text-[#bcf540] text-[14px]">person</span>
                   )}
                 </div>
-                <span className="text-zinc-400 font-medium text-sm">{userProfile.displayName || userProfile.username}</span>
-                <span className="material-symbols-outlined text-zinc-500 text-sm transition-transform duration-200" style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+                <span className="text-zinc-300 font-bold text-xs tracking-tight">{userProfile.displayName || userProfile.username}</span>
+                <span className="material-symbols-outlined text-zinc-500 text-[16px] transition-transform duration-300" style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none' }}>expand_more</span>
               </div>
               
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-[#1e2020] border border-white/10 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-56 bg-[#161818] border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-2 border-b border-white/5 mb-2">
+                    <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">User Profile</p>
+                    <p className="text-xs text-white font-bold truncate">{userProfile.username}</p>
+                  </div>
                   <button 
                     onClick={() => navigate('/scanner')}
-                    className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-xs text-zinc-300 hover:bg-[#bcf540]/10 hover:text-[#bcf540] transition-all flex items-center gap-3 group"
                   >
-                    <span className="material-symbols-outlined text-[18px]">barcode_scanner</span>
-                    {t('openScanner') || 'Open Scanner'}
+                    <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">barcode_scanner</span>
+                    {t('openScanner') || 'Mobile Terminal'}
                   </button>
                   <button 
                     onClick={() => { setShowAdminSettings(true); setShowUserMenu(false); }}
-                    className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-xs text-zinc-300 hover:bg-[#bcf540]/10 hover:text-[#bcf540] transition-all flex items-center gap-3 group"
                   >
-                    <span className="material-symbols-outlined text-[18px]">manage_accounts</span>
-                    {t('editAdmin') || 'Edit Admin Options'}
+                    <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">settings_suggest</span>
+                    {t('editAdmin') || 'System Settings'}
                   </button>
-                  <div className="h-px bg-white/10 my-1"></div>
+                  <div className="h-px bg-white/10 my-2"></div>
                   <button 
                     onClick={() => {
                       localStorage.removeItem('wms_token');
                       localStorage.removeItem('wms_username');
                       navigate('/login');
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 transition-all flex items-center gap-3 group"
                   >
-                    <span className="material-symbols-outlined text-[18px]">logout</span>
-                    {t('logout') || 'Logout'}
+                    <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">logout</span>
+                    {t('logout') || 'Terminate Session'}
                   </button>
                 </div>
               )}

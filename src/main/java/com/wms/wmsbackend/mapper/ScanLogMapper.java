@@ -26,4 +26,10 @@ public interface ScanLogMapper {
 
     @Delete("DELETE FROM wms_scan_log WHERE id = #{id}")
     int deleteById(Long id);
+
+    @Select("SELECT barcode, COUNT(*) as scanCount " +
+            "FROM wms_scan_log " +
+            "WHERE scan_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY) " +
+            "GROUP BY barcode")
+    List<Map<String, Object>> getRecentScanCounts(@org.apache.ibatis.annotations.Param("days") int days);
 }

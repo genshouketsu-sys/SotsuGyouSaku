@@ -14,22 +14,35 @@ public class RestockPredictionService {
     @Autowired
     private ProductService productService;
 
-    /**
-     * Get all predictive restocking suggestions based on the Reorder Point (ROP) model.
-     * ROP = (Daily Usage * Lead Time) + Safety Stock
-     */
+    @Autowired
+    private com.wms.wmsbackend.mapper.ScanLogMapper scanLogMapper;
+
     public List<RestockSuggestionDto> getRestockSuggestions() {
         List<Product> products = productService.getAllProducts();
         List<RestockSuggestionDto> suggestions = new ArrayList<>();
+        
+        // 1. Get recent scan counts (last 14 days) to calculate REAL daily usage
+        int lookbackDays = 14;
+        List<Map<String, Object>> recentScans = scanLogMapper.getRecentScanCounts(lookbackDays);
+        Map<String, Double> dynamicUsageMap = new java.util.HashMap<>();
+        for (Map<String, Object> entry : recentScans) {
+            String barcode = (String) entry.get("barcode");
+            Long count = (Long) entry.get("scanCount");
+            dynamicUsageMap.put(barcode, count.doubleValue() / lookbackDays);
+        }
+
+        java.time.LocalDate today = java.time.LocalDate.now();
 
         for (Product product : products) {
-            Double dailyUsage = product.getDailyUsage() != null ? product.getDailyUsage() : 0.0;
-            Integer leadTime = product.getLeadTimeDays() != null ? product.getLeadTimeDays() : 0;
-            Integer safetyStock = product.getSafetyStock() != null ? product.getSafetyStock() : 0;
+            // Priority: Dynamic Usage > Static Daily Usage > 0
+            Double dailyUsage = dynamicUsageMap.getOrDefault(product.getBarcode(), 
+                                product.getDailyUsage() != null ? product.getDailyUsage() : 0.0);
+            
+            Integer leadTime = product.getLeadTimeDays() != null ? product.getLeadTimeDays() : 7;
+            Integer safetyStock = product.getSafetyStock() != null ? product.getSafetyStock() : 10;
             Integer currentStock = product.getStock() != null ? product.getStock() : 0;
 
-            // Only generate predictions if we have some usage data
-            if (dailyUsage > 0.0) {
+            if (dailyUsage > 0.0 || currentStock <= safetyStock) {
                 int reorderPoint = (int) Math.ceil((dailyUsage * leadTime) + safetyStock);
 
                 if (currentStock <= reorderPoint) {
@@ -42,20 +55,24 @@ public class RestockPredictionService {
                     dto.setSafetyStock(safetyStock);
                     dto.setReorderPoint(reorderPoint);
 
-                    // Suggested order to replenish safety stock and cover lead time again
-                    int suggestedOrder = reorderPoint - currentStock + safetyStock + (int) Math.ceil(dailyUsage * 30); // E.g., order 30 days of supply
-                    dto.setSuggestedOrderQuantity(suggestedOrder);
+                    // Calculation
+                    int suggestedOrder = (int) Math.ceil(reorderPoint - currentStock + (dailyUsage * 30)); // replenish + 30 days
+                    dto.setSuggestedOrderQuantity(Math.max(suggestedOrder, safetyStock * 2));
 
-                    int daysLeft = (int) Math.floor(currentStock / dailyUsage);
+                    int daysLeft = dailyUsage > 0 ? (int) Math.floor(currentStock / dailyUsage) : 0;
                     dto.setDaysUntilDepletion(daysLeft);
+                    dto.setPredictedDepletionDate(today.plusDays(daysLeft).toString());
 
-                    // Determine urgency
-                    if (daysLeft <= product.getLeadTimeDays()) {
+                    // Urgency logic
+                    if (currentStock == 0) {
                         dto.setUrgency("High");
-                        dto.setReason("Stock will deplete before lead time replenishment.");
+                        dto.setReason("OUT OF STOCK");
+                    } else if (daysLeft <= leadTime) {
+                        dto.setUrgency("High");
+                        dto.setReason("Depletion within lead time.");
                     } else if (currentStock <= safetyStock) {
                         dto.setUrgency("Medium");
-                        dto.setReason("Stock is below safety levels.");
+                        dto.setReason("Below safety stock level.");
                     } else {
                         dto.setUrgency("Low");
                         dto.setReason("Approaching reorder point.");
@@ -63,20 +80,8 @@ public class RestockPredictionService {
 
                     suggestions.add(dto);
                 }
-            } else if (currentStock <= safetyStock) {
-                // If no usage data, but stock is below safety, still alert
-                RestockSuggestionDto dto = new RestockSuggestionDto();
-                dto.setSkuCode(product.getSkuCode());
-                dto.setName(product.getName());
-                dto.setCurrentStock(currentStock);
-                dto.setSafetyStock(safetyStock);
-                dto.setUrgency("Medium");
-                dto.setReason("Static stock below safety threshold.");
-                dto.setSuggestedOrderQuantity(safetyStock * 2);
-                suggestions.add(dto);
             }
         }
-
         return suggestions;
     }
 }

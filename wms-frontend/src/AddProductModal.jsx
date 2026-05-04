@@ -33,35 +33,54 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-[#1e1e1e] rounded-xl border border-[#27272a] shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200 font-['Space_Grotesk']">
-        <div className="px-6 py-4 border-b border-[#27272a] flex justify-between items-center bg-[#1a1a1a]">
-          <h2 className="text-xl font-bold text-[#f4f4f5]">{t('addNewProduct')}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="bg-[#121414] rounded-2xl border border-white/10 shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300 font-['Space_Grotesk']">
+        <div className="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-[#0c0f0f]/50">
+          <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#bcf540]">inventory_2</span>
+            {t('addNewProduct')}
+          </h2>
           <button 
             onClick={onClose}
-            className="text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 text-zinc-500 hover:text-white transition-all"
           >
-            <span className="material-symbols-outlined">close</span>
+            <span className="material-symbols-outlined text-sm">close</span>
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="skuCode" className="block text-sm font-medium text-[#a1a1aa]">{t('skuCode')} <span className="text-red-500">*</span></label>
-            <input 
-              type="text" 
-              id="skuCode" 
-              name="skuCode" 
-              required
-              value={formData.skuCode}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
-              placeholder="e.g. SKU-10049"
-            />
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label htmlFor="skuCode" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">{t('skuCode')} <span className="text-red-500">*</span></label>
+              <input 
+                type="text" 
+                id="skuCode" 
+                name="skuCode" 
+                required
+                value={formData.skuCode}
+                onChange={handleChange}
+                className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all placeholder:text-zinc-700 text-sm font-medium"
+                placeholder="e.g. SKU-10049"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="barcode" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">{t('barcode')} <span className="text-red-500">*</span></label>
+              <input 
+                type="text" 
+                id="barcode" 
+                name="barcode" 
+                required
+                value={formData.barcode}
+                onChange={handleChange}
+                className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all placeholder:text-zinc-700 text-sm font-mono"
+                placeholder="e.g. 4500000000000"
+              />
+            </div>
           </div>
-          
-          <div className="space-y-1">
-            <label htmlFor="name" className="block text-sm font-medium text-[#a1a1aa]">{t('productName')} <span className="text-red-500">*</span></label>
+
+          <div className="space-y-2">
+            <label htmlFor="name" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">{t('productName')} <span className="text-red-500">*</span></label>
             <input 
               type="text" 
               id="name" 
@@ -69,28 +88,14 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
               required
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
+              className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all placeholder:text-zinc-700 text-sm font-medium"
               placeholder="e.g. Mechanical Keyboard"
             />
           </div>
           
-          <div className="space-y-1">
-            <label htmlFor="barcode" className="block text-sm font-medium text-[#a1a1aa]">{t('barcode')} <span className="text-red-500">*</span></label>
-            <input 
-              type="text" 
-              id="barcode" 
-              name="barcode" 
-              required
-              value={formData.barcode}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
-              placeholder="e.g. 8901234567894"
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label htmlFor="stock" className="block text-sm font-medium text-[#a1a1aa]">{t('initialStock')}</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="stock" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">{t('initialStock')}</label>
               <input 
                 type="number" 
                 id="stock" 
@@ -98,12 +103,12 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
                 min="0"
                 value={formData.stock}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
+                className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-bold"
               />
             </div>
             
-            <div className="space-y-1">
-              <label htmlFor="dailyUsage" className="block text-sm font-medium text-[#a1a1aa]">{t('dailyUsage')}</label>
+            <div className="space-y-2">
+              <label htmlFor="dailyUsage" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">Usage/Day</label>
               <input 
                 type="number" 
                 id="dailyUsage" 
@@ -112,12 +117,12 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
                 min="0"
                 value={formData.dailyUsage}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
+                className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-bold"
               />
             </div>
             
-            <div className="space-y-1">
-              <label htmlFor="leadTimeDays" className="block text-sm font-medium text-[#a1a1aa]">{t('leadTimeDays')}</label>
+            <div className="space-y-2">
+              <label htmlFor="leadTimeDays" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">Lead(d)</label>
               <input 
                 type="number" 
                 id="leadTimeDays" 
@@ -125,12 +130,12 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
                 min="0"
                 value={formData.leadTimeDays}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
+                className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-bold"
               />
             </div>
 
-            <div className="space-y-1">
-              <label htmlFor="safetyStock" className="block text-sm font-medium text-[#a1a1aa]">{t('safetyStock')}</label>
+            <div className="space-y-2">
+              <label htmlFor="safetyStock" className="block text-[10px] font-black uppercase tracking-widest text-zinc-500">Safety</label>
               <input 
                 type="number" 
                 id="safetyStock" 
@@ -138,24 +143,24 @@ function AddProductModal({ isOpen, onClose, onAdd }) {
                 min="0"
                 value={formData.safetyStock}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#ccff00] focus:border-transparent transition-all"
+                className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-bold"
               />
             </div>
           </div>
           
-          <div className="pt-4 flex gap-3 justify-end">
+          <div className="pt-6 flex gap-4 justify-end">
             <button 
               type="button" 
               onClick={onClose}
-              className="px-4 py-2 border border-[#27272a] rounded-lg text-[#f4f4f5] font-medium hover:bg-[#27272a] transition-colors"
+              className="h-[44px] px-6 border border-white/10 rounded-xl text-zinc-400 font-bold text-xs uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all"
             >
               {t('cancel')}
             </button>
             <button 
               type="submit" 
-              className="px-4 py-2 bg-[#ccff00] text-black rounded-lg font-bold hover:bg-opacity-90 transition-colors shadow-sm flex items-center gap-2"
+              className="h-[44px] px-8 bg-[#bcf540] text-black rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-[#bcf540]/10 flex items-center gap-2 active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-sm">save</span>
+              <span className="material-symbols-outlined text-[18px]">save</span>
               {t('saveProduct')}
             </button>
           </div>

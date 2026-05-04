@@ -103,9 +103,9 @@ function AdminSettingsModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md" onClick={onClose}>
       <div 
-        className="bg-[#1e2020] border border-white/10 rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl relative overflow-hidden font-['Space_Grotesk']"
+        className="bg-[#121414] border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl relative overflow-hidden font-['Space_Grotesk'] animate-in fade-in zoom-in duration-300"
         onClick={e => e.stopPropagation()}
       >
         <input 
@@ -117,113 +117,116 @@ function AdminSettingsModal({ isOpen, onClose }) {
         />
         
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#c5ff4a]/5 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#bcf540]/5 rounded-full blur-[80px] pointer-events-none"></div>
 
-        <div className="flex justify-between items-center mb-6 relative z-10">
+        <div className="flex justify-between items-center mb-8 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#c5ff4a]/20 border border-[#c5ff4a]/30 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#c5ff4a]">manage_accounts</span>
+            <div className="w-10 h-10 rounded-lg bg-[#bcf540]/10 border border-[#bcf540]/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[#bcf540]">manage_accounts</span>
             </div>
             <div>
               <h2 className="text-xl font-bold text-white tracking-tight">{t('editAdmin')}</h2>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-widest">{t('adminSettingsDesc') || 'Manage profile & security'}</p>
+              <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mt-0.5">{t('adminSettingsDesc') || 'Profile & Security'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
-            <span className="material-symbols-outlined">close</span>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 text-zinc-500 hover:text-white transition-all">
+            <span className="material-symbols-outlined text-sm">close</span>
           </button>
         </div>
 
         <div className="space-y-6 relative z-10">
           
           {/* Profile Section */}
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-            <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-              <div className="w-16 h-16 rounded-full border-2 border-[#c5ff4a]/50 overflow-hidden bg-zinc-800 flex items-center justify-center group-hover:opacity-70 transition-opacity">
+          <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/5 group relative overflow-hidden">
+             <div className="absolute inset-0 bg-gradient-to-r from-[#bcf540]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative group/avatar cursor-pointer" onClick={handleAvatarClick}>
+              <div className="w-16 h-16 rounded-full border-2 border-[#bcf540]/30 overflow-hidden bg-zinc-900 flex items-center justify-center p-[3px] group-hover/avatar:border-[#bcf540] transition-all">
                 {formData.avatarUrl ? (
-                  <img alt="User profile" className="w-full h-full object-cover" src={formData.avatarUrl} />
+                  <img alt="User profile" className="w-full h-full rounded-full object-cover" src={formData.avatarUrl} />
                 ) : (
-                  <span className="material-symbols-outlined text-zinc-600 text-3xl">person</span>
+                  <span className="material-symbols-outlined text-zinc-700 text-3xl">person</span>
                 )}
               </div>
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="material-symbols-outlined text-white text-sm bg-black/50 rounded-full p-1">edit</span>
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                <span className="material-symbols-outlined text-black text-xs bg-[#bcf540] rounded-full p-1.5 shadow-lg">photo_camera</span>
               </div>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 relative z-10">
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider border border-red-500/20">Super Admin</span>
+                <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest border border-red-500/10">Authorized Admin</span>
               </div>
-              <p className="text-xs text-zinc-400">Node ID: <span className="font-mono text-zinc-300">ND-01-A</span></p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Node ID: <span className="font-mono text-[#bcf540]">ND-01-A</span></p>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider">{t('displayName') || 'Display Name'}</label>
-              <input 
-                type="text" 
-                name="displayName"
-                value={formData.displayName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-all"
-              />
-            </div>
-            
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider">{t('emailAddress') || 'Email Address'}</label>
-              <input 
-                type="email" 
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-all"
-              />
-            </div>
-
-            {/* Security Section */}
-            <div className="pt-4 border-t border-white/10 space-y-4">
-              <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#c5ff4a] text-[18px]">lock</span>
-                {t('securitySettings') || 'Security Settings'}
-              </h3>
-              
-              <div className="space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">{t('displayName') || 'Alias'}</label>
                 <input 
-                  type="password" 
-                  name="currentPassword"
-                  placeholder={t('currentPassword') || 'Current Password'}
-                  value={formData.currentPassword}
+                  type="text" 
+                  name="displayName"
+                  value={formData.displayName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] placeholder-zinc-600 text-sm"
+                  className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-medium"
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">{t('emailAddress') || 'Email'}</label>
+                <input 
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-medium"
+                />
+              </div>
+            </div>
+
+            {/* Security Section */}
+            <div className="pt-6 border-t border-white/5 space-y-4">
+              <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#bcf540] text-[16px]">verified_user</span>
+                {t('securitySettings') || 'Authentication Override'}
+              </h3>
+              
+              <div className="space-y-4">
                 <input 
                   type="password" 
-                  name="newPassword"
-                  placeholder={t('newPassword') || 'New Password'}
-                  value={formData.newPassword}
+                  name="currentPassword"
+                  placeholder={t('currentPassword') || 'Enter Current Password'}
+                  value={formData.currentPassword}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] placeholder-zinc-600 text-sm"
+                  className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-medium placeholder:text-zinc-800"
                 />
-                <input 
-                  type="password" 
-                  name="confirmPassword"
-                  placeholder={t('confirmPassword') || 'Confirm Password'}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 bg-[#121212] border border-[#27272a] rounded-lg text-[#f4f4f5] focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] placeholder-zinc-600 text-sm"
-                />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <input 
+                    type="password" 
+                    name="newPassword"
+                    placeholder={t('newPassword') || 'New Access Key'}
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-medium placeholder:text-zinc-800"
+                  />
+                  <input 
+                    type="password" 
+                    name="confirmPassword"
+                    placeholder={t('confirmPassword') || 'Repeat Access Key'}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full h-[44px] px-4 bg-zinc-950/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#bcf540]/50 focus:border-[#bcf540] transition-all text-sm font-medium placeholder:text-zinc-800"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Preferences */}
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+            <div className="pt-6 border-t border-white/5 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-white">{t('emailAlerts') || 'System Email Alerts'}</h3>
-                <p className="text-xs text-zinc-500">Receive notifications for low stock</p>
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider">{t('emailAlerts') || 'System Notifications'}</h3>
+                <p className="text-[10px] text-zinc-500 font-medium">Auto-dispatch alerts for low-stock thresholds</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
@@ -233,30 +236,30 @@ function AdminSettingsModal({ isOpen, onClose }) {
                   onChange={handleChange}
                   className="sr-only peer" 
                 />
-                <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#c5ff4a]"></div>
+                <div className="w-11 h-6 bg-zinc-800 border border-white/5 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#bcf540] peer-checked:after:bg-black"></div>
               </label>
             </div>
           </div>
 
-          <div className="pt-6 flex gap-3 justify-end border-t border-white/10">
+          <div className="pt-8 flex gap-4 justify-end border-t border-white/5">
             <button 
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+              className="h-[44px] px-6 rounded-xl text-xs font-bold text-zinc-500 uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all disabled:opacity-50"
             >
               {t('cancel')}
             </button>
             <button 
               onClick={handleSave}
               disabled={loading}
-              className="bg-[#c5ff4a] text-black px-6 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
+              className="bg-[#bcf540] text-black h-[44px] px-8 rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-[#bcf540]/10 flex items-center gap-2 active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? (
                 <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
               ) : (
-                <span className="material-symbols-outlined text-[18px]">save</span>
+                <span className="material-symbols-outlined text-[18px]">save_as</span>
               )}
-              {t('saveChanges') || 'saveChanges'}
+              {t('saveChanges') || 'Apply System Changes'}
             </button>
           </div>
         </div>

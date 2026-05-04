@@ -12,8 +12,11 @@ public class RestockSuggestionDto {
     private Integer daysUntilDepletion;
     private String urgency; // "High", "Medium", "Low"
     private String reason;
+    private String predictedDepletionDate;
 
     // Getters and Setters
+    public String getPredictedDepletionDate() { return predictedDepletionDate; }
+    public void setPredictedDepletionDate(String predictedDepletionDate) { this.predictedDepletionDate = predictedDepletionDate; }
     public String getUrgency() { return urgency; }
     public void setUrgency(String urgency) { this.urgency = urgency; }
 

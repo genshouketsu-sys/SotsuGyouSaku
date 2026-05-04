@@ -21,12 +21,32 @@ public class ScanController {
     @Autowired
     private com.wms.wmsbackend.mapper.ScanLogMapper scanLogMapper;
 
+    @Autowired
+    private com.wms.wmsbackend.mapper.ProductMapper productMapper;
+
+    @Autowired
+    private com.wms.wmsbackend.service.ExternalProductService externalProductService;
+
     @PermitAll
     @PostMapping("/push")
     public ResponseEntity<Map<String, Object>> pushScanData(@RequestBody Map<String, String> payload) {
         String barcode = payload.get("barcode");
         String userId = payload.get("userId");
         System.out.println("Received scan push: barcode=" + barcode + ", userId=" + userId);
+
+        // Resolve Product Name and Image
+        String productName = "Unknown Product";
+        String productImage = "";
+
+        com.wms.wmsbackend.entity.Product localProduct = productMapper.findByBarcode(barcode);
+        if (localProduct != null) {
+            productName = localProduct.getName();
+            // Assuming localProduct has image or just generic
+        } else {
+            Map<String, String> yahooData = externalProductService.fetchFromYahoo(barcode);
+            productName = yahooData.get("name");
+            productImage = yahooData.get("image");
+        }
 
         try {
             scanLogMapper.insert(barcode, userId);
@@ -35,11 +55,23 @@ public class ScanController {
         }
 
         String targetClientId = "pc_" + userId;
-        scanWebSocketHandler.sendMessageToClient(targetClientId, barcode);
+        
+        // Send JSON payload to PC
+        Map<String, String> wsMessage = new HashMap<>();
+        wsMessage.put("barcode", barcode);
+        wsMessage.put("name", productName);
+        wsMessage.put("image", productImage);
+        
+        try {
+            String jsonMessage = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(wsMessage);
+            scanWebSocketHandler.sendMessageToClient(targetClientId, jsonMessage);
+        } catch (Exception e) {
+            scanWebSocketHandler.sendMessageToClient(targetClientId, barcode); // Fallback
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "Relay request processed");
+        response.put("message", "Relay processed with product info");
         return ResponseEntity.ok(response);
     }
 

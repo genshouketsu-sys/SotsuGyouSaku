@@ -71,27 +71,33 @@ function App() {
     };
 
     wsRef.current.onmessage = (event) => {
-      const message = event.data;
-      console.log(`[Global WS] Received: ${message}`);
+      const rawData = event.data;
+      console.log(`[Global WS] Received raw: ${rawData}`);
 
-      if (message === "UNDO_LAST_ACTION") {
+      if (rawData === "UNDO_LAST_ACTION") {
         setScans(prev => prev.slice(1));
         return;
       }
       
-      const barcode = message;
+      let barcode, resolvedName;
+      try {
+        const data = JSON.parse(rawData);
+        barcode = data.barcode;
+        resolvedName = data.name;
+      } catch (e) {
+        barcode = rawData;
+        const product = productsCache.current.find(p => p.barcode === barcode || p.skuCode === barcode);
+        resolvedName = product ? product.name : 'Unknown Product';
+      }
+
       const now = new Date();
       const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
-      const product = productsCache.current.find(p => p.barcode === barcode || p.skuCode === barcode);
-      const productName = product ? product.name : 'Unknown Product';
-
       setScans(prev => [
-        { id: barcode, name: productName, time: timeString, status: 'Verified' },
+        { id: barcode, name: resolvedName, time: timeString, status: 'Verified' },
         ...prev.slice(0, 9)
       ]);
 
-      // Dispatch global event for other components to refresh
       window.dispatchEvent(new CustomEvent('wms-new-scan', { detail: { barcode } }));
     };
 
