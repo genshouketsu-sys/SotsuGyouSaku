@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
-import './App.css';
 import PcDashboard from './components/PcDashboard';
 import MobileScanner from './components/MobileScanner';
 import LoginPage from './pages/LoginPage';
