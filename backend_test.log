@@ -35,3 +35,5 @@ WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
 2026-05-04T12:49:00.385+09:00  INFO 2935 --- [wms-backend] [0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2026-05-04T12:49:00.385+09:00  INFO 2935 --- [wms-backend] [0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2026-05-04T12:49:00.386+09:00  INFO 2935 --- [wms-backend] [0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-05-04T12:49:17.613+09:00  INFO 2935 --- [wms-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-04T12:49:17.621+09:00  INFO 2935 --- [wms-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

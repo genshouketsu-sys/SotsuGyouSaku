@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
+import BarcodeLookupModal from './BarcodeLookupModal';
 import { useTranslation } from './i18n/LanguageContext';
 
 function ProductCatalog() {
@@ -19,6 +20,9 @@ function ProductCatalog() {
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [highlightedBarcode, setHighlightedBarcode] = useState(null);
+  const highlightRef = useRef(null);
 
   useEffect(() => {
     fetchProducts();
@@ -58,6 +62,16 @@ function ProductCatalog() {
       console.error('Failed to add product:', err);
       alert('Failed to add product: ' + (err.response?.data?.message || err.message));
     }
+  };
+
+  const handleBarcodeFound = (barcode) => {
+    setSearchTerm(barcode);
+    setHighlightedBarcode(barcode);
+    setCurrentPage(1);
+    setTimeout(() => {
+      highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    setTimeout(() => setHighlightedBarcode(null), 3000);
   };
 
   const handleEditClick = (product) => {
@@ -198,6 +212,13 @@ function ProductCatalog() {
               />
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                onClick={() => setIsScanModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 border border-[#c5ff4a]/40 rounded-lg text-sm font-medium text-[#c5ff4a] hover:bg-[#c5ff4a]/10 transition-colors w-full sm:w-auto justify-center"
+              >
+                <span className="material-symbols-outlined text-sm">barcode_scanner</span>
+                スキャン
+              </button>
               <button 
                 onClick={() => setStockFilter(prev => prev === 'all' ? 'low' : 'all')}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center ${stockFilter === 'low' ? 'border-[#c5ff4a] text-[#c5ff4a] bg-[#c5ff4a]/10' : 'border-white/10 text-white hover:bg-white/5'}`}
@@ -261,7 +282,11 @@ function ProductCatalog() {
                   </tr>
                 ) : (
                   paginatedProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-white/5 transition-colors group">
+                    <tr
+                      key={product.id}
+                      ref={product.barcode === highlightedBarcode ? highlightRef : null}
+                      className={`hover:bg-white/5 transition-colors group ${product.barcode === highlightedBarcode ? 'bg-[#c5ff4a]/10 ring-1 ring-[#c5ff4a]/40' : ''}`}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input 
                           className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
@@ -352,6 +377,15 @@ function ProductCatalog() {
         onClose={() => setIsEditModalOpen(false)}
         onEdit={handleEditSubmit}
         initialData={productToEdit}
+      />
+
+      <BarcodeLookupModal
+        isOpen={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        onBarcodeFound={(barcode) => {
+          setIsScanModalOpen(false);
+          handleBarcodeFound(barcode);
+        }}
       />
     </div>
   );
