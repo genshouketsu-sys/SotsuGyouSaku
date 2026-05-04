@@ -44,6 +44,29 @@ public class ScanController {
     }
 
     @PermitAll
+    @PostMapping("/undo")
+    public ResponseEntity<Map<String, Object>> undoScanData(@RequestBody Map<String, String> payload) {
+        String userId = payload.get("userId");
+        Map<String, Object> response = new HashMap<>();
+        
+        Long latestId = scanLogMapper.findLatestIdByUserId(userId);
+        if (latestId != null) {
+            scanLogMapper.deleteById(latestId);
+            
+            // Notify PC client to undo
+            String targetClientId = "pc_" + userId;
+            scanWebSocketHandler.sendMessageToClient(targetClientId, "UNDO_LAST_ACTION");
+            
+            response.put("success", true);
+            response.put("message", "Last scan undone");
+        } else {
+            response.put("success", false);
+            response.put("message", "No logs to undo");
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PermitAll
     @GetMapping("/logs")
     public List<Map<String, Object>> getScanLogs() {
         return scanLogMapper.findAllLogs();

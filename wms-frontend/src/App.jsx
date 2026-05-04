@@ -71,9 +71,15 @@ function App() {
     };
 
     wsRef.current.onmessage = (event) => {
-      const barcode = event.data;
-      console.log(`[Global WS] Received barcode: ${barcode}`);
+      const message = event.data;
+      console.log(`[Global WS] Received: ${message}`);
+
+      if (message === "UNDO_LAST_ACTION") {
+        setScans(prev => prev.slice(1));
+        return;
+      }
       
+      const barcode = message;
       const now = new Date();
       const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 

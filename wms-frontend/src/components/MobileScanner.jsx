@@ -1,220 +1,181 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import axios from 'axios';
 import { useTranslation } from '../i18n/LanguageContext';
 
+/**
+ * MobileScanner - Optimized for Millisecond-level JAN/QR Recognition
+ */
 function MobileScanner({ onClose }) {
   const { t } = useTranslation();
   const queryParams = new URLSearchParams(window.location.search);
-  const urlUserId = queryParams.get('userId');
-  const userId = urlUserId || localStorage.getItem('wms_username') || '1';
+  const userId = queryParams.get('userId') || localStorage.getItem('wms_username') || '1';
+  
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [undoStatus, setUndoStatus] = useState(null);
   const scannerRef = useRef(null);
 
   useEffect(() => {
-    // 组件卸载时清理
     return () => {
-      if (scannerRef.current && isCameraActive) {
-        scannerRef.current.stop().catch(err => console.error("Failed to stop scanner", err));
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
       }
     };
   }, []);
+
+  const handleUndo = async () => {
+    try {
+      const response = await axios.post(`/api/scan/undo`, { userId: userId });
+      if (response.data.success) {
+        setUndoStatus('SUCCESS');
+        if (navigator.vibrate) navigator.vibrate([50, 50]);
+        setTimeout(() => setUndoStatus(null), 2000);
+      } else {
+        setUndoStatus('ERROR');
+        setTimeout(() => setUndoStatus(null), 2000);
+      }
+    } catch (error) {
+      setUndoStatus('ERROR');
+      setTimeout(() => setUndoStatus(null), 2000);
+    }
+  };
+
+  const togglePause = () => {
+    if (!scannerRef.current) return;
+    if (isPaused) {
+      scannerRef.current.resume();
+      setIsPaused(false);
+      setIsScanning(true);
+    } else {
+      scannerRef.current.pause();
+      setIsPaused(true);
+      setIsScanning(false);
+    }
+  };
 
   const startScanner = () => {
     setIsCameraActive(true);
     setIsScanning(true);
 
-    // 使用 setTimeout 确保 #reader DOM 元素已渲染
     setTimeout(() => {
       scannerRef.current = new Html5Qrcode("reader");
-
+      
       const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
+        fps: 25, // High speed sampling
+        qrbox: { width: 300, height: 150 }, // Balanced for JAN and QR
         aspectRatio: 1.0,
-      };
-
-      const onScanSuccess = async (decodedText) => {
-        // 扫码成功后暂停扫描
-        setIsScanning(false);
-        setScanResult(decodedText);
-        scannerRef.current.pause();
-
-        try {
-          const backendUrl = `/api/scan/push`;
-          console.log(`Sending scan to ${backendUrl} for user: ${userId}`);
-          const response = await axios.post(backendUrl, {
-            barcode: decodedText,
-            userId: userId 
-          });
-          console.log("Push Success:", response.data);
-          
-          // Show success state for 2 seconds
-          setTimeout(() => {
-            if (scannerRef.current) {
-              scannerRef.current.resume();
-              setIsScanning(true);
-              setScanResult(null);
-            }
-          }, 2000);
-        } catch (error) {
-          console.error("Push Error Details:", error);
-          let errorMsg = "Transmission failed.";
-          if (error.response) {
-            errorMsg += ` Server responded with ${error.response.status}`;
-          } else if (error.request) {
-            errorMsg += " No response from server. Check if PC is on the same network and SSL certificate is trusted.";
-          } else {
-            errorMsg += " Error: " + error.message;
-          }
-          alert(errorMsg);
-          
-          setTimeout(() => {
-            if (scannerRef.current) {
-              scannerRef.current.resume();
-              setIsScanning(true);
-              setScanResult(null);
-            }
-          }, 2000);
-        }
-      };
-
-      const onScanFailure = () => {
-        // ignore
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true // Native acceleration
+        },
+        formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.CODE_128
+        ]
       };
 
       scannerRef.current.start(
         { facingMode: "environment" },
         config,
-        onScanSuccess,
-        onScanFailure
+        async (decodedText) => {
+          if (isPaused) return;
+          if (navigator.vibrate) navigator.vibrate(80);
+          
+          setIsScanning(false);
+          scannerRef.current.pause();
+          setScanResult(decodedText);
+
+          try {
+            await axios.post(`/api/scan/push`, { barcode: decodedText, userId: userId });
+            setTimeout(() => {
+              if (scannerRef.current && !isPaused) {
+                scannerRef.current.resume();
+                setIsScanning(true);
+                setScanResult(null);
+              }
+            }, 600); // Fast resume
+          } catch (error) {
+            resumeScanner();
+          }
+        },
+        () => {}
       ).catch(err => {
-        console.error("启动摄像头失败:", err);
-        alert("无法访问摄像头，请确保您在使用 HTTPS 或 localhost，并已授予摄像头权限。");
-        setIsScanning(false);
+        alert("Camera Error: " + err);
         setIsCameraActive(false);
       });
-    }, 100);
+    }, 150);
+  };
+
+  const resumeScanner = () => {
+    setShowDuplicateModal(false);
+    setScanResult(null);
+    if (scannerRef.current) {
+      scannerRef.current.resume();
+      setIsScanning(true);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#121414] text-[#e2e2e2] flex flex-col font-['Inter'] relative overflow-hidden selection:bg-[#bcf540] selection:text-[#141f00]">
-      {/* Ambient Background Glow */}
-      <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[80vw] max-w-lg h-[80vw] max-h-lg bg-[#bcf540]/5 rounded-full blur-[80px] pointer-events-none -z-10"></div>
-      
-      {/* Header / Status Bar */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-[#333535]/50 bg-[#1e2020]/60 backdrop-blur-2xl sticky top-0 z-10 border border-[#8d937c]/15">
+    <div className="fixed inset-0 z-[100] bg-[#0a0a0a] text-white flex flex-col font-['Space_Grotesk']">
+      <header className="flex items-center justify-between px-6 py-5 bg-[#161818] border-b border-[#bcf540]/20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#282a2b] flex items-center justify-center border border-[#434935]/30 text-[#e2e2e2]">
-            <span className="material-symbols-outlined text-[20px]">barcode_scanner</span>
-          </div>
-          <h1 className="text-xl font-['Space_Grotesk'] tracking-tight text-[#e2e2e2] font-semibold">{t('scannerRelay')}</h1>
+            <span className="material-symbols-outlined text-[#bcf540]">bolt</span>
+            <h1 className="text-xl font-bold tracking-tight uppercase">Speed Scan</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#282a2b] border border-[#434935]/50">
-            <div className="w-2 h-2 rounded-full bg-[#bcf540] animate-pulse"></div>
-            <span className="font-['Space_Grotesk'] text-[#e2e2e2] tracking-wider uppercase text-[10px] font-medium">{t('connected')}</span>
-          </div>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-white/10 transition-colors">
-            <span className="material-symbols-outlined text-[#e2e2e2]">close</span>
-          </button>
-        </div>
+        <button onClick={onClose} className="p-2 bg-white/5 rounded-full"><span className="material-symbols-outlined">close</span></button>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col w-full max-w-md mx-auto relative z-0">
-        
-        {/* Primary Action Area */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative">
-          {!isCameraActive ? (
-            <>
-              <p className="font-['Inter'] text-[#c3c9af] text-center mb-8">
-                {t('centerBarcode')}
-              </p>
-              <button 
-                onClick={startScanner}
-                className="relative group w-full aspect-square max-h-[320px] max-w-[320px] rounded-full bg-[#1e2020] flex items-center justify-center border border-[#434935]/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-              >
-                {/* Inner glow ring */}
-                <div className="absolute inset-2 rounded-full border border-[#bcf540]/20 bg-gradient-to-b from-[#bcf540]/5 to-transparent group-hover:border-[#bcf540]/40 transition-colors duration-300"></div>
-                <div className="flex flex-col items-center gap-4 text-[#bcf540] z-10">
-                  <span className="material-symbols-outlined text-[80px] font-light drop-shadow-[0_0_15px_rgba(188,245,64,0.3)]" style={{fontVariationSettings: "'wght' 200"}}>photo_camera</span>
-                  <span className="font-['Space_Grotesk'] text-2xl tracking-tight text-[#e2e2e2] font-medium">{t('tapToScan')}</span>
+      <main className="flex-1 relative flex flex-col items-center justify-center">
+        {!isCameraActive ? (
+          <button onClick={startScanner} className="w-64 h-64 rounded-full border-4 border-[#bcf540]/20 bg-[#161818] flex flex-col items-center justify-center gap-4 group">
+            <span className="material-symbols-outlined text-6xl text-[#bcf540] group-hover:scale-110 transition-transform">rocket_launch</span>
+            <span className="font-black tracking-widest text-[#bcf540]">BOOST START</span>
+          </button>
+        ) : (
+          <div className="w-full h-full relative">
+            {/* Native contrast filter applied to reader container */}
+            <div id="reader" className="w-full h-full contrast-[1.4] brightness-[1.1]"></div>
+            
+            {/* Optimized HUD Overlay */}
+            <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                <div className={`w-[300px] h-[150px] rounded-3xl border-4 ${isPaused ? 'border-zinc-700' : 'border-[#bcf540]'} shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] relative z-10`}>
+                    <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-2xl"></div>
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-2xl"></div>
+                    {!isPaused && (
+                        <div className="absolute left-0 right-0 h-1 bg-[#bcf540] shadow-[0_0_20px_#bcf540] animate-[scan_1.5s_linear_infinite]"></div>
+                    )}
                 </div>
-                {/* Corner brackets decorative */}
-                <div className="absolute top-8 left-8 w-8 h-8 border-t-2 border-l-2 border-[#bcf540]/40 rounded-tl-lg"></div>
-                <div className="absolute top-8 right-8 w-8 h-8 border-t-2 border-r-2 border-[#bcf540]/40 rounded-tr-lg"></div>
-                <div className="absolute bottom-8 left-8 w-8 h-8 border-b-2 border-l-2 border-[#bcf540]/40 rounded-bl-lg"></div>
-                <div className="absolute bottom-8 right-8 w-8 h-8 border-b-2 border-r-2 border-[#bcf540]/40 rounded-br-lg"></div>
-              </button>
-            </>
-          ) : (
-            <div className="w-full aspect-square max-h-[320px] max-w-[320px] relative rounded-3xl overflow-hidden border-2 border-[#bcf540]/40 shadow-[0_0_30px_rgba(188,245,64,0.2)]">
-              <div id="reader" className="w-full h-full bg-black"></div>
-              
-              {/* 扫码动画线 */}
-              {isScanning && (
-                <div className="absolute inset-0 z-10 pointer-events-none">
-                  <div className="w-full h-1 bg-[#bcf540] shadow-[0_0_10px_#bcf540] animate-[scan_2s_ease-in-out_infinite]"></div>
-                </div>
-              )}
+                <p className="mt-8 text-[#bcf540] font-black text-xs tracking-[0.3em] uppercase opacity-80">
+                    {isPaused ? 'Scanner Paused' : 'Hardware Accelerated Mode'}
+                </p>
+            </div>
 
-              {/* 扫码成功覆盖层 */}
-              {!isScanning && scanResult && (
-                <div className="absolute inset-0 z-20 bg-[#bcf540]/20 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-200">
-                  <div className="w-16 h-16 rounded-full bg-[#bcf540] flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-black text-3xl font-bold">check</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2 font-['Space_Grotesk']">{t('scanSuccess')}</h3>
-                  <p className="text-[#bcf540] font-mono text-lg break-all">
-                    {scanResult}
-                  </p>
-                </div>
-              )}
+            {/* Control Panel */}
+            <div className="absolute bottom-10 left-0 right-0 flex justify-center px-8 gap-4">
+                <button onClick={handleUndo} className={`flex-1 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 border border-white/10 ${undoStatus === 'SUCCESS' ? 'bg-green-600' : 'bg-white/5 backdrop-blur-md'}`}>
+                    {undoStatus === 'SUCCESS' ? 'Undone' : 'Undo'}
+                </button>
+                <button onClick={togglePause} className={`flex-1 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 border border-white/10 ${isPaused ? 'bg-[#bcf540] text-black' : 'bg-white/5 backdrop-blur-md text-[#bcf540]'}`}>
+                    {isPaused ? 'Resume' : 'Pause'}
+                </button>
             </div>
-          )}
-        </div>
 
-        {/* Feedback Area */}
-        <div className="px-6 pb-8 w-full mt-auto">
-          <h2 className="font-['Space_Grotesk'] text-[#c3c9af] uppercase tracking-widest mb-4 flex items-center gap-2 text-xs font-medium">
-            <span className="material-symbols-outlined text-[16px]">history</span>
-            {t('recentScans')}
-          </h2>
-          
-          {scanResult ? (
-            <div className="bg-[#1e2020] border border-[#434935]/30 rounded-xl p-4 flex items-center gap-4 relative overflow-hidden animate-in slide-in-from-bottom-4">
-              {/* Subtle status highlight edge */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#bcf540]"></div>
-              <div className="w-12 h-12 shrink-0 rounded-full bg-[#333535] flex items-center justify-center text-[#bcf540]">
-                <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+            {scanResult && !isPaused && (
+              <div className="absolute inset-0 bg-[#bcf540] text-black flex flex-col items-center justify-center z-50 animate-in fade-in duration-150">
+                <span className="material-symbols-outlined text-9xl animate-bounce">done_all</span>
+                <p className="text-4xl font-mono font-black mt-4">{scanResult}</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2 mb-1">
-                  <p className="font-['Inter'] text-[#e2e2e2] truncate font-medium text-lg">{scanResult}</p>
-                  <span className="font-['Space_Grotesk'] text-[#8d937c] shrink-0 text-xs font-medium">Just now</span>
-                </div>
-                <p className="font-['Inter'] text-[#bcf540]/80 truncate text-sm">Relayed to PC_{userId} - Success</p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-[#1e2020] border border-[#434935]/30 rounded-xl p-4 flex items-center justify-center text-[#8d937c] text-sm">
-              {t('waitingForScan')}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </main>
-
       <style>{`
-        @keyframes scan {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(100%); }
-          100% { transform: translateY(0); }
-        }
-        #reader__dashboard_section_csr span { display: none; }
-        #reader video { object-fit: cover; border-radius: 1.5rem; }
+        #reader video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+        @keyframes scan { 0% { top: 10%; } 100% { top: 90%; } }
       `}</style>
     </div>
   );

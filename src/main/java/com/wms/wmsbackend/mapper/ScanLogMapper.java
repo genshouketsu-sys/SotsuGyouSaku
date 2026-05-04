@@ -1,5 +1,6 @@
 package com.wms.wmsbackend.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -20,4 +21,9 @@ public interface ScanLogMapper {
             "LEFT JOIN product p ON sl.barcode = p.barcode " +
             "ORDER BY sl.scan_time DESC")
     List<Map<String, Object>> findAllLogs();
+    @Select("SELECT id FROM wms_scan_log WHERE user_id = #{userId} ORDER BY scan_time DESC LIMIT 1")
+    Long findLatestIdByUserId(String userId);
+
+    @Delete("DELETE FROM wms_scan_log WHERE id = #{id}")
+    int deleteById(Long id);
 }

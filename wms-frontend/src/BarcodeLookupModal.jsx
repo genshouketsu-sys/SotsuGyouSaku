@@ -11,7 +11,6 @@ function BarcodeLookupModal({ isOpen, onClose, onBarcodeFound }) {
 
   useEffect(() => {
     if (!isOpen) return;
-    // auto-focus manual input when modal opens
     setTimeout(() => inputRef.current?.focus(), 100);
     return () => stopCamera();
   }, [isOpen]);
@@ -24,150 +23,94 @@ function BarcodeLookupModal({ isOpen, onClose, onBarcodeFound }) {
     setIsCameraActive(false);
   };
 
-  const handleClose = () => {
-    stopCamera();
-    setLastScanned(null);
-    setManualInput('');
-    setError(null);
-    onClose();
-  };
-
   const startCamera = () => {
     setError(null);
     setIsCameraActive(true);
     setTimeout(() => {
       const scanner = new Html5Qrcode('barcodeReader');
       scannerRef.current = scanner;
+      
+      const config = {
+        fps: 25,
+        // Small center box for precision scanning
+        qrbox: { width: 220, height: 220 },
+        aspectRatio: 1.0,
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true
+        }
+      };
+
       scanner.start(
         { facingMode: 'environment' },
-        { fps: 12, qrbox: { width: 280, height: 140 } },
+        config,
         (text) => {
-          handleFound(text);
+          if (navigator.vibrate) navigator.vibrate(100);
+          setLastScanned(text);
+          onBarcodeFound(text);
           scanner.pause();
-          setTimeout(() => scanner.resume(), 1500);
+          setTimeout(() => {
+             if (scannerRef.current) scanner.resume();
+          }, 800);
         },
         () => {}
       ).catch((err) => {
-        setError('カメラにアクセスできません。HTTPSまたはlocalhostで開いてください。');
+        setError('Camera Access Error: ' + err);
         setIsCameraActive(false);
       });
     }, 150);
   };
 
-  const handleFound = (barcode) => {
-    setLastScanned(barcode);
-    onBarcodeFound(barcode);
-  };
-
-  const handleManualSubmit = (e) => {
-    e.preventDefault();
-    if (manualInput.trim()) {
-      handleFound(manualInput.trim());
-      setManualInput('');
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#161818] border border-white/10 rounded-2xl w-full max-w-md mx-4 overflow-hidden shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-[#c5ff4a]">barcode_scanner</span>
-            <h2 className="text-white font-semibold font-['Space_Grotesk']">バーコードスキャン</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="bg-[#161818] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#c5ff4a]">center_focus_strong</span>
+            <h2 className="text-white font-bold text-lg">Precision Lookup</h2>
           </div>
-          <button onClick={handleClose} className="p-1 text-zinc-400 hover:text-white transition-colors">
+          <button onClick={() => { stopCamera(); onClose(); }} className="text-zinc-500 hover:text-white">
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-
-        <div className="p-5 space-y-4">
-          {/* Camera area */}
-          {isCameraActive ? (
-            <div className="relative rounded-xl overflow-hidden border border-[#c5ff4a]/30 bg-black" style={{ height: 220 }}>
-              <div id="barcodeReader" className="w-full h-full" />
-              {/* scan line animation */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div
-                  className="w-full h-0.5 bg-[#c5ff4a] shadow-[0_0_8px_#c5ff4a]"
-                  style={{ animation: 'scanLine 1.8s ease-in-out infinite' }}
-                />
-              </div>
-              {/* corner brackets */}
-              {['top-2 left-2 border-t-2 border-l-2 rounded-tl-lg', 'top-2 right-2 border-t-2 border-r-2 rounded-tr-lg',
-                'bottom-2 left-2 border-b-2 border-l-2 rounded-bl-lg', 'bottom-2 right-2 border-b-2 border-r-2 rounded-br-lg'].map((cls, i) => (
-                <div key={i} className={`absolute w-5 h-5 border-[#c5ff4a] pointer-events-none ${cls}`} />
-              ))}
-              <button
-                onClick={stopCamera}
-                className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-4 py-1.5 rounded-full border border-white/20 hover:bg-black/80 transition"
-              >
-                停止
-              </button>
+        
+        {isCameraActive ? (
+          <div className="relative mb-6 rounded-xl overflow-hidden border border-white/5">
+            <div id="barcodeReader" className="w-full aspect-square bg-black" />
+            {/* Center Focus Guide */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="w-[220px] h-[220px] border-2 border-[#c5ff4a] rounded-2xl shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-[#c5ff4a]/50 shadow-[0_0_10px_#c5ff4a]"></div>
+                </div>
             </div>
-          ) : (
-            <button
-              onClick={startCamera}
-              className="w-full py-8 rounded-xl border-2 border-dashed border-white/15 flex flex-col items-center gap-3 text-zinc-400 hover:border-[#c5ff4a]/40 hover:text-[#c5ff4a] transition-all group"
-            >
-              <span className="material-symbols-outlined text-5xl group-hover:scale-110 transition-transform">photo_camera</span>
-              <span className="text-sm font-medium">タップしてカメラスキャン開始</span>
-            </button>
-          )}
-
-          {error && (
-            <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
-          )}
-
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-zinc-500 text-xs">または手動入力</span>
-            <div className="flex-1 h-px bg-white/10" />
+            <p className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-[#c5ff4a] font-bold uppercase tracking-widest bg-black/60 px-3 py-1 rounded-full">Only center will be read</p>
           </div>
+        ) : (
+          <button 
+            onClick={startCamera} 
+            className="w-full py-16 border-2 border-dashed border-white/10 rounded-xl text-zinc-500 hover:text-[#c5ff4a] hover:border-[#c5ff4a]/40 transition-all flex flex-col items-center gap-2 mb-6"
+          >
+            <span className="material-symbols-outlined text-4xl">filter_center_focus</span>
+            <span className="font-medium text-sm">Start Precision Scanner</span>
+          </button>
+        )}
 
-          {/* Manual / scanner-gun input */}
-          <form onSubmit={handleManualSubmit} className="flex gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={manualInput}
-              onChange={e => setManualInput(e.target.value)}
-              placeholder="バーコードを入力またはスキャン..."
-              className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent font-mono"
-            />
-            <button
-              type="submit"
-              className="bg-[#c5ff4a] text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#d4ff6a] transition active:scale-95"
-            >
-              検索
-            </button>
-          </form>
+        {error && <p className="text-red-500 text-xs mb-4 bg-red-500/10 p-2 rounded">{error}</p>}
 
-          {/* Last result */}
-          {lastScanned && (
-            <div className="bg-[#c5ff4a]/10 border border-[#c5ff4a]/30 rounded-xl px-4 py-3 flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#c5ff4a]">check_circle</span>
-              <div>
-                <p className="text-xs text-zinc-400 mb-0.5">スキャン済み</p>
-                <p className="text-[#c5ff4a] font-mono text-sm font-medium">{lastScanned}</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <form onSubmit={(e) => { e.preventDefault(); if(manualInput) onBarcodeFound(manualInput); }} className="flex gap-2">
+          <input 
+            ref={inputRef}
+            className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-700 focus:outline-none focus:border-[#c5ff4a]/50" 
+            placeholder="Manual entry..."
+            value={manualInput}
+            onChange={e => setManualInput(e.target.value)}
+          />
+          <button type="submit" className="bg-[#c5ff4a] text-black px-6 py-3 rounded-lg font-bold hover:bg-[#d4ff6a] transition shadow-[0_0_20px_rgba(197,255,74,0.2)]">
+            Find
+          </button>
+        </form>
       </div>
-
-      <style>{`
-        @keyframes scanLine {
-          0%   { transform: translateY(0); }
-          50%  { transform: translateY(210px); }
-          100% { transform: translateY(0); }
-        }
-        #barcodeReader video { width: 100% !important; height: 100% !important; object-fit: cover; }
-        #barcodeReader__scan_region { height: 100% !important; }
-      `}</style>
     </div>
   );
 }

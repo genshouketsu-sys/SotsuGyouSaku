@@ -60,3 +60,155 @@ Error: This socket has been ended by the other party
 12:50:17 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 12:50:17 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 12:56:01 PM [vite] (client) hmr update /src/ProductCatalog.jsx
+1:03:42 PM [vite] (client) [Unhandled error] Unknown Error: Cannot stop, scanner is not running or paused.
+
+1:03:43 PM [vite] (client) [Unhandled error] Unknown Error: Cannot stop, scanner is not running or paused.
+
+1:03:46 PM [vite] (client) [Unhandled error] Unknown Error: Cannot stop, scanner is not running or paused.
+
+1:03:46 PM [vite] (client) [Unhandled error] Unknown Error: Cannot stop, scanner is not running or paused.
+
+1:03:46 PM [vite] (client) [Unhandled error] Unknown Error: Cannot stop, scanner is not running or paused.
+
+1:06:07 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1:06:07 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1:06:08 PM [vite] (client) [console.error] Failed to fetch dashboard stats: AxiosError: Request failed with status code 403
+    at settle (https://localhost:5173/node_modules/.vite/deps/axios.js?v=32d41cbc:1669:14)
+    at XMLHttpRequest.onloadend (https://localhost:5173/node_modules/.vite/deps/axios.js?v=32d41cbc:2002:4)
+1:06:09 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1:06:09 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1:10:19 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1:10:20 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1:18:20 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:18:26 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:21:09 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:21:15 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:23:15 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:23:33 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:23:38 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:24:20 PM [vite] (client) [console.error] 启动摄像头失败: Error getting userMedia, error = NotAllowedError: The request is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
+1:25:06 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:25:12 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:26:57 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:27:03 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:27:23 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:121:54
+1:27:25 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:27:26 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:121:54
+1:27:31 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:27:43 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:121:54
+1:28:00 PM [vite] (client) [Unhandled error] Unknown Error: minimum size of 'config.qrbox' dimension value is 50px.
+
+1:28:04 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:28:08 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:28:10 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:28:10 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:28:11 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:28:14 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:28:14 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:28:15 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:28:19 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:28:20 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:28:21 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:28:22 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:28:28 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:28:36 PM [vite] (client) [Unhandled rejection] AbortError: The operation was aborted.
+
+1:28:44 PM [vite] (client) [console.error] 启动摄像头失败: @https://192.168.68.101:5173/src/components/MobileScanner.jsx:115:54
+1:29:06 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:29:15 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:29:28 PM [vite] (client) [Unhandled error] Unknown Error: minimum size of 'config.qrbox' dimension value is 50px.
+
+1:35:06 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:35:17 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:35:32 PM [vite] (client) [Unhandled error] ReferenceError: Can't find variable: Html5QrcodeSupportedFormats
+ > EAN_13 src/components/MobileScanner.jsx:42:37
+    40 |          // EXPLICITLY set formats to avoid "trying all" overhead
+    41 |          formatsToSupport: [
+    42 |            Html5QrcodeSupportedFormats.EAN_13,
+       |                                       ^
+    43 |            Html5QrcodeSupportedFormats.EAN_8
+    44 |          ],
+
+1:35:44 PM [vite] (client) [Unhandled error] ReferenceError: Can't find variable: Html5QrcodeSupportedFormats
+ > EAN_13 src/components/MobileScanner.jsx:42:37
+    40 |          // EXPLICITLY set formats to avoid "trying all" overhead
+    41 |          formatsToSupport: [
+    42 |            Html5QrcodeSupportedFormats.EAN_13,
+       |                                       ^
+    43 |            Html5QrcodeSupportedFormats.EAN_8
+    44 |          ],
+
+1:36:36 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:36:46 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:39:37 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:39:50 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:41:24 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:41:34 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:43:22 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:43:33 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:47:31 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:47:42 PM [vite] (client) hmr update /src/BarcodeLookupModal.jsx
+1:50:16 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:51:24 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:52:32 PM [vite] ws proxy error:
+Error: This socket has been ended by the other party
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at TLSSocket.writeAfterFIN [as write] (node:net:575:14)
+    at Socket.ondata (node:internal/streams/readable:1008:24)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+1:52:32 PM [vite] ws proxy socket error:
+Error: This socket has been ended by the other party
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at TLSSocket.writeAfterFIN [as write] (node:net:575:14)
+    at Socket.ondata (node:internal/streams/readable:1008:24)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+1:56:11 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:57:38 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:58:29 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+1:59:49 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+2:01:18 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+2:01:51 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:01:51 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:03:43 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+2:04:58 PM [vite] (client) [console.error] Push failed settle@https://192.168.68.101:5173/node_modules/.vite/deps/axios.js:1669:30
+onloadend@https://192.168.68.101:5173/node_modules/.vite/deps/axios.js:2002:10
+2:04:58 PM [vite] (client) [console.error] Push failed handleError@https://192.168.68.101:5173/node_modules/.vite/deps/axios.js:2030:32
+2:04:58 PM [vite] (client) [console.error] Push failed handleError@https://192.168.68.101:5173/node_modules/.vite/deps/axios.js:2030:32
+2:04:58 PM [vite] (client) [console.error] Push failed handleError@https://192.168.68.101:5173/node_modules/.vite/deps/axios.js:2030:32
+2:04:58 PM [vite] (client) [console.error] Push failed handleError@https://192.168.68.101:5173/node_modules/.vite/deps/axios.js:2030:32
+2:04:58 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:04:58 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:05:35 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+2:06:56 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+2:08:32 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
+2:08:38 PM [vite] (client) hmr update /src/App.jsx
+2:08:54 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:08:54 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:09:54 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:09:54 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:10:01 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:10:01 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+2:10:47 PM [vite] ws proxy error:
+Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
+2:10:47 PM [vite] ws proxy socket error:
+Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
+2:11:27 PM [vite] (client) hmr update /src/components/MobileScanner.jsx
