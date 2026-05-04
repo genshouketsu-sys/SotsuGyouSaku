@@ -1,0 +1,64 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.wms:wms-backend >-------------------------
+[INFO] Building wms-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.5:run (default-cli) > test-compile @ wms-backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ wms-backend ---
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] Copying 3 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ wms-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ wms-backend ---
+[INFO] skip non existing resourceDirectory /Volumes/Lexar/SotsuGyouSaku/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ wms-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:3.2.5:run (default-cli) < test-compile @ wms-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.5:run (default-cli) @ wms-backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-05-04T12:45:04.904+09:00  INFO 1614 --- [wms-backend] [           main] c.wms.wmsbackend.WmsBackendApplication   : Starting WmsBackendApplication using Java 25.0.1 with PID 1614 (/Volumes/Lexar/SotsuGyouSaku/target/classes started by genshouketsu in /Volumes/Lexar/SotsuGyouSaku)
+2026-05-04T12:45:04.906+09:00  INFO 1614 --- [wms-backend] [           main] c.wms.wmsbackend.WmsBackendApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-04T12:45:05.602+09:00  INFO 1614 --- [wms-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-04T12:45:05.603+09:00  INFO 1614 --- [wms-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-05-04T12:45:05.620+09:00  INFO 1614 --- [wms-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/Users/genshouketsu/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.20/tomcat-embed-core-10.1.20.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+2026-05-04T12:45:06.433+09:00  INFO 1614 --- [wms-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-04T12:45:06.445+09:00  INFO 1614 --- [wms-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-04T12:45:06.445+09:00  INFO 1614 --- [wms-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-05-04T12:45:06.504+09:00  INFO 1614 --- [wms-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-04T12:45:06.504+09:00  INFO 1614 --- [wms-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1551 ms
+2026-05-04T12:45:06.591+09:00  INFO 1614 --- [wms-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-04T12:45:06.992+09:00  INFO 1614 --- [wms-backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@584ca390
+2026-05-04T12:45:06.994+09:00  INFO 1614 --- [wms-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-04T12:45:07.972+09:00  INFO 1614 --- [wms-backend] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@29f3185c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@74bbc273, org.springframework.security.web.context.SecurityContextHolderFilter@298e002d, org.springframework.security.web.header.HeaderWriterFilter@70139a81, org.springframework.web.filter.CorsFilter@370a8b6e, org.springframework.security.web.authentication.logout.LogoutFilter@11ad095c, com.wms.wmsbackend.security.JwtAuthenticationFilter@4e67cfe1, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3c6bd624, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3d8d52be, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@118fbaf0, org.springframework.security.web.session.SessionManagementFilter@2d801d8, org.springframework.security.web.access.ExceptionTranslationFilter@52285a5f, org.springframework.security.web.access.intercept.AuthorizationFilter@399f5daf]
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by io.netty.util.internal.PlatformDependent0$4 (file:/Users/genshouketsu/.m2/repository/io/netty/netty-common/4.1.109.Final/netty-common-4.1.109.Final.jar)
+WARNING: Please consider reporting this to the maintainers of class io.netty.util.internal.PlatformDependent0$4
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+2026-05-04T12:45:08.499+09:00  INFO 1614 --- [wms-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-05-04T12:45:08.517+09:00  INFO 1614 --- [wms-backend] [           main] c.wms.wmsbackend.WmsBackendApplication   : Started WmsBackendApplication in 4.099 seconds (process running for 4.458)
+2026-05-04T12:45:22.195+09:00  INFO 1614 --- [wms-backend] [0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-04T12:45:22.196+09:00  INFO 1614 --- [wms-backend] [0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-04T12:45:22.199+09:00  INFO 1614 --- [wms-backend] [0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms

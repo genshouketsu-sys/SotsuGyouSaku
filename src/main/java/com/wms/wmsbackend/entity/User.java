@@ -12,7 +12,8 @@ public class User {
     private String avatarUrl;
     private Date createTime;
 
-    // Getters and Setters
+    public User() {}
+
     public Long getId() {
         return id;
     }
