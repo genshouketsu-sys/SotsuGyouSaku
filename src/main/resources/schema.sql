@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS `wms_user` (
   `username` varchar(50) NOT NULL UNIQUE,
   `password_hash` varchar(255) NOT NULL,
   `role` varchar(20) NOT NULL DEFAULT 'ROLE_ADMIN',
+  `display_name` varchar(100),
+  `email` varchar(100),
+  `avatar_url` varchar(255),
   `create_time` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

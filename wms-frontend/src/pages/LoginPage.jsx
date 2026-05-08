@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import axios from 'axios';
 import { useTranslation } from '../i18n/LanguageContext';
 
 const LoginPage = () => {
@@ -169,7 +169,6 @@ const LoginPage = () => {
         <header className="absolute top-0 left-0 w-full flex justify-between items-center px-10 py-6 bg-transparent backdrop-blur-sm border-b border-white/10 pointer-events-auto">
           <div className="flex items-center gap-3">
             <span className="text-xl font-black tracking-widest text-white uppercase">{t('omniWMS')}</span>
-            <span className="text-[10px] px-2 py-0.5 border border-[#bcf540] text-[#bcf540] font-bold uppercase tracking-tighter">PREDICTIVE AI</span>
           </div>
           <div className="flex items-center gap-6 relative">
             <span className="material-symbols-outlined text-white/60 hover:text-[#bcf540] transition-colors cursor-pointer">help_outline</span>
