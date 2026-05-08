@@ -1,15 +1,30 @@
 package com.wms.wmsbackend.controller;
 
-import com.wms.wmsbackend.annotation.Idempotent;
-import com.wms.wmsbackend.entity.Product;
-import com.wms.wmsbackend.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.wms.wmsbackend.annotation.Idempotent;
+import com.wms.wmsbackend.entity.Product;
+import com.wms.wmsbackend.service.ExcelExportService;
+import com.wms.wmsbackend.service.ProductService;
 
 @RestController
 @RequestMapping("/api/products")
@@ -18,6 +33,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ExcelExportService excelExportService;
 
     @GetMapping
     public ResponseEntity<List<Product>> getAll() {
@@ -42,7 +60,7 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> batchInbound(@RequestBody List<String> barcodes) {
         // 真实调用：遍历条码，更新数据库库存 (在庫更新)
         productService.batchInbound(barcodes);
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "批量入库成功 (一括入庫成功)，共处理 " + barcodes.size() + " 条记录");
@@ -74,5 +92,37 @@ public class ProductController {
         response.put("success", false);
         response.put("message", "商品删除失败 (商品削除失敗)");
         return ResponseEntity.status(500).body(response);
+    }
+
+    @GetMapping("/export/all")
+    public ResponseEntity<byte[]> exportAllProducts() {
+        try {
+            byte[] excelData = excelExportService.exportProductsToExcel();
+            String fileName = URLEncoder.encode("产品列表.xlsx", StandardCharsets.UTF_8.name());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", fileName);
+            headers.add("Content-Transfer-Encoding", "binary");
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            return ResponseEntity.ok().headers(headers).body(excelData);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/export/low-stock")
+    public ResponseEntity<byte[]> exportLowStockProducts() {
+        try {
+            byte[] excelData = excelExportService.exportLowStockProductsToExcel();
+            String fileName = URLEncoder.encode("低库存产品.xlsx", StandardCharsets.UTF_8.name());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", fileName);
+            headers.add("Content-Transfer-Encoding", "binary");
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            return ResponseEntity.ok().headers(headers).body(excelData);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 }
