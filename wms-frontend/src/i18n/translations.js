@@ -104,7 +104,7 @@ export const translations = {
     weight: "Weight",
     destination: "Destination",
     recentScans: "RECENT SCANS",
-    centerBarcode: "Ready to scan payload data. Ensure barcode is well-lit and centered.",
+    readyToScanHint: "Ready to scan payload data. Ensure barcode is well-lit and centered.",
     
     // QR Modal
     mobileScanner: "Mobile Scanner",
@@ -251,7 +251,7 @@ export const translations = {
     weight: "重量",
     destination: "目的地",
     recentScans: "最近扫描记录",
-    centerBarcode: "准备扫描载荷数据。请确保条形码光线充足并居中。",
+    readyToScanHint: "准备扫描载荷数据。请确保条形码光线充足并居中。",
 
     // QR Modal
     mobileScanner: "手机扫码器",
@@ -398,7 +398,7 @@ export const translations = {
     weight: "重量",
     destination: "目的地",
     recentScans: "最近のスキャン",
-    centerBarcode: "スキャン準備完了。バーコードが明るく、中央にあることを確認してください。",
+    readyToScanHint: "スキャン準備完了。バーコードが明るく、中央にあることを確認してください。",
 
     // QR Modal
     mobileScanner: "モバイル スキャナー",

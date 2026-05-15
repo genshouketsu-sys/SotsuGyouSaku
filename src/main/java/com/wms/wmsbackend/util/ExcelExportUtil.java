@@ -46,8 +46,7 @@ public class ExcelExportUtil {
             for (int i = 0; i < headers.size(); i++) {
                 Cell cell = headerRow.createCell(i);
                 String headerText = headers.get(i);
-                // 使用UTF-8编码确保字符正确存储
-                cell.setCellValue(new String(headerText.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                cell.setCellValue(headerText);
                 cell.setCellStyle(headerStyle);
                 // 自动调整列宽
                 sheet.setColumnWidth(i, 20 * 256);
@@ -65,9 +64,7 @@ public class ExcelExportUtil {
                     Object value = rowData.get(columnKey);
 
                     if (value != null) {
-                        String cellValue = value.toString();
-                        // 使用UTF-8编码确保字符正确存储
-                        cell.setCellValue(new String(cellValue.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                        cell.setCellValue(value.toString());
                     } else {
                         cell.setCellValue("");
                     }

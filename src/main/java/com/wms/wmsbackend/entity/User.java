@@ -1,8 +1,13 @@
 package com.wms.wmsbackend.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
+/**
+ * ユーザーエンティティ / 用户实体
+ * wms_user テーブルに対応する。/ 对应 wms_user 表。
+ */
 public class User {
+
     private Long id;
     private String username;
     private String passwordHash;
@@ -10,7 +15,8 @@ public class User {
     private String displayName;
     private String email;
     private String avatarUrl;
-    private Date createTime;
+    /** java.time.LocalDateTime を使用（java.util.Date は非推奨）/ 使用 LocalDateTime（不推荐使用 java.util.Date） */
+    private LocalDateTime createTime;
 
     public User() {}
 
@@ -70,11 +76,11 @@ public class User {
         this.avatarUrl = avatarUrl;
     }
 
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 }

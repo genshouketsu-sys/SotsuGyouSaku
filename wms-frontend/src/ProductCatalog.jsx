@@ -107,14 +107,52 @@ function ProductCatalog() {
 
   const handleExportCSV = () => {
     const headers = ['ID', 'SKU', 'Name', 'Barcode', 'Stock', 'Create Time'];
+
+    // Barcode を Excel に数値として解釈させないためテキスト強制 (="...") を使う
+    // Excelが長い数字を科学計数法で表示するのを防ぐ
+    const formatBarcode = (barcode) => {
+      if (!barcode) return '';
+      return `="` + String(barcode).replace(/"/g, '""') + `"`;
+    };
+
+    // createTime は Java の LocalDateTime が JSON 配列 [y,mo,d,h,mi,s,ns] として来る場合がある
+    const formatCreateTime = (timeInput) => {
+      if (!timeInput) return '';
+      let result;
+      if (Array.isArray(timeInput)) {
+        const [year, month, day, hour = 0, minute = 0, second = 0] = timeInput;
+        result = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
+      } else {
+        const date = new Date(timeInput);
+        if (isNaN(date.getTime())) return String(timeInput);
+        result = date.getFullYear() + '-' +
+          String(date.getMonth() + 1).padStart(2, '0') + '-' +
+          String(date.getDate()).padStart(2, '0') + ' ' +
+          String(date.getHours()).padStart(2, '0') + ':' +
+          String(date.getMinutes()).padStart(2, '0') + ':' +
+          String(date.getSeconds()).padStart(2, '0');
+      }
+      // CSV内でコンマや改行が含まれないようにダブルクォートで囲む
+      return `"${result}"`;
+    };
+
     const csvContent = [
       headers.join(','),
-      ...filteredProducts.map(p => 
-        [p.id, p.skuCode, `"${p.name}"`, p.barcode, p.stock, formatDateTime(p.createTime)].join(',')
+      ...filteredProducts.map(p =>
+        [
+          p.id,
+          p.skuCode ? `"${String(p.skuCode).replace(/"/g, '""')}"` : '',
+          p.name ? `"${String(p.name).replace(/"/g, '""')}"` : '',
+          formatBarcode(p.barcode),
+          p.stock ?? '',
+          formatCreateTime(p.createTime)
+        ].join(',')
       )
     ].join('\n');
+
     
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // '\uFEFF' は UTF-8 BOM。これがないと Excel が文字コードを誤認識し乱码になる。
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
@@ -162,23 +200,37 @@ function ProductCatalog() {
     setCurrentPage(1); // Reset to page 1 on filter/search change
   }, [searchTerm, stockFilter]);
 
+  // LocalDateTime の書式化 / 格式化 LocalDateTime
+  // 配列形式 [y,mo,d,h,mi,s,ns] または ISO 文字列 "2024-05-15T11:30:45" を扱う
   const formatDateTime = (timeInput) => {
     if (!timeInput) return '-';
-    
+
+    // 旧形式: Java LocalDateTime → JSON 配列
     if (Array.isArray(timeInput)) {
-      const [year, month, day, hour = 0, minute = 0] = timeInput;
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      const [year, month, day, hour = 0, minute = 0, second = 0] = timeInput;
+      return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')} ` +
+             `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
     }
 
+    // 新形式: ISO-8601 文字列 "2024-05-15T11:30:45"
+    // new Date() は UTC として解析するためタイムゾーンずれが起こる → 直接パース
+    const str = String(timeInput);
+    const m = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+    if (m) {
+      return `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`;
+    }
+
+    // フォールバック
     const date = new Date(timeInput);
-    if(isNaN(date.getTime())) return timeInput;
-    
+    if (isNaN(date.getTime())) return str;
     return date.getFullYear() + '-' +
-           String(date.getMonth() + 1).padStart(2, '0') + '-' +
-           String(date.getDate()).padStart(2, '0') + ' ' +
-           String(date.getHours()).padStart(2, '0') + ':' +
-           String(date.getMinutes()).padStart(2, '0');
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0') + ' ' +
+      String(date.getHours()).padStart(2, '0') + ':' +
+      String(date.getMinutes()).padStart(2, '0') + ':' +
+      String(date.getSeconds()).padStart(2, '0');
   };
+
 
   return (
     <div className="bg-transparent text-[#e2e2e2] w-full font-['Space_Grotesk'] relative min-h-[calc(100vh-64px)]">

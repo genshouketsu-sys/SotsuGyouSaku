@@ -95,7 +95,8 @@ function PcDashboard({
     const measureLatency = async () => {
       try {
         const start = performance.now();
-        await fetch('/api/scan/ping', { method: 'GET', cache: 'no-cache' });
+        // Use axios so the JWT Authorization header is sent automatically
+        await axios.get('/api/scan/logs', { params: { _t: Date.now() } });
         const end = performance.now();
         const currentLatency = Math.round(end - start);
         if (isMounted) {
@@ -107,7 +108,7 @@ function PcDashboard({
     };
     
     measureLatency();
-    const pingInterval = setInterval(measureLatency, 1500);
+    const pingInterval = setInterval(measureLatency, 3000);
     return () => {
       isMounted = false;
       clearInterval(pingInterval);
@@ -115,20 +116,19 @@ function PcDashboard({
   }, []);
 
   React.useEffect(() => {
-    // Fetch predictions on mount and interval
+    // Fetch predictions on mount and interval — use axios for JWT header
     const fetchPredictions = async () => {
       try {
-        const response = await fetch('/api/predictions/restock');
-        if (response.ok) {
-          const data = await response.json();
-          setPredictions(data);
+        const response = await axios.get('/api/predictions/restock');
+        if (response.data) {
+          setPredictions(response.data);
         }
       } catch (error) {
         console.error("Failed to fetch predictions:", error);
       }
     };
     fetchPredictions();
-    const interval = setInterval(fetchPredictions, 30000); // refresh every 30s
+    const interval = setInterval(fetchPredictions, 30000);
     return () => clearInterval(interval);
   }, []);
 
