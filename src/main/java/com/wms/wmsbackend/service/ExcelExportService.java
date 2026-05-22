@@ -69,9 +69,11 @@ public class ExcelExportService {
         List<Product> products = productMapper.findAll();
         List<Product> lowStockProducts = new ArrayList<>();
 
-        // 过滤低库存产品
+        // 过滤低库存产品（null 安全检查防止 NPE）
         for (Product product : products) {
-            if (product.getStock() < product.getSafetyStock()) {
+            int stock = product.getStock() != null ? product.getStock() : 0;
+            int safetyStock = product.getSafetyStock() != null ? product.getSafetyStock() : 0;
+            if (stock < safetyStock) {
                 lowStockProducts.add(product);
             }
         }

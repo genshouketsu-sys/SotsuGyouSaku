@@ -111,7 +111,6 @@ function MobileScanner({ onClose }) {
   };
 
   const resumeScanner = () => {
-    setShowDuplicateModal(false);
     setScanResult(null);
     if (scannerRef.current) {
       scannerRef.current.resume();

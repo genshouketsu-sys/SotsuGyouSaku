@@ -1,7 +1,6 @@
 package com.wms.wmsbackend.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import org.springframework.http.ContentDisposition;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -66,7 +65,7 @@ public class ProductController {
 
     /** 一括入庫（冪等性制御付き） / 批量入库（含幂等性控制） */
     @PostMapping("/batch-inbound")
-    @Idempotent(timeout = 3000)
+    @Idempotent(strategy = Idempotent.IdempotentStrategy.PARAM_HASH, timeout = 3000)
     public ResponseEntity<Map<String, Object>> batchInbound(@RequestBody List<String> barcodes) {
         productService.batchInbound(barcodes);
         Map<String, Object> response = new HashMap<>();

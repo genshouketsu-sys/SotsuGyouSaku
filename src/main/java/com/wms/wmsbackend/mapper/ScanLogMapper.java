@@ -3,6 +3,7 @@ package com.wms.wmsbackend.mapper;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 public interface ScanLogMapper {
 
     @Insert("INSERT INTO wms_scan_log(barcode, user_id, scan_time) VALUES(#{barcode}, #{userId}, NOW())")
-    int insert(String barcode, String userId);
+    int insert(@Param("barcode") String barcode, @Param("userId") String userId);
 
     @Select("SELECT COUNT(*) FROM wms_scan_log WHERE DATE(scan_time) = CURDATE()")
     int countScansToday();

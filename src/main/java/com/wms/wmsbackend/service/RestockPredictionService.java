@@ -43,7 +43,9 @@ public class RestockPredictionService {
         Map<String, Double> dynamicUsageMap = new HashMap<>();
         for (Map<String, Object> entry : recentScans) {
             String barcode = (String) entry.get("barcode");
-            Long count = (Long) entry.get("scanCount");
+            // MyBatis の COUNT(*) は Long, BigDecimal, Integer 等を返し得るため Number で安全に変換
+            // MyBatis COUNT(*) 结果可能是 Long/BigDecimal/Integer，使用 Number 安全转换
+            Number count = (Number) entry.get("scanCount");
             dynamicUsageMap.put(barcode, count.doubleValue() / LOOKBACK_DAYS);
         }
 
@@ -81,9 +83,10 @@ public class RestockPredictionService {
             int suggestedOrder = (int) Math.ceil(reorderPoint - currentStock + dailyUsage * 30);
             dto.setSuggestedOrderQuantity(Math.max(suggestedOrder, safetyStock * 2));
 
-            int daysLeft = dailyUsage > 0 ? (int) Math.floor(currentStock / dailyUsage) : 0;
+            // dailyUsage が 0 の場合は在庫が減らないため大きな値にする / 无消耗时不会耗尽
+            int daysLeft = dailyUsage > 0 ? (int) Math.floor(currentStock / dailyUsage) : 9999;
             dto.setDaysUntilDepletion(daysLeft);
-            dto.setPredictedDepletionDate(today.plusDays(daysLeft).toString());
+            dto.setPredictedDepletionDate(daysLeft >= 9999 ? "N/A" : today.plusDays(daysLeft).toString());
 
             // 緊急度判定 / 紧急度判断
             if (currentStock == 0) {

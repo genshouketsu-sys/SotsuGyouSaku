@@ -72,6 +72,13 @@ public class UserService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userMapper.findByUsername(username);
 
+        if (user == null) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "User not found");
+            return error;
+        }
+
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
