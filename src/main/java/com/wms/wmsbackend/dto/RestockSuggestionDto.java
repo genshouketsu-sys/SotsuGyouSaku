@@ -14,6 +14,11 @@ public class RestockSuggestionDto {
     private String reason;
     private String predictedDepletionDate;
 
+    // --- AI 拡張フィールド / AI Extension Fields ---
+    private Double confidenceScore;        // 予測信頼度 (0.0〜1.0)
+    private String predictionSource;       // "ai_exponential_smoothing" or "rule_based"
+    private Double predictedDailyUsage;    // AI予測の日次使用量
+
     // Getters and Setters
     public String getPredictedDepletionDate() { return predictedDepletionDate; }
     public void setPredictedDepletionDate(String predictedDepletionDate) { this.predictedDepletionDate = predictedDepletionDate; }
@@ -48,4 +53,14 @@ public class RestockSuggestionDto {
 
     public Integer getDaysUntilDepletion() { return daysUntilDepletion; }
     public void setDaysUntilDepletion(Integer daysUntilDepletion) { this.daysUntilDepletion = daysUntilDepletion; }
+
+    // --- AI 拡張フィールドの Getter/Setter ---
+    public Double getConfidenceScore() { return confidenceScore; }
+    public void setConfidenceScore(Double confidenceScore) { this.confidenceScore = confidenceScore; }
+
+    public String getPredictionSource() { return predictionSource; }
+    public void setPredictionSource(String predictionSource) { this.predictionSource = predictionSource; }
+
+    public Double getPredictedDailyUsage() { return predictedDailyUsage; }
+    public void setPredictedDailyUsage(Double predictedDailyUsage) { this.predictedDailyUsage = predictedDailyUsage; }
 }

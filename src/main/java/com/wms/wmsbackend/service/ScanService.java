@@ -64,6 +64,22 @@ public class ScanService {
             log.error("スキャンログの記録に失敗しました / 扫描日志记录失败: {}", e.getMessage(), e);
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // Future: Redis Pub/Sub リアルタイム予測フックポイント
+        // 出庫スキャン時に Redis チャネルへ publish し、
+        // Python AI エンジンがリアルタイムで需要予測を再計算する。
+        //
+        // @Autowired private StringRedisTemplate redisTemplate;
+        //
+        // Map<String, String> event = Map.of(
+        //     "barcode", barcode,
+        //     "userId", userId,
+        //     "timestamp", LocalDateTime.now().toString()
+        // );
+        // redisTemplate.convertAndSend("wms:scan:outbound",
+        //     objectMapper.writeValueAsString(event));
+        // ═══════════════════════════════════════════════════════════════
+
         // WebSocket で PC に中継 / 通过 WebSocket 向 PC 推送消息
         String targetClientId = "pc_" + userId;
         Map<String, String> wsMessage = new HashMap<>();

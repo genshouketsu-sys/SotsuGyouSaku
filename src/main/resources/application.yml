@@ -38,3 +38,17 @@ logging:
     com.wms.wmsbackend: DEBUG
     org.springframework.security: DEBUG
     org.springframework.security.web.authentication: TRACE
+
+# --- AI 予測エンジン設定 / AI Prediction Engine Config ---
+ai:
+  prediction-engine:
+    base-url: http://127.0.0.1:8000
+    timeout-ms: 5000
+    enabled: true
+
+# --- Future: Redis Pub/Sub リアルタイム予測設定 ---
+# wms:
+#   realtime:
+#     enabled: false
+#     redis-channel-outbound: wms:scan:outbound
+#     redis-channel-prediction: wms:prediction:updated

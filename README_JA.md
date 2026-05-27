@@ -19,7 +19,8 @@ PC ブラウザ（ダッシュボード）
 **主な特徴：**
 - 📱 モバイルスキャン: スマートフォンカメラで JAN バーコードを読み取り
 - 📡 WebSocket リアルタイム中継: スキャン結果を即座に PC へ反映
-- 📊 補充予測: 過去14日のスキャン実績から発注タイミングを算出
+- 🤖 AI 予測性補充: Python (FastAPI) マイクロサービスによる指数平滑法ベースの需要予測
+- 📊 補充予測: 過去14〜90日のスキャン実績から発注タイミングを算出
 - 🔐 JWT 認証: Bearer トークン方式によるステートレス認証
 - 🌏 多言語対応: 日本語 / 中文 / English の3言語 UI
 - 📦 幂等性制御付き一括入庫処理
@@ -39,6 +40,14 @@ PC ブラウザ（ダッシュボード）
 | MySQL 8.x | メインデータベース |
 | Redis 7.x | 幂等性キャッシュ |
 | Apache POI 5.x | Excel 出力 |
+
+### AI 予測エンジン
+| 技術 | 用途 |
+|------|------|
+| Python 3.10+ | 予測エンジン基盤 |
+| FastAPI 0.115 | REST API フレームワーク |
+| PyMySQL | MySQL 読み取り専用接続 |
+| 指数平滑法 | 需要予測アルゴリズム |
 
 ### フロントエンド
 | 技術 | 用途 |
@@ -79,6 +88,14 @@ SotsuGyouSaku/
         ├── components/      # UI コンポーネント
         ├── pages/           # ページコンポーネント
         └── i18n/            # 多言語翻訳ファイル
+
+├── prediction-engine/       # AI 予測マイクロサービス (Python)
+│   ├── main.py              # FastAPI アプリケーション
+│   ├── predictor.py         # 指数平滑法 予測ロジック
+│   ├── database.py          # MySQL 読み取り専用接続
+│   ├── models.py            # Pydantic レスポンスモデル
+│   ├── config.py            # 環境変数ベースの設定
+│   └── requirements.txt     # Python 依存パッケージ
 ```
 
 ---
@@ -88,6 +105,7 @@ SotsuGyouSaku/
 ### 前提条件
 - Java 17 以上
 - Node.js 18 以上
+- Python 3.10 以上
 - MySQL 8.x（ポート 3306）
 - Redis 7.x（ポート 6379）
 
@@ -174,7 +192,9 @@ curl -X POST http://localhost:8080/api/auth/register \
 | メソッド | エンドポイント | 説明 |
 |--------|--------------|------|
 | GET | `/api/dashboard/stats` | ダッシュボード統計 |
-| GET | `/api/predictions/restock` | 補充予測リスト |
+| GET | `/api/predictions/restock` | 補充予測リスト（AI 優先） |
+| GET | `/api/predictions/restock/ai` | AI 予測エンジン専用 |
+| POST | `/api/predictions/refresh` | AI モデル再学習トリガー |
 | GET | `/api/user/profile` | ユーザープロフィール |
 | POST | `/api/user/update-profile` | プロフィール更新 |
 | POST | `/api/user/update-password` | パスワード変更 |
@@ -192,12 +212,13 @@ curl -X POST http://localhost:8080/api/auth/register \
 ┌──────────────▼──────────────────┐
 │    Spring Boot バックエンド       │
 │  JWT認証 | REST API | WebSocket  │
-│  AOP幂等 | MyBatis | 補充予測    │
-└────────┬──────────┬─────────────┘
-         │          │
-    ┌────▼───┐  ┌───▼───┐
-    │ MySQL  │  │ Redis │
-    └────────┘  └───────┘
+│  AOP幂等 | MyBatis | AI Client   │
+└────────┬──────────┬────────┬────┘
+         │          │        │
+    ┌────▼───┐  ┌───▼───┐  ┌▼──────────────┐
+    │ MySQL  │  │ Redis │  │ FastAPI (AI)  │
+    └────────┘  └───────┘  │ Python :8000  │
+                           └───────────────┘
 ```
 
 ---
@@ -225,4 +246,4 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ---
 
-**最終更新**: 2026-05-13 | **バージョン**: 1.0.0
+**最終更新**: 2026-05-27 | **バージョン**: 2.0.0

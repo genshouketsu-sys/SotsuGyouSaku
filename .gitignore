@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Python Prediction Engine ###
+prediction-engine/venv/
+prediction-engine/__pycache__/
+prediction-engine/*.pyc

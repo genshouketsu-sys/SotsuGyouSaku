@@ -19,7 +19,8 @@ PC 浏览器（仪表盘）
 **核心功能：**
 - 📱 移动端扫码：使用手机摄像头读取 JAN 条形码
 - 📡 WebSocket 实时中继：扫描结果即时推送到 PC
-- 📊 补货预测：基于过去14天扫描数据计算补货时机
+- 🤖 AI 预测性补货：Python (FastAPI) 微服务，基于指数平滑法的需求预测
+- 📊 补货预测：基于过去14〜90天扫描数据计算补货时机
 - 🔐 JWT 认证：无状态 Bearer Token 认证
 - 🌏 多语言支持：日语 / 中文 / English 三语 UI
 - 📦 含幂等性控制的批量入库
@@ -39,6 +40,14 @@ PC 浏览器（仪表盘）
 | MySQL 8.x | 主数据库 |
 | Redis 7.x | 幂等性缓存 |
 | Apache POI 5.x | Excel 导出 |
+
+### AI 预测引擎
+| 技术 | 用途 |
+|------|------|
+| Python 3.10+ | 预测引擎基础 |
+| FastAPI 0.115 | REST API 框架 |
+| PyMySQL | MySQL 只读连接 |
+| 指数平滑法 | 需求预测算法 |
 
 ### 前端
 | 技术 | 用途 |
@@ -82,6 +91,14 @@ SotsuGyouSaku/
         ├── components/      # UI 组件
         ├── pages/           # 页面组件
         └── i18n/            # 多语言翻译文件
+
+├── prediction-engine/       # AI 预测微服务 (Python)
+│   ├── main.py              # FastAPI 应用
+│   ├── predictor.py         # 指数平滑法预测逻辑
+│   ├── database.py          # MySQL 只读连接
+│   ├── models.py            # Pydantic 响应模型
+│   ├── config.py            # 环境变量配置
+│   └── requirements.txt     # Python 依赖包
 ```
 
 ---
@@ -91,6 +108,7 @@ SotsuGyouSaku/
 ### 前置条件
 - Java 17 或以上
 - Node.js 18 或以上
+- Python 3.10 或以上
 - MySQL 8.x（端口 3306）
 - Redis 7.x（端口 6379）
 
@@ -177,7 +195,9 @@ curl -X POST http://localhost:8080/api/auth/register \
 | 方法 | 路径 | 描述 |
 |------|------|------|
 | GET | `/api/dashboard/stats` | 仪表盘统计数据 |
-| GET | `/api/predictions/restock` | 补货预测列表 |
+| GET | `/api/predictions/restock` | 补货预测列表（AI 优先） |
+| GET | `/api/predictions/restock/ai` | AI 预测引擎专用 |
+| POST | `/api/predictions/refresh` | AI 模型重新训练触发 |
 | GET | `/api/user/profile` | 获取用户信息 |
 | POST | `/api/user/update-profile` | 更新用户信息 |
 | POST | `/api/user/update-password` | 修改密码 |
@@ -195,12 +215,13 @@ curl -X POST http://localhost:8080/api/auth/register \
 ┌──────────────▼───────────────────┐
 │      Spring Boot 后端             │
 │  JWT认证 | REST API | WebSocket   │
-│  AOP幂等 | MyBatis | 补货预测引擎  │
-└────────┬──────────┬──────────────┘
-         │          │
-    ┌────▼───┐  ┌───▼───┐
-    │ MySQL  │  │ Redis │
-    └────────┘  └───────┘
+│  AOP幂等 | MyBatis | AI Client    │
+└────────┬──────────┬────────┬───┘
+         │          │        │
+    ┌────▼───┐  ┌───▼───┐  ┌▼──────────────┐
+    │ MySQL  │  │ Redis │  │ FastAPI (AI)  │
+    └────────┘  └───────┘  │ Python :8000  │
+                           └───────────────┘
 ```
 
 ---
@@ -285,11 +306,25 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ---
 
-**最后更新**: 2026-05-15 | **版本**: 1.1.0 | **语言**: 中文
+**最后更新**: 2026-05-27 | **版本**: 2.0.0 | **语言**: 中文
 
 ---
 
 ## 更新日志
+
+### v2.0.0 (2026-05-27)
+
+#### 🤖 新架构：AI 预测性补货微服务
+
+| 类别 | 描述 |
+|------|------|
+| 架构 | 将预测引擎拆分为独立的 Python (FastAPI) 微服务，端口 8000 |
+| 算法 | 采用指数平滑法 (Exponential Smoothing) 进行需求预测 |
+| 降级策略 | Spring Boot 通过 `AiPredictionClient` 调用 AI 引擎，宕机时自动回退至 Java 规则引擎 |
+| DTO 扩展 | `RestockSuggestionDto` 新增 `confidenceScore`、`predictionSource`、`predictedDailyUsage` 字段 |
+| API 新增 | `GET /api/predictions/restock/ai`（AI 专用）、`POST /api/predictions/refresh`（重新训练） |
+| 前端 | 预测弹窗新增 AI/Rule-based 来源徽章、置信度进度条、Refresh AI 按钮 |
+| 未来设计 | `ScanService.java` 和 `main.py` 中埋入 Redis Pub/Sub 钩子点，为实时预测迁移做准备 |
 
 ### v1.1.0 (2026-05-15)
 
@@ -300,10 +335,10 @@ curl -X POST http://localhost:8080/api/auth/register \
 | Excel 导出 | 修复导出文件中文/日文字符乱码问题（移除 `ExcelExportUtil` 中多余的字节转换逻辑） |
 | Excel 导出 | 修复 HTTP 响应头：使用标准 XLSX MIME 类型及 `ContentDisposition` 正确处理 UTF-8 文件名 |
 | CSV 导出 | 添加 UTF-8 BOM (`\uFEFF`)，解决 Windows Excel 打开 CSV 时中文乱码问题 |
-| CSV 导出 | 条形码列改用 Excel 文本强制格式 (`="..."`)，防止长数字被转为科学计数法 |
+| CSV 导出 | 条码码列改用 Excel 文本强制格式 (`="..."`)，防止长数字被转为科学计数法 |
 | CSV 导出 | 修复创建时间列无法显示的问题（正确处理含秒的 ISO-8601 字符串，避免时区偏差） |
-| 日期序列化 | 在 `application.yml` 全局配置 Jackson：`write-dates-as-timestamps: false`，使 `LocalDateTime` 以 ISO-8601 字符串输出，不再以数组形式输出 |
-| 前端时间格式化 | 升级 `formatDateTime` 函数，兼容旧数组格式和新 ISO 字符串格式，并正确显示秒数 |
+| 日期序列化 | 在 `application.yml` 全局配置 Jackson：`write-dates-as-timestamps: false`，使 `LocalDateTime` 以 ISO-8601 字符串输出 |
+| 前端时间格式化 | 升级 `formatDateTime` 函数，兼容旧数组格式和新 ISO 字符串格式 |
 
 #### ✨ 新功能
 

@@ -228,6 +228,21 @@ function PcDashboard({
     }
   };
 
+  const [isRefreshingAi, setIsRefreshingAi] = useState(false);
+  const handleRefreshAiModel = async () => {
+    setIsRefreshingAi(true);
+    try {
+      await axios.post('/api/predictions/refresh');
+      // Re-fetch predictions after refresh
+      const response = await axios.get('/api/predictions/restock');
+      if (response.data) setPredictions(response.data);
+    } catch (error) {
+      console.error('AI model refresh failed:', error);
+    } finally {
+      setIsRefreshingAi(false);
+    }
+  };
+
   const renderContent = () => {
     if (currentView === 'catalog') {
       return <ProductCatalog />;
@@ -619,10 +634,27 @@ function PcDashboard({
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#c5ff4a]">auto_awesome</span>
                 {t('predictiveRestock')}
+                {predictions.some(p => p.predictionSource && p.predictionSource.startsWith('ai_')) && (
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 uppercase tracking-widest animate-pulse">AI Powered</span>
+                )}
               </h2>
-              <button onClick={() => setShowPredictionsModal(false)} className="text-zinc-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
-                <span className="material-symbols-outlined">close</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleRefreshAiModel}
+                  disabled={isRefreshingAi}
+                  className={`flex items-center gap-1.5 h-[32px] px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all border ${
+                    isRefreshingAi
+                      ? 'text-zinc-500 border-zinc-700 cursor-wait'
+                      : 'text-purple-400 border-purple-500/30 hover:bg-purple-500/10'
+                  }`}
+                >
+                  <span className={`material-symbols-outlined text-[16px] ${isRefreshingAi ? 'animate-spin' : ''}`}>model_training</span>
+                  {isRefreshingAi ? 'Refreshing...' : 'Refresh AI'}
+                </button>
+                <button onClick={() => setShowPredictionsModal(false)} className="text-zinc-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
             </div>
             
             <div className="flex-1 overflow-auto pr-2">
@@ -666,7 +698,41 @@ function PcDashboard({
                               <span className={`font-bold ${p.daysUntilDepletion <= 3 ? 'text-red-400' : 'text-white'}`}>{p.daysUntilDepletion} days</span>
                             </div>
                           )}
+                          {/* AI Confidence Score */}
+                          {p.confidenceScore != null && p.confidenceScore > 0 && (
+                            <div className="flex flex-col min-w-[80px]">
+                              <span className="text-zinc-500 uppercase text-[9px] font-bold tracking-widest">Confidence</span>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <div className="h-1.5 w-16 bg-white/10 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-500 ${
+                                      p.confidenceScore >= 0.7 ? 'bg-gradient-to-r from-emerald-500 to-[#c5ff4a]' :
+                                      p.confidenceScore >= 0.4 ? 'bg-gradient-to-r from-orange-500 to-amber-400' :
+                                      'bg-gradient-to-r from-red-500 to-orange-500'
+                                    }`}
+                                    style={{ width: `${Math.round(p.confidenceScore * 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-white font-bold text-[10px]">{Math.round(p.confidenceScore * 100)}%</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
+                        {/* AI Source Badge */}
+                        {p.predictionSource && (
+                          <div className="mt-2">
+                            <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                              p.predictionSource.startsWith('ai_')
+                                ? 'bg-purple-500/15 text-purple-400 border border-purple-500/20'
+                                : 'bg-zinc-500/15 text-zinc-400 border border-zinc-500/20'
+                            }`}>
+                              <span className="material-symbols-outlined text-[12px]">
+                                {p.predictionSource.startsWith('ai_') ? 'psychology' : 'rule'}
+                              </span>
+                              {p.predictionSource.startsWith('ai_') ? 'AI Prediction' : 'Rule-based'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <div className="text-[10px] text-zinc-400">Suggested: <span className="text-white font-bold text-base">{p.suggestedOrderQuantity}</span> units</div>
