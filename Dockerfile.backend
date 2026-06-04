@@ -1,0 +1,67 @@
+# =============================================================================
+# Speed WMS - Spring Boot Backend Dockerfile
+# Java 17 / Spring Boot 3.2.5 / Maven
+# 多阶段构建 (Multi-stage Build)
+# =============================================================================
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 【阶段1：构建阶段 (Builder Stage)】
+# 使用完整的 Maven + JDK 镜像进行编译，包含所有构建工具。
+# 此阶段产物不会进入最终镜像，确保镜像体积最小化。
+# ─────────────────────────────────────────────────────────────────────────────
+FROM eclipse-temurin:17-jdk-alpine AS builder
+
+# 设置工作目录
+WORKDIR /build
+
+# 【缓存优化】优先复制 Maven 配置文件，单独下载依赖。
+# 只要 pom.xml 不变，此层将被 Docker 缓存复用，大幅提升后续构建速度。
+COPY pom.xml .
+COPY .mvn/ .mvn/
+COPY mvnw .
+
+# 赋予 Maven Wrapper 执行权限（Windows CRLF 行尾转换）
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
+
+# 下载所有 Maven 依赖（利用缓存层，仅在 pom.xml 变更时重新下载）
+RUN ./mvnw dependency:go-offline -B
+
+# 复制源代码（此步骤在依赖层之后，保证源码变更不影响依赖缓存）
+COPY src/ src/
+
+# 执行构建，跳过单元测试（生产构建阶段由 CI 负责测试）
+RUN ./mvnw package -DskipTests -B
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 【阶段2：运行阶段 (Runtime Stage)】
+# 仅使用轻量级 JRE（非 JDK），不包含任何构建工具，镜像体积显著缩小。
+# ─────────────────────────────────────────────────────────────────────────────
+FROM eclipse-temurin:17-jre-alpine AS runtime
+
+# 【安全性】创建最小权限的应用专用用户和组，避免以 root 运行
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建阶段复制生成的 JAR 文件（SNAPSHOT 版本通配符匹配）
+COPY --from=builder /build/target/wms-backend-*.jar app.jar
+
+# 将文件所有权移交给 appuser
+RUN chown appuser:appgroup app.jar
+
+# 切换到非 root 用户运行
+USER appuser
+
+# 声明应用暴露的端口（Spring Boot 默认 8080）
+EXPOSE 8080
+
+# 【JVM 调优】配置 JVM 参数，适应容器环境的内存限制
+# -XX:+UseContainerSupport：自动检测容器内存限制
+# -XX:MaxRAMPercentage=75.0：最多使用容器内存的 75%
+# -Djava.security.egd：使用非阻塞随机数源，加速 Spring Boot 启动
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]

@@ -1,0 +1,49 @@
+# =============================================================================
+# Speed WMS - Root .dockerignore
+# 用于 Dockerfile.backend（Spring Boot 后端）
+# =============================================================================
+
+# ────────── Git 版本控制 ──────────
+.git
+.gitignore
+.gitattributes
+
+# ────────── Maven 构建产物 ──────────
+# 排除已编译的 class 和 jar，完全在容器内重新构建
+target/
+
+# ────────── IDE 配置文件 ──────────
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# ────────── 日志文件 ──────────
+*.log
+backend.log
+backend_startup.log
+
+# ────────── 前端目录（后端镜像不需要）──────────
+wms-frontend/
+
+# ────────── Python 预测引擎（后端镜像不需要）──────────
+prediction-engine/
+
+# ────────── 文档和说明文件 ──────────
+*.md
+*.docx
+*.txt
+
+# ────────── 操作系统临时文件 ──────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ────────── Docker 文件本身（避免循环引用）──────────
+Dockerfile*
+docker-compose*.yml
+.dockerignore
