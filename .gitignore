@@ -36,3 +36,8 @@ build/
 prediction-engine/venv/
 prediction-engine/__pycache__/
 prediction-engine/*.pyc
+
+### WMS Temp / Local Files ###
+mysql_data/
+*.log
+

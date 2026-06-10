@@ -3,6 +3,7 @@ import ProductCatalog from '../ProductCatalog';
 import ScanQrModal from './ScanQrModal';
 import AdminSettingsModal from './AdminSettingsModal';
 import { useTranslation } from '../i18n/LanguageContext';
+import { useTheme } from '../i18n/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -14,6 +15,7 @@ function PcDashboard({
   connectionStatus
 }) {
   const { t, language, setLanguage } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState({
     username: localStorage.getItem('wms_username') || 'Admin',
@@ -254,13 +256,13 @@ function PcDashboard({
         {/* Inventory Overview Header */}
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-8">
           <div className="space-y-2">
-            <h1 className="font-h1 text-h1 text-primary">{t('inventoryOverview')}</h1>
-            <p className="text-on-surface-variant font-body-lg">{t('overviewDesc')}</p>
+            <h1 className="font-h1 text-h1" style={{ color: 'var(--color-text-primary)', fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.03em' }}>{t('inventoryOverview')}</h1>
+            <p className="font-body-lg" style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>{t('overviewDesc')}</p>
           </div>
           <div className="flex items-center gap-4 pb-2">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
-              <div className={`w-2 h-2 rounded-full ${connectionStatus === 'ACTIVE' ? 'bg-[#c5ff4a] animate-pulse' : 'bg-zinc-500'}`}></div>
-              <span className={`text-xs uppercase tracking-widest ${connectionStatus === 'ACTIVE' ? 'text-[#c5ff4a]' : 'text-zinc-500'}`}>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md" style={{ backgroundColor: 'var(--color-bg-tag)', border: '1px solid var(--color-border)' }}>
+              <div className={`w-2 h-2 rounded-full ${connectionStatus === 'ACTIVE' ? 'bg-[#c5ff4a] animate-pulse' : ''}`} style={connectionStatus !== 'ACTIVE' ? { backgroundColor: 'var(--color-text-faint)' } : {}}></div>
+              <span className="text-xs uppercase tracking-widest" style={{ color: connectionStatus === 'ACTIVE' ? 'var(--color-accent)' : 'var(--color-text-muted)' }}>
                 {t('liveSync')} {connectionStatus}
               </span>
             </div>
@@ -270,41 +272,42 @@ function PcDashboard({
         {/* Metric Cards (Bento Style) */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           {/* Metric 1: Total SKUs */}
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl space-y-4 border border-white/10 hover:border-[#bcf540]/30 transition-all group shadow-sm">
+          <div className="backdrop-blur-md p-6 rounded-2xl space-y-4 transition-all group shadow-sm" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div className="flex justify-between items-start">
-              <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#bcf540] transition-colors">category</span>
-              <span className="text-[#bcf540] font-black text-[9px] bg-[#bcf540]/10 px-2 py-1 rounded tracking-widest uppercase">Live Database</span>
+              <span className="material-symbols-outlined transition-colors" style={{ color: 'var(--color-text-muted)' }}>category</span>
+              <span className="font-black text-[9px] px-2 py-1 rounded tracking-widest uppercase" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-accent-bg)' }}>Live Database</span>
             </div>
             <div>
-              <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('totalActiveSKUs')}</h3>
-              <p className="text-4xl font-black text-white tracking-tighter">{stats.totalActiveSKUs.toLocaleString()}</p>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('totalActiveSKUs')}</h3>
+              <p className="text-4xl font-black tracking-tighter" style={{ color: 'var(--color-text-primary)' }}>{stats.totalActiveSKUs.toLocaleString()}</p>
             </div>
           </div>
           
           {/* Metric 2: Scans Today */}
-          <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl space-y-4 border border-white/10 hover:border-[#bcf540]/30 transition-all group shadow-sm">
+          <div className="backdrop-blur-md p-6 rounded-2xl space-y-4 transition-all group shadow-sm" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
             <div className="flex justify-between items-start">
-              <span className="material-symbols-outlined text-zinc-500 group-hover:text-[#bcf540] transition-colors">qr_code_scanner</span>
-              <span className="text-zinc-500 font-black text-[9px] bg-white/5 px-2 py-1 rounded tracking-widest uppercase">Daily Metrics</span>
+              <span className="material-symbols-outlined transition-colors" style={{ color: 'var(--color-text-muted)' }}>qr_code_scanner</span>
+              <span className="font-black text-[9px] px-2 py-1 rounded tracking-widest uppercase" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-tag)' }}>Daily Metrics</span>
             </div>
             <div>
-              <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('scansToday')}</h3>
-              <p className="text-4xl font-black text-white tracking-tighter">{stats.scansToday.toLocaleString()}</p>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('scansToday')}</h3>
+              <p className="text-4xl font-black tracking-tighter" style={{ color: 'var(--color-text-primary)' }}>{stats.scansToday.toLocaleString()}</p>
             </div>
           </div>
           
           {/* Metric 3: Low Stock Alerts */}
-          <div 
+          <div
             onClick={() => predictions.length > 0 && setShowPredictionsModal(true)}
-            className={`bg-white/5 backdrop-blur-md p-6 rounded-2xl space-y-4 border transition-all group shadow-sm ${stats.lowStockAlerts > 0 ? 'border-red-500/30 hover:border-red-500 cursor-pointer' : 'border-white/10'}`}
+            className={`backdrop-blur-md p-6 rounded-2xl space-y-4 transition-all group shadow-sm ${stats.lowStockAlerts > 0 ? 'cursor-pointer' : ''}`}
+            style={{ backgroundColor: 'var(--color-bg-card)', border: stats.lowStockAlerts > 0 ? '1px solid rgba(239,68,68,0.4)' : '1px solid var(--color-border)' }}
           >
             <div className="flex justify-between items-start">
-              <span className={`material-symbols-outlined ${stats.lowStockAlerts > 0 ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>warning</span>
-              <span className={`font-black text-[9px] px-2 py-1 rounded uppercase tracking-widest ${stats.lowStockAlerts > 0 ? 'text-white bg-red-600' : 'text-zinc-500 bg-white/5'}`}>{stats.lowStockAlerts > 0 ? t('actionRequired') : t('systemNominal')}</span>
+              <span className={`material-symbols-outlined ${stats.lowStockAlerts > 0 ? 'text-red-500 animate-pulse' : ''}`} style={stats.lowStockAlerts === 0 ? { color: 'var(--color-text-muted)' } : {}}>warning</span>
+              <span className="font-black text-[9px] px-2 py-1 rounded uppercase tracking-widest" style={stats.lowStockAlerts > 0 ? { color: '#fff', backgroundColor: '#dc2626' } : { color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-tag)' }}>{stats.lowStockAlerts > 0 ? t('actionRequired') : t('systemNominal')}</span>
             </div>
             <div>
-              <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('lowStockAlerts')}</h3>
-              <p className="text-4xl font-black text-white tracking-tighter">{stats.lowStockAlerts}</p>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('lowStockAlerts')}</h3>
+              <p className="text-4xl font-black tracking-tighter" style={{ color: stats.lowStockAlerts > 0 ? '#dc2626' : 'var(--color-text-primary)' }}>{stats.lowStockAlerts}</p>
             </div>
           </div>
         </section>
@@ -312,11 +315,11 @@ function PcDashboard({
         {/* System Health & Activity */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-8 pb-12">
           {/* Activity Table (Left) */}
-          <div className="lg:col-span-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-sm">
-            <div className="px-5 py-4 border-b border-white/5 flex flex-row justify-between items-center gap-4 bg-[#0c0f0f]/50">
+          <div className="lg:col-span-8 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <div className="px-5 py-4 flex flex-row justify-between items-center gap-4" style={{ borderBottom: '1px solid var(--color-border-faint)', backgroundColor: 'var(--color-bg-surface)' }}>
               <div className="flex items-center gap-3">
-                <h3 className="text-white text-sm font-bold tracking-tight">{t('recentScanningActivity')}</h3>
-                <span className="text-[#bcf540] text-[9px] font-black bg-[#bcf540]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">{scans.filter(s => s.status !== 'Stocked').length} Pending</span>
+                <h3 className="text-sm font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>{t('recentScanningActivity')}</h3>
+                <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-accent-bg)' }}>{scans.filter(s => s.status !== 'Stocked').length} Pending</span>
               </div>
               <div className="flex items-center gap-2">
                 <button 
@@ -344,21 +347,21 @@ function PcDashboard({
             </div>
             <div className="overflow-x-auto min-h-[400px]">
               <table className="w-full text-left">
-                <thead className="bg-[#0c0f0f]/30 text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">
+                <thead className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ backgroundColor: 'var(--color-bg-table-head)', color: 'var(--color-text-muted)' }}>
                   <tr>
-                    <th className="px-5 py-3 border-b border-white/5">{t('productName')}</th>
-                    <th className="px-5 py-3 border-b border-white/5">{t('skuId')}</th>
-                    <th className="px-5 py-3 border-b border-white/5">{t('timestamp')}</th>
-                    <th className="px-5 py-3 border-b border-white/5">{t('relayStatus')}</th>
-                    <th className="px-5 py-3 border-b border-white/5 text-left">{t('action')}</th>
+                    <th className="px-5 py-3" style={{ borderBottom: '1px solid var(--color-border-faint)' }}>{t('productName')}</th>
+                    <th className="px-5 py-3" style={{ borderBottom: '1px solid var(--color-border-faint)' }}>{t('skuId')}</th>
+                    <th className="px-5 py-3" style={{ borderBottom: '1px solid var(--color-border-faint)' }}>{t('timestamp')}</th>
+                    <th className="px-5 py-3" style={{ borderBottom: '1px solid var(--color-border-faint)' }}>{t('relayStatus')}</th>
+                    <th className="px-5 py-3 text-left" style={{ borderBottom: '1px solid var(--color-border-faint)' }}>{t('action')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody>
                   {sortedScans.map((scan, i) => (
-                    <tr key={i} className="hover:bg-white/5 transition-all group h-[56px]">
-                      <td className="px-5 py-3 font-bold text-white text-xs">{scan.name || '—'}</td>
-                      <td className="px-5 py-3 text-zinc-500 text-[11px] font-mono tracking-tight">{scan.id}</td>
-                      <td className="px-5 py-3 text-zinc-500 text-[10px] font-medium">{scan.time}</td>
+                    <tr key={i} className="transition-all group h-[56px]" style={{ borderBottom: '1px solid var(--color-border-faint)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor='var(--color-bg-row-hover)'} onMouseLeave={e => e.currentTarget.style.backgroundColor=''}>
+                      <td className="px-5 py-3 font-bold text-xs" style={{ color: 'var(--color-text-primary)' }}>{scan.name || '—'}</td>
+                      <td className="px-5 py-3 text-[11px] font-mono tracking-tight" style={{ color: 'var(--color-text-muted)' }}>{scan.id}</td>
+                      <td className="px-5 py-3 text-[10px] font-medium" style={{ color: 'var(--color-text-muted)' }}>{scan.time}</td>
                       <td className="px-5 py-3">
                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${scan.status === 'Verified' ? 'text-[#bcf540] bg-[#bcf540]/10' : 'text-zinc-500 bg-white/5'}`}>
                           <span className={`w-1 h-1 rounded-full ${scan.status === 'Verified' ? 'bg-[#bcf540]' : 'bg-zinc-500'}`}></span>
@@ -393,38 +396,38 @@ function PcDashboard({
 
           {/* System Health (Right) */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-xl space-y-6">
-              <h3 className="text-white text-xl font-medium">{t('systemHealth')}</h3>
+            <div className="backdrop-blur-md p-6 rounded-xl space-y-6" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+              <h3 className="text-xl font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('systemHealth')}</h3>
               <div className="space-y-4">
                 {/* Relay Status */}
-                <div className="p-4 rounded-lg bg-white/5 flex items-center justify-between border border-white/5">
+                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
                   <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-[#c5ff4a]">hub</span>
-                    <span className="text-sm font-medium text-white">{t('scanningRelay')}</span>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>hub</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('scanningRelay')}</span>
                   </div>
-                  <div className="px-2 py-1 rounded bg-[#c5ff4a]/10 text-[#c5ff4a] text-[10px] font-bold uppercase tracking-wider">{connectionStatus}</div>
+                  <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-accent-bg)', color: 'var(--color-accent)' }}>{connectionStatus}</div>
                 </div>
                 {/* WebSocket Status */}
-                <div className="p-4 rounded-lg bg-white/5 flex items-center justify-between border border-white/5">
+                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
                   <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-[#c5ff4a]">swap_calls</span>
-                    <span className="text-sm font-medium text-white">{t('websocketBridge')}</span>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>swap_calls</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('websocketBridge')}</span>
                   </div>
-                  <div className="px-2 py-1 rounded bg-[#c5ff4a]/10 text-[#c5ff4a] text-[10px] font-bold uppercase tracking-wider">{connectionStatus}</div>
+                  <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-accent-bg)', color: 'var(--color-accent)' }}>{connectionStatus}</div>
                 </div>
                 {/* Database Status */}
-                <div className="p-4 rounded-lg bg-white/5 flex items-center justify-between border border-white/5">
+                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
                   <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-zinc-500">storage</span>
-                    <span className="text-sm font-medium text-white">{t('localCache')}</span>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-text-muted)' }}>storage</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('localCache')}</span>
                   </div>
-                  <div className="px-2 py-1 rounded bg-zinc-400/10 text-zinc-400 text-[10px] font-bold uppercase tracking-wider">{t('syncing')}</div>
+                  <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-bg-tag)', color: 'var(--color-text-muted)' }}>{t('syncing')}</div>
                 </div>
               </div>
 
               {/* Visualization Mockup */}
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <div className="h-32 w-full relative overflow-hidden rounded-lg bg-[#0c0f0f]">
+              <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--color-border)' }}>
+                <div className="h-32 w-full relative overflow-hidden rounded-lg" style={{ backgroundColor: 'var(--color-bg-latency)' }}>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#c5ff4a]/20 to-transparent"></div>
                   <svg className="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
                     <path 
@@ -478,7 +481,7 @@ function PcDashboard({
   return (
     <>
       {/* SideNavBar */}
-      <aside className="fixed left-0 top-0 flex flex-col h-full z-40 bg-[#0c0f0f]/95 backdrop-blur-2xl w-64 border-r border-white/10 font-['Space_Grotesk'] antialiased">
+      <aside className="fixed left-0 top-0 flex flex-col h-full z-40 backdrop-blur-2xl w-64 font-['Space_Grotesk'] antialiased" style={{ backgroundColor: 'var(--color-bg-sidebar)', borderRight: '1px solid var(--color-border)' }}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-10 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
             <div className="w-10 h-10 rounded-lg bg-[#bcf540] flex items-center justify-center shadow-[0_0_20px_rgba(188,245,64,0.2)]">
@@ -526,7 +529,7 @@ function PcDashboard({
       </aside>
 
       {/* Content Wrapper */}
-      <main className="flex-1 ml-64 min-h-screen bg-[#0a0a0a] relative font-['Space_Grotesk']">
+      <main className="flex-1 ml-64 min-h-screen relative font-['Space_Grotesk']" style={{ backgroundColor: 'var(--color-bg-base)' }}>
 
         {/* Background Grid Pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.4]" style={{
@@ -535,24 +538,46 @@ function PcDashboard({
         }}></div>
 
         {/* TopAppBar */}
-        <header className="sticky top-0 z-30 flex justify-between items-center w-full px-8 h-[64px] bg-[#0c0f0f]/80 backdrop-blur-2xl border-b border-white/5">
+        <header className="sticky top-0 z-30 flex justify-between items-center w-full px-8 h-[64px] backdrop-blur-2xl" style={{ backgroundColor: 'var(--color-bg-header)', borderBottom: '1px solid var(--color-border-faint)' }}>
           <div className="flex items-center gap-4">
             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{currentView === 'dashboard' ? 'Overview' : 'Inventory Management'}</span>
           </div>
           <div className="flex items-center gap-6">
-            <div className="flex bg-white/5 rounded-lg border border-white/10 p-0.5">
+            {/* ── 主题切换按钮 ── */}
+            <button
+              id="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="w-9 h-9 flex items-center justify-center rounded-lg border transition-all hover:scale-105 active:scale-95"
+              style={{
+                backgroundColor: 'var(--color-accent-bg)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-accent)'
+              }}
+            >
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
+
+            <div className="h-6 w-[1px]" style={{ backgroundColor: 'var(--color-border)' }}></div>
+
+            <div className="flex rounded-lg border p-0.5" style={{ backgroundColor: 'var(--color-bg-pill)', borderColor: 'var(--color-border)' }}>
               {['en', 'zh', 'ja'].map(lang => (
                 <button 
                   key={lang}
                   onClick={() => setLanguage(lang)} 
-                  className={`w-8 h-7 text-[10px] font-bold rounded transition-all ${language === lang ? 'bg-[#bcf540] text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                  className={`w-8 h-7 text-[10px] font-bold rounded transition-all`}
+                  style={language === lang
+                    ? { backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-text)' }
+                    : { color: 'var(--color-text-muted)' }}
                 >
                   {lang.toUpperCase()}
                 </button>
               ))}
             </div>
             
-            <div className="h-6 w-[1px] bg-white/10"></div>
+            <div className="h-6 w-[1px]" style={{ backgroundColor: 'var(--color-border)' }}></div>
             
             <div className="relative">
               <div 
@@ -571,7 +596,7 @@ function PcDashboard({
               </div>
               
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-[#161818] border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl py-2 z-50" style={{ backgroundColor: 'var(--color-bg-user-menu)', border: '1px solid var(--color-border)' }}>
                   <div className="px-4 py-2 border-b border-white/5 mb-2">
                     <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">User Profile</p>
                     <p className="text-xs text-white font-bold truncate">{userProfile.username}</p>
@@ -629,7 +654,7 @@ function PcDashboard({
       {/* Predictions Modal */}
       {showPredictionsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#1e2020] border border-white/10 rounded-2xl p-6 max-w-4xl w-full max-h-[80vh] flex flex-col shadow-2xl">
+          <div className="rounded-2xl p-6 max-w-4xl w-full max-h-[80vh] flex flex-col shadow-2xl" style={{ backgroundColor: 'var(--color-bg-modal)', border: '1px solid var(--color-border)' }}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#c5ff4a]">auto_awesome</span>

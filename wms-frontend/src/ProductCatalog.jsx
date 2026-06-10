@@ -233,30 +233,32 @@ function ProductCatalog() {
 
 
   return (
-    <div className="bg-transparent text-[#e2e2e2] w-full font-['Space_Grotesk'] relative min-h-[calc(100vh-64px)]">
+    <div className="w-full font-['Space_Grotesk'] relative min-h-[calc(100vh-64px)]" style={{ color: 'var(--color-text-primary)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">{t('productCatalog')}</h1>
-            <p className="text-zinc-400 mt-1">Manage your inventory products, SKUs, and stock levels.</p>
+            <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>{t('productCatalog')}</h1>
+            <p className="mt-1" style={{ color: 'var(--color-text-muted)' }}>Manage your inventory products, SKUs, and stock levels.</p>
           </div>
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-[#c5ff4a] text-black px-5 py-2.5 rounded font-medium hover:bg-opacity-90 transition-colors flex items-center gap-2 shadow-sm active:scale-95"
+            className="px-5 py-2.5 rounded font-medium hover:brightness-110 transition-all flex items-center gap-2 shadow-sm active:scale-95"
+            style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-text)' }}
           >
             <span className="material-symbols-outlined text-sm">add</span>
             {t('addNewProduct')}
           </button>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-4 mb-6 shadow-sm">
+        <div className="backdrop-blur-md rounded-xl p-4 mb-6 shadow-sm" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="relative w-full sm:max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="material-symbols-outlined text-zinc-500 text-[20px]">search</span>
+                <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--color-text-muted)' }}>search</span>
               </div>
               <input 
-                className="block w-full pl-10 pr-3 h-[44px] border border-white/10 rounded-lg bg-zinc-950/50 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-shadow text-sm" 
+                className="block w-full pl-10 pr-3 h-[44px] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c5ff4a] focus:border-transparent transition-shadow text-sm" 
+                style={{ backgroundColor: 'var(--color-bg-input)', border: '1px solid var(--color-border-input)', color: 'var(--color-text-primary)' }}
                 placeholder={t('searchPlaceholder')}
                 type="text"
                 value={searchTerm}
@@ -266,21 +268,26 @@ function ProductCatalog() {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setIsScanModalOpen(true)}
-                className="flex items-center gap-2 px-4 h-[44px] border border-[#c5ff4a]/40 rounded-lg text-sm font-medium text-[#c5ff4a] hover:bg-[#c5ff4a]/10 transition-colors w-full sm:w-auto justify-center"
+                className="flex items-center gap-2 px-4 h-[44px] rounded-lg text-sm font-medium hover:opacity-80 transition-colors w-full sm:w-auto justify-center"
+                style={{ border: '1px solid var(--color-accent)', color: 'var(--color-accent)' }}
               >
                 <span className="material-symbols-outlined text-[18px]">barcode_scanner</span>
                 スキャン
               </button>
               <button 
                 onClick={() => setStockFilter(prev => prev === 'all' ? 'low' : 'all')}
-                className={`flex items-center gap-2 px-4 h-[44px] border rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center ${stockFilter === 'low' ? 'border-[#c5ff4a] text-[#c5ff4a] bg-[#c5ff4a]/10' : 'border-white/10 text-white hover:bg-white/5'}`}
+                className="flex items-center gap-2 px-4 h-[44px] rounded-lg text-sm font-medium transition-colors w-full sm:w-auto justify-center"
+                style={stockFilter === 'low' 
+                  ? { border: '1px solid var(--color-accent)', color: 'var(--color-accent)', backgroundColor: 'var(--color-accent-bg)' }
+                  : { border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
               >
                 <span className="material-symbols-outlined text-[18px]">filter_list</span>
                 {stockFilter === 'low' ? t('lowStockOnly') : t('allStock')}
               </button>
               <button 
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 h-[44px] border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors w-full sm:w-auto justify-center text-white"
+                className="flex items-center gap-2 px-4 h-[44px] rounded-lg text-sm font-medium hover:opacity-80 transition-colors w-full sm:w-auto justify-center"
+                style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
               >
                 <span className="material-symbols-outlined text-[18px]">download</span>
                 {t('export')}
@@ -289,31 +296,32 @@ function ProductCatalog() {
           </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-sm overflow-hidden">
+        <div className="backdrop-blur-md rounded-xl shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
           <div className="overflow-x-auto min-h-[680px]">
-            <table className="min-w-full divide-y divide-white/5">
-              <thead className="bg-[#0c0f0f]/50">
+            <table className="min-w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead style={{ backgroundColor: 'var(--color-bg-table-head)' }}>
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-16" scope="col">
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider w-16" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>
                     <input 
-                      className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
+                      className="rounded bg-transparent" 
+                      style={{ borderColor: 'var(--color-border-input)', accentColor: 'var(--color-accent)' }}
                       type="checkbox"
                       checked={paginatedProducts.length > 0 && selectedIds.size === paginatedProducts.length}
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-40" scope="col">{t('skuCode')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider" scope="col">{t('name')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-48" scope="col">{t('barcode')}</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-zinc-400 uppercase tracking-wider w-32" scope="col">{t('currentStock')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-56" scope="col">{t('createTime')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider w-28" scope="col">{t('actions')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider w-40" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>{t('skuCode')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>{t('name')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider w-48" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>{t('barcode')}</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider w-32" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>{t('currentStock')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider w-56" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>{t('createTime')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider w-28" scope="col" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-faint)' }}>{t('actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 bg-transparent">
+              <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="px-6 py-8 text-center text-zinc-500">
+                    <td colSpan="7" className="px-6 py-8 text-center" style={{ color: 'var(--color-text-muted)' }}>
                       <div className="flex items-center justify-center gap-2">
                         <span className="material-symbols-outlined animate-spin">refresh</span>
                         {t('loading')}
@@ -328,7 +336,7 @@ function ProductCatalog() {
                   </tr>
                 ) : paginatedProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="px-6 py-8 text-center text-zinc-500">
+                    <td colSpan="7" className="px-6 py-8 text-center" style={{ color: 'var(--color-text-muted)' }}>
                       {t('noProducts')}
                     </td>
                   </tr>
@@ -337,48 +345,53 @@ function ProductCatalog() {
                     <tr
                       key={product.id}
                       ref={product.barcode === highlightedBarcode ? highlightRef : null}
-                      className={`hover:bg-white/5 transition-colors group h-[72px] ${product.barcode === highlightedBarcode ? 'bg-[#c5ff4a]/10 ring-1 ring-[#c5ff4a]/40' : ''}`}
+                      className={`transition-colors group h-[72px] ${product.barcode === highlightedBarcode ? 'ring-1 ring-[#c5ff4a]/40' : ''}`}
+                      style={{ borderBottom: '1px solid var(--color-border-faint)', backgroundColor: product.barcode === highlightedBarcode ? 'var(--color-accent-bg)' : undefined }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-bg-row-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = product.barcode === highlightedBarcode ? 'var(--color-accent-bg)' : ''}
                     >
                       <td className="px-6 py-2 whitespace-nowrap">
                         <input 
-                          className="rounded border-white/20 text-[#c5ff4a] focus:ring-[#c5ff4a] bg-transparent" 
+                          className="rounded bg-transparent" 
+                          style={{ borderColor: 'var(--color-border-input)', accentColor: 'var(--color-accent)' }}
                           type="checkbox"
                           checked={selectedIds.has(product.id)}
                           onChange={() => toggleSelect(product.id)}
                         />
                       </td>
-                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-white">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {product.skuCode || '-'}
                       </td>
                       <td className="px-6 py-2">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0 bg-[#0c0f0f]/50 rounded-md border border-white/10 flex items-center justify-center overflow-hidden">
+                          <div className="h-10 w-10 flex-shrink-0 rounded-md flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
                             {product.image ? (
                               <img alt="Product thumbnail" className="h-full w-full object-cover" src={product.image}/>
                             ) : (
-                              <span className="material-symbols-outlined text-zinc-500 opacity-50">image</span>
+                              <span className="material-symbols-outlined opacity-50" style={{ color: 'var(--color-text-muted)' }}>image</span>
                             )}
                           </div>
                           <div className="ml-4 max-w-[240px]">
-                            <div className="text-sm font-medium text-white break-words whitespace-normal leading-tight line-clamp-2">{product.name || '-'}</div>
-                            <div className="text-[10px] text-zinc-500 mt-1 uppercase tracking-wider">{product.category || 'General Category'}</div>
+                            <div className="text-sm font-medium break-words whitespace-normal leading-tight line-clamp-2" style={{ color: 'var(--color-text-primary)' }}>{product.name || '-'}</div>
+                            <div className="text-[10px] mt-1 uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{product.category || 'General Category'}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-2 whitespace-nowrap text-sm text-zinc-400 font-mono">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-mono" style={{ color: 'var(--color-text-secondary)' }}>
                         {product.barcode || '-'}
                       </td>
-                      <td className={`px-6 py-2 whitespace-nowrap text-sm text-right font-medium ${product.stock < 20 ? 'text-red-500' : 'text-white'}`}>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-right font-medium" style={{ color: product.stock < 20 ? '#dc2626' : 'var(--color-text-primary)' }}>
                         {product.stock || 0}
                       </td>
-                      <td className="px-6 py-2 whitespace-nowrap text-sm text-zinc-400">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         {formatDateTime(product.createTime)}
                       </td>
                       <td className="px-6 py-2 whitespace-nowrap text-left text-sm font-medium">
                         <div className="flex justify-start gap-2">
                           <button 
                             onClick={() => handleEditClick(product)}
-                            className="text-zinc-500 hover:text-white transition-colors p-1"
+                            className="hover:opacity-80 transition-colors p-1"
+                            style={{ color: 'var(--color-text-muted)' }}
                           >
                             <span className="material-symbols-outlined text-sm">edit</span>
                           </button>
@@ -396,22 +409,24 @@ function ProductCatalog() {
               </tbody>
             </table>
           </div>
-          <div className="bg-[#0c0f0f]/30 px-6 h-[64px] border-t border-white/10 flex items-center justify-between">
-            <div className="text-sm text-zinc-400">
-              {t('showing')} <span className="font-medium text-white">{filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> {t('to')} <span className="font-medium text-white">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> {t('of')} <span className="font-medium text-white">{filteredProducts.length}</span> {t('results')}
+          <div className="px-6 h-[64px] flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-table-head)', borderTop: '1px solid var(--color-border)' }}>
+            <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              {t('showing')} <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> {t('to')} <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> {t('of')} <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{filteredProducts.length}</span> {t('results')}
             </div>
             <div className="flex gap-2">
               <button 
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 h-[36px] border border-white/10 rounded-lg bg-white/5 text-sm font-medium disabled:opacity-30 text-white hover:bg-white/10 transition-colors flex items-center"
+                className="px-4 h-[36px] rounded-lg text-sm font-medium disabled:opacity-30 hover:opacity-80 transition-colors flex items-center"
+                style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}
               >
                 {t('previous')}
               </button>
               <button 
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages || totalPages === 0}
-                className="px-4 h-[36px] border border-white/10 rounded-lg bg-white/5 text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-30 text-white flex items-center"
+                className="px-4 h-[36px] rounded-lg text-sm font-medium hover:opacity-80 transition-colors disabled:opacity-30 flex items-center"
+                style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}
               >
                 {t('next')}
               </button>

@@ -1,9 +1,110 @@
+/* ================================================================
+   SpeedWMS Global Theme System
+   主题通过 :root[data-theme] 切换，所有颜色使用 CSS 变量
+   ================================================================ */
+
+/* ── 深色主题（默认） ── */
+:root,
+:root[data-theme="dark"] {
+  --color-bg-base:        #0a0a0a;
+  --color-bg-surface:     #0c0f0f;
+  --color-bg-card:        rgba(255,255,255,0.05);
+  --color-bg-card-hover:  rgba(255,255,255,0.08);
+  --color-bg-sidebar:     rgba(12,15,15,0.95);
+  --color-bg-header:      rgba(12,15,15,0.80);
+  --color-bg-input:       transparent;
+  --color-bg-modal:       #1e2020;
+  --color-bg-modal-card:  rgba(255,255,255,0.05);
+  --color-bg-tag:         rgba(255,255,255,0.05);
+  --color-bg-pill:        rgba(255,255,255,0.05);
+  --color-bg-table-head:  rgba(12,15,15,0.30);
+  --color-bg-row-hover:   rgba(255,255,255,0.05);
+  --color-bg-latency:     #0c0f0f;
+  --color-bg-user-menu:   #161818;
+
+  --color-border:         rgba(255,255,255,0.10);
+  --color-border-faint:   rgba(255,255,255,0.05);
+  --color-border-input:   rgba(255,255,255,0.20);
+
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: #a1a1aa; /* zinc-400 */
+  --color-text-muted:     #71717a; /* zinc-500 */
+  --color-text-faint:     rgba(255,255,255,0.40);
+
+  --color-accent:         #bcf540;
+  --color-accent-alt:     #c5ff4a;
+  --color-accent-bg:      rgba(188,245,64,0.10);
+  --color-accent-text:    #141f00;
+
+  --color-grid-dot:       rgba(188,245,64,0.10);
+
+  --shadow-accent:        0 4px 15px rgba(188,245,64,0.20);
+  --shadow-accent-fab:    0 0 20px rgba(188,245,64,0.20);
+
+  color-scheme: dark;
+}
+
+/* ── 浅色主题（对照截图配色） ── */
+:root[data-theme="light"] {
+  /* 背景：截图中呈现极浅灰绿，非纯白页面 + 纯白卡片的双层结构 */
+  --color-bg-base:        #EDEDF0; /* 截图页面背景：中性浅灰，有极轻冷调 */
+  --color-bg-surface:     #E5E6EA; /* 二级背景，用于嵌套区块 */
+  --color-bg-card:        #FFFFFF; /* 纯白卡片，产生清晰层次 */
+  --color-bg-card-hover:  #F9F9FB;
+  --color-bg-sidebar:     #FFFFFF; /* 侧边栏纯白 */
+  --color-bg-header:      rgba(255,255,255,0.92); /* 半透明白 + blur */
+  --color-bg-input:       #FFFFFF;
+  --color-bg-modal:       #FFFFFF;
+  --color-bg-modal-card:  #F5F5F8;
+  --color-bg-tag:         #EEEEF2; /* 截图 tag 背景 */
+  --color-bg-pill:        #EEEEF2; /* 语言切换胶囊背景 */
+  --color-bg-table-head:  #F5F5F8;
+  --color-bg-row-hover:   #F0F0F4;
+  --color-bg-latency:     #EEEEF2;
+  --color-bg-user-menu:   #FFFFFF;
+
+  /* 边框：截图中边框为浅灰，清晰但不抢眼 */
+  --color-border:         #DDDDE3; /* 卡片/侧边栏边框 */
+  --color-border-faint:   #EAEAEE; /* 极细分隔线（表格行） */
+  --color-border-input:   #C8C8D0; /* 输入框边框 */
+
+  /* 文字：截图中主文字接近纯黑，层次分明
+     #111318 on #FFF = 18:1 ✅ AAA
+     #52525E on #FFF = 7.2:1 ✅ AAA          */
+  --color-text-primary:   #111318; /* 近黑，截图标题/数字颜色 */
+  --color-text-secondary: #3D3D4A; /* 深灰，次级文字 */
+  --color-text-muted:     #6B6B7A; /* 中灰，辅助说明 */
+  --color-text-faint:     #9898A8; /* 浅灰，placeholder / disabled */
+
+  /* 品牌色：截图中保留了原始荧光绿 #bcf540 系列
+     在白色卡片上作为 badge/button 背景使用，文字配黑色
+     对比：黑字 on #bcf540 = 10.7:1 ✅ AAA  */
+  --color-accent:         #BCDF40; /* 截图品牌绿，比 #bcf540 略降饱和适配浅色 */
+  --color-accent-alt:     #A8CC30; /* hover 深化 */
+  --color-accent-bg:      #EEF8C8; /* 截图 badge/tag 淡绿背景 */
+  --color-accent-text:    #1A2600; /* 黑色文字配荧光绿，AAA 级对比 */
+
+  --color-grid-dot:       rgba(188,223,64,0.15); /* 截图背景中可见的绿点 */
+
+  --shadow-accent:        0 4px 14px rgba(188,223,64,0.30);
+  --shadow-accent-fab:    0 0 20px rgba(188,223,64,0.25);
+
+  color-scheme: light;
+}
+
+/* ── 全局基础 ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  background-color: #121414;
-  color: white;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 #root {
@@ -13,43 +114,30 @@ body {
   display: flex;
 }
 
-/* Custom Scrollbar for a premium look */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* ── 滚动条 ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(188, 245, 64, 0.1);
+  background: var(--color-accent-bg);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(188, 245, 64, 0.3);
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
 }
 
-/* Theme Selection Color */
-::selection {
-  background: #bcf540;
-  color: #000;
-}
+/* ── 选中高亮 ── */
+::selection { background: var(--color-accent); color: var(--color-accent-text); }
 
-/* Remove blue highlight on mobile tap */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
+/* ── 移动端点击高亮 ── */
+* { -webkit-tap-highlight-color: transparent; }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+/* ── 隐藏滚动条工具类 ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
+/* ── 主题切换过渡（防止闪烁） ── */
+* { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+/* 排除动画类元素 */
+.animate-pulse, .animate-spin,
+.transition-transform, [class*="hover:scale"],
+[class*="active:scale"] { transition: none; }

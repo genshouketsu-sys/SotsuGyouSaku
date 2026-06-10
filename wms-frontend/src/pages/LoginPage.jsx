@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { useTranslation } from '../i18n/LanguageContext';
+import { useTheme } from '../i18n/ThemeContext';
 
 const LoginPage = () => {
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const { t, language, setLanguage } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [error, setError] = useState('');
@@ -155,7 +157,7 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="relative w-full h-screen bg-[#121414] overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       <div ref={containerRef} className="absolute inset-0 z-0" />
       
       {/* Gradient Overlays */}
@@ -171,6 +173,18 @@ const LoginPage = () => {
             <span className="text-xl font-black tracking-widest text-white uppercase">{t('omniWMS')}</span>
           </div>
           <div className="flex items-center gap-6 relative">
+            {/* 主题切换按钮 */}
+            <button
+              id="login-theme-toggle-btn"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:scale-105"
+              style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-accent-bg)' }}
+            >
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
             <span className="material-symbols-outlined text-white/60 hover:text-[#bcf540] transition-colors cursor-pointer">help_outline</span>
             <div className="relative">
               <span 
