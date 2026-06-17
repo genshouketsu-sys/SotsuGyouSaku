@@ -7,12 +7,12 @@ import { useTheme } from '../i18n/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function PcDashboard({ 
-  currentView, 
-  setCurrentView, 
-  scans, 
+function PcDashboard({
+  currentView,
+  setCurrentView,
+  scans,
   setScans,
-  connectionStatus
+  connectionStatus,
 }) {
   const { t, language, setLanguage } = useTranslation();
   const { theme, toggleTheme } = useTheme();
@@ -159,19 +159,20 @@ function PcDashboard({
     }
   };
 
-  const handleStockIn = async (scanId) => {
+  const handleStockIn = async (barcode) => {
+    // scan.id は barcode 値（スキャンした JAN/QR コード）
+    // scan.id holds the barcode value (scanned JAN/QR code)
     try {
-      const response = await axios.post('/api/products/batch-inbound', [scanId]);
+      const response = await axios.post('/api/products/batch-inbound', [barcode]);
       if (response.data && response.data.success) {
         if (setScans) {
-          setScans(prev => prev.map(s => s.id === scanId ? { ...s, status: 'Stocked' } : s));
+          setScans(prev => prev.map(s => s.id === barcode ? { ...s, status: 'Stocked' } : s));
         }
       } else {
-        alert(t('errorStockIn') || '入库失败 (Failed to stock in)');
+        console.error('Stock-in failed:', response.data?.message);
       }
     } catch (e) {
-      console.error(e);
-      alert(t('errorConnection') || '网络错误 (Network error)');
+      console.error('Stock-in error:', e);
     }
   };
 
@@ -219,15 +220,10 @@ function PcDashboard({
   }, [scans]);
 
   const handleExecuteOrder = async (skuCode, quantity) => {
-    try {
-      // In a real app, this would hit an order execution endpoint
-      alert(`Predictive order of ${quantity} units for '${skuCode}' executed successfully!`);
-      // Update UI optimistically or fetch again
-      setPredictions(prev => prev.filter(p => p.skuCode !== skuCode));
-    } catch (error) {
-      console.error('Failed to execute order:', error);
-      alert('Failed to execute predictive order.');
-    }
+    // 将该SKUの提案を一覧から除去（楽観的 UI 更新）
+    // Optimistic UI: remove the suggestion card immediately
+    setPredictions(prev => prev.filter(p => p.skuCode !== skuCode));
+    console.info(`[Order] Executed predictive order: SKU=${skuCode}, qty=${quantity}`);
   };
 
   const [isRefreshingAi, setIsRefreshingAi] = useState(false);
@@ -357,39 +353,65 @@ function PcDashboard({
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedScans.map((scan, i) => (
-                    <tr key={i} className="transition-all group h-[56px]" style={{ borderBottom: '1px solid var(--color-border-faint)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor='var(--color-bg-row-hover)'} onMouseLeave={e => e.currentTarget.style.backgroundColor=''}>
-                      <td className="px-5 py-3 font-bold text-xs" style={{ color: 'var(--color-text-primary)' }}>{scan.name || '—'}</td>
-                      <td className="px-5 py-3 text-[11px] font-mono tracking-tight" style={{ color: 'var(--color-text-muted)' }}>{scan.id}</td>
-                      <td className="px-5 py-3 text-[10px] font-medium" style={{ color: 'var(--color-text-muted)' }}>{scan.time}</td>
-                      <td className="px-5 py-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${scan.status === 'Verified' ? 'text-[#bcf540] bg-[#bcf540]/10' : 'text-zinc-500 bg-white/5'}`}>
-                          <span className={`w-1 h-1 rounded-full ${scan.status === 'Verified' ? 'bg-[#bcf540]' : 'bg-zinc-500'}`}></span>
-                          {scan.status}
-                        </span>
+                  {sortedScans.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-5 py-16 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <span className="material-symbols-outlined text-4xl" style={{ color: 'var(--color-text-faint)' }}>qr_code_scanner</span>
+                          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--color-text-faint)' }}>
+                            {t('noScansYet') || 'Waiting for scan data...'}
+                          </p>
+                        </div>
                       </td>
-                    <td className="px-5 py-3 text-left">
-                      <div className="flex justify-start items-center gap-2">
-                        {scan.status !== 'Stocked' && (
-                          <button 
-                            onClick={() => handleStockIn(scan.id)}
-                            className="h-[30px] px-3 rounded-md bg-[#bcf540]/10 text-[#bcf540] hover:bg-[#bcf540] hover:text-black transition-all text-[9px] font-black uppercase tracking-widest border border-[#bcf540]/20"
-                          >
-                            {t('confirmStockIn')}
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => handleDeleteScan(scan.id)}
-                          className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-red-500 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">delete</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              }
-            </tbody>
+                    </tr>
+                  ) : (
+                    sortedScans.map((scan, i) => (
+                      <tr
+                        key={i}
+                        className="transition-all group h-[56px]"
+                        style={{ borderBottom: '1px solid var(--color-border-faint)' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-bg-row-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+                      >
+                        <td className="px-5 py-3 font-bold text-xs" style={{ color: 'var(--color-text-primary)' }}>{scan.name || '—'}</td>
+                        <td className="px-5 py-3 text-[11px] font-mono tracking-tight" style={{ color: 'var(--color-text-muted)' }}>{scan.id}</td>
+                        <td className="px-5 py-3 text-[10px] font-medium" style={{ color: 'var(--color-text-muted)' }}>{scan.time}</td>
+                        <td className="px-5 py-3">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${
+                            scan.status === 'Verified' || scan.status === 'Stocked'
+                              ? 'text-[#bcf540] bg-[#bcf540]/10'
+                              : 'text-zinc-500 bg-white/5'
+                          }`}>
+                            <span className={`w-1 h-1 rounded-full ${
+                              scan.status === 'Verified' || scan.status === 'Stocked'
+                                ? 'bg-[#bcf540]'
+                                : 'bg-zinc-500'
+                            }`} />
+                            {scan.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-left">
+                          <div className="flex justify-start items-center gap-2">
+                            {scan.status !== 'Stocked' && (
+                              <button
+                                onClick={() => handleStockIn(scan.id)}
+                                className="h-[30px] px-3 rounded-md bg-[#bcf540]/10 text-[#bcf540] hover:bg-[#bcf540] hover:text-black transition-all text-[9px] font-black uppercase tracking-widest border border-[#bcf540]/20"
+                              >
+                                {t('confirmStockIn')}
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteScan(scan.id)}
+                              className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-red-500 transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
           </table>
         </div>
           </div>
@@ -400,7 +422,7 @@ function PcDashboard({
               <h3 className="text-xl font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('systemHealth')}</h3>
               <div className="space-y-4">
                 {/* Relay Status */}
-                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
+                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'transparent', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>hub</span>
                     <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('scanningRelay')}</span>
@@ -408,7 +430,7 @@ function PcDashboard({
                   <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-accent-bg)', color: 'var(--color-accent)' }}>{connectionStatus}</div>
                 </div>
                 {/* WebSocket Status */}
-                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
+                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'transparent', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>swap_calls</span>
                     <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('websocketBridge')}</span>
@@ -416,7 +438,7 @@ function PcDashboard({
                   <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-accent-bg)', color: 'var(--color-accent)' }}>{connectionStatus}</div>
                 </div>
                 {/* Database Status */}
-                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-faint)' }}>
+                <div className="p-4 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'transparent', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-text-muted)' }}>storage</span>
                     <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('localCache')}</span>

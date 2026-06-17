@@ -6,7 +6,8 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/wms_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Tokyo
     username: root
     # パスワードは環境変数 DB_PASSWORD で設定することを推奨 / 推荐通过环境变量 DB_PASSWORD 配置
-    password: "11111111"
+    # ローカル MariaDB 開発環境: root パスワードなし / 本地 MariaDB 开发环境：root 无密码
+    password: ""
   sql:
     init:
       mode: always

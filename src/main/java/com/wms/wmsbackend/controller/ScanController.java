@@ -15,13 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wms.wmsbackend.service.ScanService;
 
-import jakarta.annotation.security.PermitAll;
-
 /**
  * スキャンデータコントローラー / 扫码数据控制器
- * モバイル端末からのバーコードスキャンを受信し WebSocket で PC に中継する。
- * 接收移动端扫描数据，通过 WebSocket 转发至 PC 端。
- * CORS は SecurityConfig でグローバル設定済み。/ CORS 已在 SecurityConfig 全局配置。
+ *
+ * POST /api/scan/push  — 接收移动端扫描数据，通过 WebSocket 转发至 PC 端
+ * POST /api/scan/undo  — 撤销上一次扫描
+ * GET  /api/scan/logs  — 获取今日扫描日志列表
+ *
+ * /api/scan/** は SecurityConfig で permitAll 設定済み。
+ * /api/scan/** 已在 SecurityConfig 中配置为 permitAll。
  */
 @RestController
 @RequestMapping("/api/scan")
@@ -33,29 +35,39 @@ public class ScanController {
     private ScanService scanService;
 
     /** バーコードスキャンデータ受信 / 接收条码扫描数据 */
-    @PermitAll
     @PostMapping("/push")
     public ResponseEntity<Map<String, Object>> pushScanData(@RequestBody Map<String, String> payload) {
         String barcode = payload.get("barcode");
-        String userId = payload.get("userId");
+        String userId  = payload.get("userId");
+
+        if (barcode == null || barcode.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "barcode フィールドは必須です / barcode 字段不能为空"
+            ));
+        }
+
         log.info("スキャンデータ受信 / 接收到扫描数据: barcode={}, userId={}", barcode, userId);
         Map<String, Object> response = scanService.pushScanData(barcode, userId);
         return ResponseEntity.ok(response);
     }
 
     /** 直前スキャンの取り消し / 撤销上一次扫描 */
-    @PermitAll
     @PostMapping("/undo")
     public ResponseEntity<Map<String, Object>> undoScanData(@RequestBody Map<String, String> payload) {
         String userId = payload.get("userId");
         Map<String, Object> response = scanService.undoScanData(userId);
+
+        // 取り消すログがない場合は 404 を返す / 无可撤销记录时返回 404
+        if (!(Boolean) response.get("success")) {
+            return ResponseEntity.status(404).body(response);
+        }
         return ResponseEntity.ok(response);
     }
 
     /** スキャンログ取得 / 获取扫描日志 */
-    @PermitAll
     @GetMapping("/logs")
-    public List<Map<String, Object>> getScanLogs() {
-        return scanService.getScanLogs();
+    public ResponseEntity<List<Map<String, Object>>> getScanLogs() {
+        return ResponseEntity.ok(scanService.getScanLogs());
     }
 }
