@@ -3,11 +3,11 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/wms_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Tokyo
-    username: root
+    url: jdbc:postgresql://127.0.0.1:5432/wms_db
+    username: postgres
     # パスワードは環境変数 DB_PASSWORD で設定することを推奨 / 推荐通过环境变量 DB_PASSWORD 配置
-    # ローカル MariaDB 開発環境: root パスワードなし / 本地 MariaDB 开发环境：root 无密码
-    password: ""
+    # ローカル PostgreSQL 開発環境: インストール時に設定したパスワード
+    password: "postgres"
   sql:
     init:
       mode: always

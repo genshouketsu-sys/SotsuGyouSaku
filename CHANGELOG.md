@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v2.2.0] - 2026-06-27
+
+### Changed — PostgreSQL Migration & UI Fixes
+
+- **Database Migration**:
+  - 全面从 MySQL 迁移至 PostgreSQL 16 (Migrated entirely from MySQL to PostgreSQL 16)
+  - 替换 `mysql-connector-j` 为 `postgresql` JDBC 驱动
+  - 替换 Python 预测引擎的 `pymysql` 为 `psycopg2-binary`
+  - 重构所有 SQL 语句以适配 PostgreSQL 语法 (`BIGSERIAL`, `ON CONFLICT DO NOTHING`, `CURRENT_DATE`, `INTERVAL`)
+  - 修复 `data.sql` 数据导入时的主键/唯一键冲突问题
+
+- **UI & Dashboard Fixes**:
+  - 修复仪表板“库存预警”卡片在 AI 预测未返回数据时点击无响应的问题
+  - 修复初始 `00-X-ALPHA` 管理员密码哈希不匹配导致 401 登录失败的问题
+  - 优化 React 组件状态更新逻辑，确保与后端 PostgreSQL 数据同步无缝衔接
+
+---
+
 ## [v2.1.0] - 2026-06-04
 
 ### Added — Docker / 容器化支持 / コンテナ化

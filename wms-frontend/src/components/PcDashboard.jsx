@@ -293,7 +293,7 @@ function PcDashboard({
           
           {/* Metric 3: Low Stock Alerts */}
           <div
-            onClick={() => predictions.length > 0 && setShowPredictionsModal(true)}
+            onClick={() => setShowPredictionsModal(true)}
             className={`backdrop-blur-md p-6 rounded-2xl space-y-4 transition-all group shadow-sm ${stats.lowStockAlerts > 0 ? 'cursor-pointer' : ''}`}
             style={{ backgroundColor: 'var(--color-bg-card)', border: stats.lowStockAlerts > 0 ? '1px solid rgba(239,68,68,0.4)' : '1px solid var(--color-border)' }}
           >

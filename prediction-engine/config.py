@@ -13,7 +13,7 @@ class Settings:
 
     # --- Database (Read-Only Access) ---
     DB_HOST: str = os.getenv("WMS_DB_HOST", "127.0.0.1")
-    DB_PORT: int = int(os.getenv("WMS_DB_PORT", "3306"))
+    DB_PORT: int = int(os.getenv("WMS_DB_PORT", "5432"))
     DB_NAME: str = os.getenv("WMS_DB_NAME", "wms_db")
     DB_USER: str = os.getenv("WMS_DB_USER", "root")
     DB_PASSWORD: str = os.getenv("WMS_DB_PASSWORD", "")

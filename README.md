@@ -71,8 +71,8 @@ Mobile Scan → Spring Boot API → PC Browser
 
 | 层级 / レイヤー / Layer | 技术 / 技術 / Technology |
 |---|---|
-| 🇨🇳 **后端** / 🇯🇵 **バックエンド** / 🇺🇸 **Backend** | Java 22, Spring Boot 3.2, Spring Security, MyBatis, MariaDB/MySQL 8, Redis 7 |
-| 🇨🇳 **AI 预测** / 🇯🇵 **AI 予測** / 🇺🇸 **AI Engine** | Python 3.10+, FastAPI, PyMySQL, Exponential Smoothing |
+| 🇨🇳 **后端** / 🇯🇵 **バックエンド** / 🇺🇸 **Backend** | Java 22, Spring Boot 3.2, Spring Security, MyBatis, PostgreSQL 16, Redis 7 |
+| 🇨🇳 **AI 预测** / 🇯🇵 **AI 予測** / 🇺🇸 **AI Engine** | Python 3.10+, FastAPI, psycopg2, Exponential Smoothing |
 | 🇨🇳 **前端** / 🇯🇵 **フロントエンド** / 🇺🇸 **Frontend** | React 19, Vite, Tailwind CSS, Three.js, WebSocket, Axios |
 
 ---
@@ -215,7 +215,9 @@ CREATE DATABASE IF NOT EXISTS wms_db
 # src/main/resources/application.yml
 spring:
   datasource:
-    password: <MySQL密码 / パスワード / password>
+    url: jdbc:postgresql://127.0.0.1:5432/wms_db
+    username: postgres
+    password: <PostgreSQL密码 / パスワード / password>
 jwt:
   secret: <32位以上密钥 / 32文字以上 / 32+ char secret>
 ```
@@ -299,7 +301,7 @@ Click "Advanced" → "Proceed to ... (unsafe)" to bypass self-signed cert warnin
 
 - 生产环境必须修改 `jwt.secret`
 - 限制 CORS 跨域来源
-- MySQL 错误 → 确认服务是否启动
+- PostgreSQL 错误 → 确认服务是否启动
 - Redis 失败 → 自动降级为内存缓存
 
 </td>
@@ -307,7 +309,7 @@ Click "Advanced" → "Proceed to ... (unsafe)" to bypass self-signed cert warnin
 
 - 本番環境では `jwt.secret` を必ず変更
 - CORS 許可オリジンを制限すること
-- MySQL エラー → 起動状態を確認
+- PostgreSQL エラー → 起動状態を確認
 - Redis エラー → 自動的にローカルキャッシュへ切替
 
 </td>
@@ -315,7 +317,7 @@ Click "Advanced" → "Proceed to ... (unsafe)" to bypass self-signed cert warnin
 
 - Always change `jwt.secret` in production
 - Restrict CORS allowed origins
-- MySQL error → check if service is running
+- PostgreSQL error → check if service is running
 - Redis failure → auto-fallback to in-memory cache
 
 </td>

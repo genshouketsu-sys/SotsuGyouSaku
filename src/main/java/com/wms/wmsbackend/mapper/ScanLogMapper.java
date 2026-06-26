@@ -14,7 +14,7 @@ public interface ScanLogMapper {
     @Insert("INSERT INTO wms_scan_log(barcode, user_id, scan_time) VALUES(#{barcode}, #{userId}, NOW())")
     int insert(@Param("barcode") String barcode, @Param("userId") String userId);
 
-    @Select("SELECT COUNT(*) FROM wms_scan_log WHERE DATE(scan_time) = CURDATE()")
+    @Select("SELECT COUNT(*) FROM wms_scan_log WHERE DATE(scan_time) = CURRENT_DATE")
     int countScansToday();
 
     @Select("SELECT sl.*, p.name as productName " +
@@ -30,7 +30,7 @@ public interface ScanLogMapper {
 
     @Select("SELECT barcode, COUNT(*) as scanCount " +
             "FROM wms_scan_log " +
-            "WHERE scan_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY) " +
+            "WHERE scan_time >= NOW() - #{days} * INTERVAL '1 day' " +
             "GROUP BY barcode")
     List<Map<String, Object>> getRecentScanCounts(@org.apache.ibatis.annotations.Param("days") int days);
 }

@@ -1,6 +1,6 @@
 # =============================================================================
 # Speed WMS - Docker Compose 生产环境编排文件
-# 服务：MySQL + Redis + Spring Boot Backend + Python Prediction Engine + React Frontend
+# 服务：PostgreSQL + Redis + Spring Boot Backend + Python Prediction Engine + React Frontend
 # 使用方法：将此文件与 .env.prod 放在项目根目录，执行 docker compose up -d
 # =============================================================================
 
@@ -17,31 +17,30 @@ networks:
 # 持久化存储卷（数据库数据不随容器删除而丢失）
 # ─────────────────────────────────────────────────────────────
 volumes:
-  mysql-data:
+  postgres-data:
   redis-data:
 
 services:
 
   # ───────────────────────────────────────────────
-  # [1] MySQL 数据库
+  # [1] PostgreSQL 数据库
   # ───────────────────────────────────────────────
-  wms-mysql:
-    image: mysql:8.0
-    container_name: wms-mysql
+  wms-postgres:
+    image: postgres:16-alpine
+    container_name: wms-postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: wms_db
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      POSTGRES_DB: wms_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - wms-network
     ports:
-      - "3306:3306"   # 如无需从宿主机直接访问数据库，可删除此行
+      - "5432:5432"   # 如无需从宿主机直接访问数据库，可删除此行
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d wms_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -77,15 +76,15 @@ services:
     container_name: wms-backend
     restart: unless-stopped
     depends_on:
-      wms-mysql:
-        condition: service_healthy        # 等待 MySQL 健康检查通过
+      wms-postgres:
+        condition: service_healthy        # 等待 PostgreSQL 健康检查通过
       wms-redis:
         condition: service_healthy        # 等待 Redis 健康检查通过
     environment:
       # Spring Boot 数据源配置
-      SPRING_DATASOURCE_URL: jdbc:mysql://wms-mysql:3306/wms_db?useSSL=false&serverTimezone=Asia/Tokyo&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wms-postgres:5432/wms_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       # Redis 配置
       SPRING_DATA_REDIS_HOST: wms-redis
       SPRING_DATA_REDIS_PORT: 6379
@@ -116,14 +115,14 @@ services:
     container_name: wms-prediction
     restart: unless-stopped
     depends_on:
-      wms-mysql:
+      wms-postgres:
         condition: service_healthy
     environment:
-      WMS_DB_HOST: wms-mysql              # 使用服务名访问数据库
-      WMS_DB_PORT: 3306
+      WMS_DB_HOST: wms-postgres           # 使用服务名访问数据库
+      WMS_DB_PORT: 5432
       WMS_DB_NAME: wms_db
-      WMS_DB_USER: ${MYSQL_USER}
-      WMS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WMS_DB_USER: ${POSTGRES_USER}
+      WMS_DB_PASSWORD: ${POSTGRES_PASSWORD}
       ENGINE_PORT: 8000
     ports:
       - "8000:8000"

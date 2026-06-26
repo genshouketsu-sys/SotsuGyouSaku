@@ -1,6 +1,6 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
-pymysql==1.1.1
+psycopg2-binary==2.9.9
 pydantic==2.9.0
 # Future: Redis Pub/Sub for real-time prediction
 # redis==5.0.0
