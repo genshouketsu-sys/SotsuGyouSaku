@@ -12,6 +12,15 @@ function MobileScanner({ onClose }) {
   const { toggleChat, unreadCount } = useChat();
   const queryParams = new URLSearchParams(window.location.search);
   const userId = queryParams.get('userId') || localStorage.getItem('wms_username') || '1';
+
+  const handleChatClick = () => {
+    const token = localStorage.getItem('wms_token');
+    if (!token) {
+      alert('⚠️ 认证已过期或未获取授权，请在电脑端重新生成并扫描【最新】的二维码以启用聊天功能。 / Authorization missing. Please scan the newest QR code on the PC to enable chat.');
+      return;
+    }
+    toggleChat();
+  };
   
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -128,7 +137,7 @@ function MobileScanner({ onClose }) {
             <h1 className="text-xl font-bold tracking-tight uppercase">Speed Scan</h1>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={toggleChat} className="relative p-2 bg-[#bcf540]/10 text-[#bcf540] rounded-full border border-[#bcf540]/20 flex items-center justify-center transition-transform active:scale-95">
+          <button onClick={handleChatClick} className="relative p-2 bg-[#bcf540]/10 text-[#bcf540] rounded-full border border-[#bcf540]/20 flex items-center justify-center transition-transform active:scale-95">
             <span className="material-symbols-outlined">forum</span>
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-black animate-bounce shadow-lg">
