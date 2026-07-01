@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useLocation } from 'react-router-dom';
 import { useChat } from './ChatContext';
 import { useTranslation } from '../i18n/LanguageContext';
 
@@ -15,7 +14,6 @@ export default function OperatorChat() {
     sendMessage, connected, loadOlderMessages, hasMore, loadingHistory,
   } = useChat();
   const { t } = useTranslation();
-  const location = useLocation();
 
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
@@ -101,14 +99,13 @@ export default function OperatorChat() {
       {/* ═══════════════════════════════════════════════
           FAB（フローティングアクションボタン）/ 浮动按钮
           ═══════════════════════════════════════════════ */}
-      {!isOpen && location.pathname !== '/scanner' && (
+      {!isOpen && (
         <button
           id="operator-chat-fab"
           onClick={toggleChat}
-          className="fixed bottom-12 right-32 w-14 h-14 rounded-full flex items-center justify-center
-                     shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 group md:bottom-12 md:right-32 bottom-6 right-6"
+          className="fixed bottom-12 right-32 z-[60] w-14 h-14 rounded-full flex items-center justify-center
+                     shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 group"
           style={{
-            zIndex: 9999,
             background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-alt))',
             boxShadow: 'var(--shadow-accent-fab)',
           }}
@@ -136,11 +133,11 @@ export default function OperatorChat() {
       {isOpen && (
         <div
           id="operator-chat-drawer"
-          className="fixed flex flex-col shadow-2xl overflow-hidden animate-[slideUp_0.25s_ease-out]
-                     bottom-0 right-0 w-full h-[85vh] rounded-t-2xl rounded-b-none
-                     md:bottom-6 md:right-6 md:w-[380px] md:h-[560px] md:rounded-2xl"
+          className="fixed bottom-6 right-6 z-[60] flex flex-col rounded-2xl shadow-2xl overflow-hidden
+                     animate-[slideUp_0.25s_ease-out]"
           style={{
-            zIndex: 9999,
+            width: '380px',
+            height: '560px',
             backgroundColor: 'var(--color-bg-modal)',
             border: '1px solid var(--color-border)',
             backdropFilter: 'blur(20px)',

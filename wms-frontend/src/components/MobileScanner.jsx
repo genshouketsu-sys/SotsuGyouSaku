@@ -2,25 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import axios from 'axios';
 import { useTranslation } from '../i18n/LanguageContext';
-import { useChat } from '../chat/ChatContext';
 
 /**
  * MobileScanner - Optimized for Millisecond-level JAN/QR Recognition
  */
 function MobileScanner({ onClose }) {
   const { t } = useTranslation();
-  const { toggleChat, unreadCount } = useChat();
   const queryParams = new URLSearchParams(window.location.search);
   const userId = queryParams.get('userId') || localStorage.getItem('wms_username') || '1';
-
-  const handleChatClick = () => {
-    const token = localStorage.getItem('wms_token');
-    if (!token) {
-      alert('⚠️ 认证已过期或未获取授权，请在电脑端重新生成并扫描【最新】的二维码以启用聊天功能。 / Authorization missing. Please scan the newest QR code on the PC to enable chat.');
-      return;
-    }
-    toggleChat();
-  };
   
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -131,24 +120,12 @@ function MobileScanner({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-[#0a0a0a] text-white flex flex-col font-['Space_Grotesk']">
-      <header className="flex items-center justify-between px-6 py-5 bg-[#161818] border-b border-[#bcf540]/20 relative z-10">
+      <header className="flex items-center justify-between px-6 py-5 bg-[#161818] border-b border-[#bcf540]/20">
         <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-[#bcf540]">bolt</span>
             <h1 className="text-xl font-bold tracking-tight uppercase">Speed Scan</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <button onClick={handleChatClick} className="relative p-2 bg-[#bcf540]/10 text-[#bcf540] rounded-full border border-[#bcf540]/20 flex items-center justify-center transition-transform active:scale-95">
-            <span className="material-symbols-outlined">forum</span>
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-black animate-bounce shadow-lg">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </button>
-          <button onClick={onClose} className="p-2 bg-white/5 rounded-full flex items-center justify-center transition-transform active:scale-95">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
+        <button onClick={onClose} className="p-2 bg-white/5 rounded-full"><span className="material-symbols-outlined">close</span></button>
       </header>
 
       <main className="flex-1 relative flex flex-col items-center justify-center">
