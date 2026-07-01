@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from '../i18n/LanguageContext';
 
 function ScanQrModal({ isOpen, onClose }) {
   const { t } = useTranslation();
+  
+  // __LOCAL_IP__ 由 vite.config.js 注入，如果是 localhost，优先使用浏览器的 hostname
+  const defaultIp = window.location.hostname !== 'localhost' ? window.location.hostname : __LOCAL_IP__;
+  const [customIp, setCustomIp] = useState(defaultIp);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCustomIp(window.location.hostname !== 'localhost' ? window.location.hostname : __LOCAL_IP__);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  // __LOCAL_IP__ 由 vite.config.js 在构建时注入，值为本机局域网 IP
   const username = localStorage.getItem('wms_username') || '1';
   const token = localStorage.getItem('wms_token') || '';
-  // Use the current port dynamically to avoid hardcoded port mismatch (e.g. 5173 vs 5174)
   const currentPort = window.location.port || '5173';
-  const lanUrl = `https://${__LOCAL_IP__}:${currentPort}/scanner?userId=${username}&token=${token}`;
+  const lanUrl = `https://${customIp}:${currentPort}/scanner?userId=${username}&token=${token}`;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -50,10 +59,24 @@ function ScanQrModal({ isOpen, onClose }) {
           />
         </div>
 
-        {/* URL Display */}
+        {/* URL Display and Edit */}
         <div className="bg-[#0c0f0f] border border-white/10 rounded-lg p-3 mb-4">
-          <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1 font-medium">{t('connectionUrl')}</p>
-          <p className="text-[#bcf540] font-mono text-sm break-all select-all">{lanUrl}</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-medium">SERVER IP</p>
+            {customIp === 'localhost' && (
+              <span className="text-[10px] text-red-400 font-bold animate-pulse">
+                ⚠️ 请修改为局域网 IP / Please change to LAN IP
+              </span>
+            )}
+          </div>
+          <input 
+            type="text" 
+            value={customIp}
+            onChange={(e) => setCustomIp(e.target.value)}
+            className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-[#bcf540] font-mono text-xs focus:outline-none focus:border-[#bcf540]/50 mb-2"
+            placeholder="e.g. 192.168.1.100"
+          />
+          <p className="text-[#bcf540]/70 font-mono text-[10px] break-all select-all">{lanUrl}</p>
         </div>
 
         {/* Instructions */}
