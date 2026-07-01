@@ -8,6 +8,17 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { ChatProvider } from './chat/ChatContext';
 import OperatorChat from './chat/OperatorChat';
 
+// ── URL からの認証情報抽出（モバイル用） / 提取 URL 传递的鉴权信息（移动端用） ──
+const urlParams = new URLSearchParams(window.location.search);
+const urlToken = urlParams.get('token');
+const urlUserId = urlParams.get('userId');
+if (urlToken) {
+  localStorage.setItem('wms_token', urlToken);
+}
+if (urlUserId) {
+  localStorage.setItem('wms_username', urlUserId);
+}
+
 // ── Axios グローバル設定 / Axios 全局配置 ──────────────────────────────────
 // リクエストインターセプター: JWT を Authorization ヘッダーに付加
 // 请求拦截器：自动在请求头注入 JWT Token

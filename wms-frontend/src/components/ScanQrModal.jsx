@@ -8,9 +8,10 @@ function ScanQrModal({ isOpen, onClose }) {
 
   // __LOCAL_IP__ 由 vite.config.js 在构建时注入，值为本机局域网 IP
   const username = localStorage.getItem('wms_username') || '1';
+  const token = localStorage.getItem('wms_token') || '';
   // Use the current port dynamically to avoid hardcoded port mismatch (e.g. 5173 vs 5174)
   const currentPort = window.location.port || '5173';
-  const lanUrl = `https://${__LOCAL_IP__}:${currentPort}/scanner?userId=${username}`;
+  const lanUrl = `https://${__LOCAL_IP__}:${currentPort}/scanner?userId=${username}&token=${token}`;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
