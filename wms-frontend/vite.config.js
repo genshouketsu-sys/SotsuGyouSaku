@@ -44,6 +44,13 @@ export default defineConfig({
         ws: true,
         changeOrigin: true,
         secure: false
+      },
+      // チャット用 STOMP WebSocket プロキシ / 聊天 STOMP WebSocket 代理
+      '/ws-chat': {
+        target: 'http://localhost:8080',
+        ws: true,
+        changeOrigin: true,
+        secure: false
       }
     }
   }

@@ -5,6 +5,8 @@ import PcDashboard from './components/PcDashboard';
 import MobileScanner from './components/MobileScanner';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ChatProvider } from './chat/ChatContext';
+import OperatorChat from './chat/OperatorChat';
 
 // ── Axios グローバル設定 / Axios 全局配置 ──────────────────────────────────
 // リクエストインターセプター: JWT を Authorization ヘッダーに付加
@@ -158,35 +160,40 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        {/* パブリック: ログインページ / 公开路由：登录页 */}
-        <Route path="/login" element={<LoginPage />} />
+      <ChatProvider>
+        <Routes>
+          {/* パブリック: ログインページ / 公开路由：登录页 */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* 保護ルート: PC ダッシュボード / 受保护路由：PC 仪表板 */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <PcDashboard
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                scans={scans}
-                setScans={setScans}
-                connectionStatus={connectionStatus}
-              />
-            </ProtectedRoute>
-          }
-        />
+          {/* 保護ルート: PC ダッシュボード / 受保护路由：PC 仪表板 */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <PcDashboard
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  scans={scans}
+                  setScans={setScans}
+                  connectionStatus={connectionStatus}
+                />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* モバイルスキャナー / 移动端扫码页 */}
-        <Route
-          path="/scanner"
-          element={<MobileScanner onClose={() => window.location.href = '/'} />}
-        />
+          {/* モバイルスキャナー / 移动端扫码页 */}
+          <Route
+            path="/scanner"
+            element={<MobileScanner onClose={() => window.location.href = '/'} />}
+          />
 
-        {/* フォールバック / 兜底路由 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* フォールバック / 兜底路由 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+
+        {/* オペレーターチャット（Portal で body に直接レンダリング）/ 操作员聊天（Portal 直接渲染到 body） */}
+        <OperatorChat />
+      </ChatProvider>
     </Router>
   );
 }

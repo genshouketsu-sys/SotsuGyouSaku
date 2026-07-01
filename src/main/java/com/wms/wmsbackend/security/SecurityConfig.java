@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/scan/**").permitAll() // Allow Mobile Scan Push
                 .requestMatchers("/ws/scan").permitAll() // Allow WebSocket
+                .requestMatchers("/ws-chat/**").permitAll() // Allow Chat WebSocket (JWT verified in handshake interceptor)
                 .anyRequest().authenticated()
             );
 
