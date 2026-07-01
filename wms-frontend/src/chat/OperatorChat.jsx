@@ -105,9 +105,10 @@ export default function OperatorChat() {
         <button
           id="operator-chat-fab"
           onClick={toggleChat}
-          className="fixed bottom-12 right-32 z-[110] w-14 h-14 rounded-full flex items-center justify-center
+          className="fixed bottom-12 right-32 w-14 h-14 rounded-full flex items-center justify-center
                      shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 group md:bottom-12 md:right-32 bottom-6 right-6"
           style={{
+            zIndex: 9999,
             background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-alt))',
             boxShadow: 'var(--shadow-accent-fab)',
           }}
@@ -135,10 +136,11 @@ export default function OperatorChat() {
       {isOpen && (
         <div
           id="operator-chat-drawer"
-          className="fixed z-[110] flex flex-col shadow-2xl overflow-hidden animate-[slideUp_0.25s_ease-out]
+          className="fixed flex flex-col shadow-2xl overflow-hidden animate-[slideUp_0.25s_ease-out]
                      bottom-0 right-0 w-full h-[85vh] rounded-t-2xl rounded-b-none
                      md:bottom-6 md:right-6 md:w-[380px] md:h-[560px] md:rounded-2xl"
           style={{
+            zIndex: 9999,
             backgroundColor: 'var(--color-bg-modal)',
             border: '1px solid var(--color-border)',
             backdropFilter: 'blur(20px)',
