@@ -39,14 +39,14 @@ export default defineConfig({
         secure: false
       },
       // 将 WebSocket 请求也代理到后端
-      '/ws': {
+      '^/ws/.*': {
         target: 'ws://localhost:8080',
         ws: true,
         changeOrigin: true,
         secure: false
       },
       // チャット用 STOMP WebSocket プロキシ / 聊天 STOMP WebSocket 代理
-      '/ws-chat': {
+      '^/ws-chat/.*': {
         target: 'http://localhost:8080',
         ws: true,
         changeOrigin: true,
