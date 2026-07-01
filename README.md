@@ -59,6 +59,7 @@ Mobile Scan → Spring Boot API → PC Browser
 | 📱 移动端扫码（JAN/QR码） | モバイルスキャン（JAN/QRコード） | Mobile barcode scanning (JAN/QR) |
 | 📡 WebSocket 实时中继 | WebSocket リアルタイム中継 | Real-time WebSocket relay to PC |
 | 🤖 AI 预测补货（指数平滑） | AI 予測補充（指数平滑法） | AI predictive restocking (exp. smoothing) |
+| 💬 操作员实时聊天（STOMP + Redis） | オペレーターリアルタイムチャット | Operator real-time chat (STOMP + Redis Pub/Sub) |
 | 🔐 JWT 无状态认证 | JWT ステートレス認証 | Stateless JWT authentication |
 | 🌏 中日英三语 UI | 日中英 3言語 UI | Trilingual UI (ZH/JA/EN) |
 | 📦 幂等性防重提交 | 冪等性制御・二重送信防止 | Idempotent batch inbound control |
@@ -113,6 +114,9 @@ All interactive buttons are implemented with a **React + Tailwind CSS + CSS Vari
 | **语言切换 EN/ZH/JA** | LanguageContext 全局 | グローバル LanguageContext | Global LanguageContext + persist |
 | **用户头像菜单** | 相对定位 dropdown | 相対位置 dropdown | Relative-positioned dropdown |
 | **扫码 FAB 浮动** | `fixed bottom-12 right-12` | fixed 絶対配置 | Fixed-position floating action btn |
+| **聊天 FAB 浮动** | React Portal + 未读角标 | Portal + 未読バッジ | Portal-rendered FAB + unread badge |
+| **聊天发送** | Enter 发送 + STOMP publish | Enter 送信 + STOMP | Enter to send + STOMP WebSocket |
+| **聊天抽屉** | 380×560 悬浮窗 + 无限滚动 | フロート + 無限スクロール | Floating drawer + infinite scroll |
 | **执行补货订单** | 乐观更新 + console.info | 楽観的 UI 更新 | Optimistic UI update |
 | **AI 刷新模型** | `animate-spin` 加载态 | スピンアニメ + disabled | Spinner animation + disabled state |
 | **商品 CRUD** | 模态框表单 + REST 请求 | モーダルフォーム + REST | Modal form + full REST CRUD |
@@ -160,6 +164,9 @@ All interactive buttons are implemented with a **React + Tailwind CSS + CSS Vari
 | GET  | `/api/user/profile` | 获取用户资料 | プロフィール取得 | Get user profile | JWT |
 | PUT  | `/api/user/profile` | 更新用户资料 | プロフィール更新 | Update profile | JWT |
 | PUT  | `/api/user/password` | 修改密码 | パスワード変更 | Change password | JWT |
+| GET  | `/api/chat/history` | 聊天历史记录 | チャット履歴 | Chat message history | JWT |
+| GET  | `/api/chat/history?beforeId=N` | 更早的聊天记录 | 過去のチャット | Older chat messages | JWT |
+| WS   | `/ws-chat` | 聊天 STOMP 端点 | チャット STOMP | Chat STOMP endpoint | JWT (query) |
 
 ### HTTP 状态码 / ステータスコード / HTTP Status Codes
 
@@ -186,10 +193,22 @@ SotsuGyouSaku/
 │   ├── entity/              # 实体类 / エンティティ / Entities
 │   ├── dto/                 # 数据传输对象 / DTO / DTOs
 │   ├── security/            # JWT 过滤器 / フィルター / JWT filter
-│   └── config/              # WebSocket, CORS 配置 / 設定 / Config
+│   ├── config/              # WebSocket, CORS 配置 / 設定 / Config
+│   └── chat/                # 🆕 操作员聊天 / オペレーターチャット / Operator Chat
+│       ├── config/          #    STOMP WebSocket + JWT ハンドシェイク
+│       ├── controller/      #    ChatController (STOMP + REST)
+│       ├── service/         #    ChatService (永続化 + Redis 発行)
+│       ├── mapper/          #    ChatMessageMapper (MyBatis)
+│       ├── redis/           #    Redis Pub/Sub (Publisher + Subscriber)
+│       ├── entity/          #    OperatorMessage
+│       └── dto/             #    ChatMessageDto
 ├── src/main/resources/      # 配置 & SQL / 設定 & SQL / Config & SQL
 ├── wms-frontend/src/
 │   ├── components/          # PcDashboard, MobileScanner, AdminSettingsModal...
+│   ├── chat/                # 🆕 チャット UI / 聊天 UI / Chat UI
+│   │   ├── OperatorChat.jsx #    FAB + ドロワー (React Portal)
+│   │   ├── ChatContext.jsx  #    グローバル状態 / 全局状态
+│   │   └── useOperatorChat.js #  STOMP WebSocket Hook
 │   ├── pages/               # LoginPage
 │   └── i18n/                # 多语言 / 多言語 / i18n Context
 ├── prediction-engine/       # Python AI 微服务 / AI 予測サービス / AI microservice
@@ -290,6 +309,7 @@ Click "Advanced" → "Proceed to ... (unsafe)" to bypass self-signed cert warnin
 | `product` | 商品、库存、日均用量 | 商品情報・在庫・日次使用量 | Products, stock, daily usage |
 | `wms_user` | 用户、密码哈希、角色 | ユーザー・パスワードハッシュ・ロール | Users, hashed password, role |
 | `wms_scan_log` | 扫码流水日志 | スキャン履歴ログ | Barcode scan history log |
+| `wms_operator_messages` | 操作员聊天消息 | オペレーターチャットメッセージ | Operator chat messages |
 
 ---
 
@@ -326,4 +346,4 @@ Click "Advanced" → "Proceed to ... (unsafe)" to bypass self-signed cert warnin
 
 ---
 
-**バージョン / 版本 / Version**: `2.2.0` &nbsp;|&nbsp; **更新日 / 更新时间 / Updated**: 2026-06-17
+**バージョン / 版本 / Version**: `2.3.0` &nbsp;|&nbsp; **更新日 / 更新时间 / Updated**: 2026-07-01
