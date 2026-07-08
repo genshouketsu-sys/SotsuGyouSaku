@@ -1,0 +1,51 @@
+# =============================================================================
+# Speed WMS — Spring Boot Development Profile
+# 激活方式：通过环境变量 SPRING_PROFILES_ACTIVE=dev（.env.local 中默认已设置）
+# 此文件仅用于本地开发，包含宽松的配置以提高开发效率
+# =============================================================================
+
+spring:
+  # 开发环境启动时自动执行 data.sql 初始化种子数据
+  sql:
+    init:
+      mode: always
+
+  # 数据源（从 .env.local 注入，或使用开发默认值）
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/wms_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+
+  # Redis（本地开发默认无密码）
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      # 本地 Redis 无密码时留空；有密码时在 .env.local 中设置 SPRING_DATA_REDIS_PASSWORD
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+
+# 开发日志：详细输出，方便调试
+logging:
+  level:
+    com.wms.wmsbackend: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.web.authentication: TRACE
+
+# AI 预测引擎（本地直连 127.0.0.1）
+ai:
+  prediction-engine:
+    base-url: http://127.0.0.1:8000
+    timeout-ms: 5000
+    enabled: true
+
+# Actuator：开发环境开放所有端点方便调试
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans,mappings
+  endpoint:
+    health:
+      show-details: always
