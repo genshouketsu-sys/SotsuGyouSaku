@@ -2,22 +2,26 @@ server:
   address: 0.0.0.0
 
 spring:
+  profiles:
+    # 默认激活 dev profile；生产环境通过 SPRING_PROFILES_ACTIVE=prod 覆盖
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # Datasource 基础配置（dev/prod profile 中会覆盖连接池等详细参数）
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/wms_db
-    username: postgres
-    # パスワードは環境変数 DB_PASSWORD で設定することを推奨 / 推荐通过环境变量 DB_PASSWORD 配置
-    # ローカル PostgreSQL 開発環境: インストール時に設定したパスワード
-    password: "postgres"
-  sql:
-    init:
-      mode: always
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/wms_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  # Redis 基础配置
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
+      host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+
   jackson:
-    # LocalDateTime を配列ではなく ISO-8601 文字列として出力する
-    # LocalDateTime 以 ISO-8601 字符串输出，而非数组
+    # LocalDateTime を ISO-8601 文字列として出力 / LocalDateTime 以 ISO-8601 字符串输出
     serialization:
       write-dates-as-timestamps: false
     time-zone: Asia/Tokyo
@@ -26,30 +30,11 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-# JWT 署名秘密鍵（本番環境では必ず変更すること）/ JWT 签名密钥（生产环境中必须修改）
+# JWT 署名密钥 / JWT 签名密钥
+# ⚠️  [SEC] 必须通过环境变量 JWT_SECRET 注入，严禁在此处设置真实密钥
 jwt:
-  secret: OmniWmsPredictiveLogisticsSuperSecretKey2024!
+  secret: ${JWT_SECRET}
 
-# Yahoo! Shopping API App ID（未設定の場合は外部検索をスキップ）/ 未设置时跳过外部查询
+# Yahoo! Shopping API App ID（未設定の場合は外部検索をスキップ）
 # yahoo:
-#   appid: YOUR_APP_ID_HERE
-
-logging:
-  level:
-    com.wms.wmsbackend: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.security.web.authentication: TRACE
-
-# --- AI 予測エンジン設定 / AI Prediction Engine Config ---
-ai:
-  prediction-engine:
-    base-url: http://127.0.0.1:8000
-    timeout-ms: 5000
-    enabled: true
-
-# --- Future: Redis Pub/Sub リアルタイム予測設定 ---
-# wms:
-#   realtime:
-#     enabled: false
-#     redis-channel-outbound: wms:scan:outbound
-#     redis-channel-prediction: wms:prediction:updated
+#   appid: ${YAHOO_APP_ID}

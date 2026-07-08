@@ -1,23 +1,78 @@
-HELP.md
+# =============================================================================
+# Speed WMS - .gitignore
+# 适用范围：Spring Boot 后端 + React 前端 + Python AI 引擎
+# =============================================================================
+
+# ─────────────────────────────────────────────
+# [CRITICAL] 环境变量 / 密钥文件 — 严禁提交
+# ─────────────────────────────────────────────
+.env
+.env.prod
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.env.*
+!.env.example   # 仅允许模板文件进入版本控制
+
+# ─────────────────────────────────────────────
+# Maven 构建产物 (Spring Boot Backend)
+# ─────────────────────────────────────────────
 target/
-.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+*.jar
+*.war
+*.class
+HELP.md
 
-### STS ###
+# Maven Wrapper (保留脚本，忽略二进制)
+.mvn/wrapper/maven-wrapper.jar
+
+# ─────────────────────────────────────────────
+# React / Node.js 前端 (wms-frontend)
+# ─────────────────────────────────────────────
+node_modules/
+wms-frontend/node_modules/
+wms-frontend/dist/
+wms-frontend/.vite/
+dist/
+.vite/
+
+# ─────────────────────────────────────────────
+# Python 预测引擎 (prediction-engine)
+# ─────────────────────────────────────────────
+prediction-engine/venv/
+prediction-engine/__pycache__/
+prediction-engine/*.pyc
+prediction-engine/*.pyo
+prediction-engine/*.db
+prediction-engine/.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ─────────────────────────────────────────────
+# IDE 配置文件
+# ─────────────────────────────────────────────
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Eclipse / STS ###
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,13 +86,37 @@ build/
 
 ### VS Code ###
 .vscode/
+*.code-workspace
 
-### Python Prediction Engine ###
-prediction-engine/venv/
-prediction-engine/__pycache__/
-prediction-engine/*.pyc
+# ─────────────────────────────────────────────
+# 操作系统临时文件
+# ─────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+ehthumbs.db
 
-### WMS Temp / Local Files ###
-mysql_data/
+# ─────────────────────────────────────────────
+# 日志文件
+# ─────────────────────────────────────────────
 *.log
+logs/
+backend.log
+backend_startup.log
 
+# ─────────────────────────────────────────────
+# 数据库本地数据卷（Docker 产物）
+# ─────────────────────────────────────────────
+mysql_data/
+postgres_data/
+redis_data/
+
+# ─────────────────────────────────────────────
+# 其他
+# ─────────────────────────────────────────────
+*.tmp
+*.bak
+*.swp
+.cache/

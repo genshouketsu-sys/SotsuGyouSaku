@@ -5,6 +5,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v2.3.0] - 2026-07-08
+
+### Security — Hardcoded Secret Elimination / 源码密鑰清除
+
+- **[SEC-001 Fix]** 移除 `application.yml` 中硬编码的 JWT 密鑰
+  - 改为 `${JWT_SECRET}` 环境变量注入，无 fallback 默认値
+  - 违反配置时 Spring Boot 启动即抛异常，显式防止错误配置进入生产
+- **[SEC-001 Fix]** 移除 `JwtUtil.java` `@Value` 注解中的硬编码默认密鑰元组
+- **[SEC-001 Fix]** 移除 `application.yml` 中硬编码的 PostgreSQL 明文密码
+  - 所有数据库认证信息改为 `${SPRING_DATASOURCE_*}` 环境变量
+- **[ENG-001 Fix]** 全面升级 `.gitignore`
+  - 新增 `.env` / `.env.prod` / `.env.local` glob 拦截
+  - 新增 `wms-frontend/dist/` `node_modules/` `*.db` 等构建产物排除
+- **[ENG-002 Fix]** 升级 `.env.example`
+  - 补全 `SPRING_DATASOURCE_*` 、`SPRING_PROFILES_ACTIVE` 变量模板
+  - 新增多环境使用说明（开发/生产分离方案）
+
+- **[ENG-003 Fix]** Spring Boot 多 Profile 配置架构重构
+  - 新增 `application-prod.yml` — 生产 Profile（HikariCP 连接池调优、Actuator 收紧）
+  - 新增 `application-dev.yml` — 开发 Profile（详细日志、data.sql 种子数据）
+  - `application.yml` 精简为纯框架级共享基础配置
+- **[DOCS]** 新增工程文档
+  - `docs/ARCHITECTURE.md` — 系统架构图、服务职责、包结构、Profile 策略
+  - `docs/API_REFERENCE.md` — 完整 REST/WebSocket API 文档（含 STOMP 频道）
+- **[REFACTOR]** 前端文件结构重构 — 符合 React 最佳实践
+  - `AddProductModal/EditProductModal/BarcodeLookupModal` → `src/components/`
+  - `ProductCatalog` → `src/pages/`
+  - 同步更新所有 import 引用路径
+
+---
+
 ## [v2.2.0] - 2026-06-27
 
 ### Changed — PostgreSQL Migration & UI Fixes
@@ -47,7 +78,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - 静态资源 1年缓存 + gzip 压缩
 
 - `docker-compose.yml` — 全栈 5 容器编排
-  - 服务：`wms-mysql` → `wms-redis` → `wms-backend` → `wms-prediction` → `wms-frontend`
+  - 服务：`wms-postgres` → `wms-redis` → `wms-backend` → `wms-prediction` → `wms-frontend`
   - `healthcheck` 依赖链，确保 MySQL/Redis 就绪后再启动 Spring Boot
   - 所有密钥通过 `--env-file .env.prod` 注入，不硬编码于镜像
 

@@ -23,9 +23,13 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    /** JWT 署名秘密鍵。application.yml または環境変数 JWT_SECRET で設定すること。
-     *  JWT 签名密钥，请在 application.yml 或环境变量 JWT_SECRET 中配置。 */
-    @Value("${jwt.secret:OmniWmsPredictiveLogisticsSuperSecretKey2024!}")
+    /**
+     * JWT 署名秘密鍵 / JWT 签名密钥
+     * ⚠️  [SEC] 此处无 fallback 默认值 — 必须通过环境变量 JWT_SECRET 注入。
+     *           若未设置，Spring Boot 启动时将抛出异常，而非使用不安全的默认值。
+     *           Set via: export JWT_SECRET=$(openssl rand -base64 64)
+     */
+    @Value("${jwt.secret}")
     private String secretKey;
 
     /** JWT 有効期限（ミリ秒）: 10 時間 / JWT 有效期（毫秒）: 10 小时 */
