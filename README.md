@@ -61,29 +61,38 @@ Drawing from my 5 years of professional design experience, I’ve often seen pow
 
 🏗️ 核心系统架构图 (System Architecture)
 graph TD
-    %% Define Styles
-    classDef frontend fill:#18181b,stroke:#bcf540,stroke-width:2px,color:#fff;
-    classDef backend fill:#6db33f,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef ai fill:#3776ab,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef database fill:#336791,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef cache fill:#dc382d,stroke:#fff,stroke-width:2px,color:#fff;
+    %% Nodes with explicit style definitions
+    Mobile[Mobile Scanner]
+    Web[Web Dashboard]
+    Gateway{Spring Security<br>JWT Auth}
+    CoreLogic[Business Logic]
+    WS_Manager((STOMP/WebSocket))
+    AI_Engine[FastAPI Predictor]
+    DB[(PostgreSQL 16)]
+    Redis[(Redis 7)]
 
+    %% Styling
+    style Mobile fill:#18181b,stroke:#bcf540,color:#fff
+    style Web fill:#18181b,stroke:#bcf540,color:#fff
+    style CoreLogic fill:#6db33f,stroke:#fff,color:#fff
+    style WS_Manager fill:#6db33f,stroke:#fff,color:#fff
+    style Gateway fill:#6db33f,stroke:#fff,color:#fff
+    style AI_Engine fill:#3776ab,stroke:#fff,color:#fff
+    style DB fill:#336791,stroke:#fff,color:#fff
+    style Redis fill:#dc382d,stroke:#fff,color:#fff
+
+    %% Subgraph
     subgraph Frontend [React 19 Frontend]
-        Mobile[Mobile Scanner]:::frontend
-        Web[Web Dashboard]:::frontend
+        Mobile
+        Web
     end
-
-    Gateway{Spring Security<br>JWT Auth}:::backend
 
     subgraph Backend [Spring Boot 3.2 Backend]
-        CoreLogic[Business Logic]:::backend
-        WS_Manager((STOMP/WebSocket)):::backend
+        CoreLogic
+        WS_Manager
     end
 
-    AI_Engine[FastAPI Predictor]:::ai
-    DB[(PostgreSQL 16)]:::database
-    Redis[(Redis 7)]:::cache
-
+    %% Connections
     Mobile <-->|REST| Gateway
     Web <-->|REST| Gateway
     Gateway --> CoreLogic
@@ -91,6 +100,9 @@ graph TD
     CoreLogic <--> Redis
     CoreLogic <-->|REST| AI_Engine
     AI_Engine --> DB
+    Mobile <-->|WSS| WS_Manager
+    Web <-->|WSS| WS_Manager
+    WS_Manager <-->|Pub/Sub| Redis
     Mobile <-->|WSS| WS_Manager
     Web <-->|WSS| WS_Manager
     WS_Manager <-->|Pub/Sub| Redis
