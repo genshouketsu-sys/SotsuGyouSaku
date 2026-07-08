@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import AddProductModal from './AddProductModal';
-import EditProductModal from './EditProductModal';
-import BarcodeLookupModal from './BarcodeLookupModal';
-import { useTranslation } from './i18n/LanguageContext';
+import AddProductModal from '../components/AddProductModal';
+import EditProductModal from '../components/EditProductModal';
+import BarcodeLookupModal from '../components/BarcodeLookupModal';
+import { useTranslation } from '../i18n/LanguageContext';
 
 function ProductCatalog() {
   const { t } = useTranslation();

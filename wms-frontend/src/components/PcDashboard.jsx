@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ProductCatalog from '../ProductCatalog';
+import ProductCatalog from '../pages/ProductCatalog';
 import ScanQrModal from './ScanQrModal';
 import AdminSettingsModal from './AdminSettingsModal';
 import { useTranslation } from '../i18n/LanguageContext';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from './i18n/LanguageContext';
+import { useTranslation } from '../i18n/LanguageContext';
 
 function AddProductModal({ isOpen, onClose, onAdd }) {
   const { t } = useTranslation();

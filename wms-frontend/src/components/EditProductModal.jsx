@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from './i18n/LanguageContext';
+import { useTranslation } from '../i18n/LanguageContext';
 
 function EditProductModal({ isOpen, onClose, onEdit, initialData }) {
   const { t } = useTranslation();
