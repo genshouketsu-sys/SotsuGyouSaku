@@ -1,11 +1,7 @@
 <div align="center">
   <h1>SpeedWMS</h1>
   <p><strong>Spring Boot と React を用いた、リアルタイム倉庫管理システム</strong></p>
-  <p>
-    <a href="#日本語">日本語</a> | 
-    <a href="#中文">中文</a> | 
-    <a href="#english">English</a>
-  </p>
+  
 </div>
 
 ---
