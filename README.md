@@ -16,9 +16,9 @@
 ### 🎯 项目定位
 SpeedWMS 是专为中小型电商仓库打造的预测型库存管理系统。本项目不仅提供基础的数字化仓储流转，更以商业 SaaS 级标准构建了从前端交互到后端高并发处理的完整闭环，无缝集成了 WebSocket 实时同步、AI 指数平滑预测补货以及 Redis 毫秒级通信流。
 
-### 🌉 Bridge Engineer 视角：设计赋能开发 (Design-Led Development)
+### 🌉 设计赋能开发 (Design-Led Development)
 
-作为兼具 5 年品牌设计经验与全栈架构能力的 Bridge Engineer，我坚持在本项目中**零第三方 UI 库依赖**。全站核心交互均基于 `React + Tailwind CSS + CSS Variables` 架构从零构建。
+作为兼具 5 年品牌设计经验与全栈架构能力的 Bridge Engineer，我坚持在本项目中零第三方 UI 库依赖。全站核心交互均基于 `React + Tailwind CSS + CSS Variables` 架构从零构建。
 
 为了将一线业务人员的认知负荷降至最低，系统引入了克制且精确的视觉隐喻（如全局唯一的 `#bcf540` 荧光绿行动点）与物理反馈级微动效（`active:scale-[0.98]`）。这种设计主导的工程落地，成功将后端复杂的幂等性批处理、JWT 鉴权校验等逻辑，封装为极其平滑且防呆的“零思考”操作流。
 
