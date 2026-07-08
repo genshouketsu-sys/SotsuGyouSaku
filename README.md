@@ -23,6 +23,28 @@ SpeedWMS 是一款面向中小型电商仓库的实时库存管理系统。在�
 * **降低认知负荷**：在前端，通过全局统一的 `#bcf540` 行动色与 `active:scale` 微动效进行视线引导；在后端，处理好接口的幂等性校验与 JWT 刷新逻辑。让复杂的业务流在用户端表现为“不会误触、不需多想”的顺滑体验。
 * **可靠的数据流**：核心业务基于 Spring Boot 3.2 与 PostgreSQL 16 构建。对于需要跨设备即时通讯的操作员聊天模块，则引入了 STOMP 协议与 Redis Pub/Sub 来保障消息的送达率。
 
+* ## 📂 项目结构与模块划分 (Project Structure)
+
+本项目采用 Monorepo 架构进行管理，按业务边界拆分为后端主服务、前端工程与独立 AI 微服务，并全面支持 Docker 容器化部署。
+
+```text
+SotsuGyouSaku/
+├── src/                        # ☕️ Spring Boot 后端核心服务 (Core Backend)
+│   ├── main/java/...           # 包含 REST API, JWT 鉴权, 幂等性控制逻辑
+│   └── main/resources/         # 数据库配置、MyBatis 映射文件及基础 SQL 脚本
+├── wms-frontend/               # ⚛️ React 19 前端工程 (Frontend UI)
+│   ├── src/components/         # 纯手写组件库 (Tailwind CSS + CSS Variables)
+│   ├── src/chat/               # 基于 React Portal 与 STOMP 的全局聊天模块
+│   └── src/i18n/               # 中/日/英三语国际化上下文配置
+├── prediction-engine/          # 🐍 Python AI 预测微服务 (Prediction Microservice)
+│   ├── main.py                 # FastAPI 路由入口
+│   └── model.py                # 指数平滑法 (Exponential Smoothing) 算法实现
+├── docs/                       # 📄 项目文档与需求分析 (Documentation)
+├── docker-compose.yml          # 🐳 本地与生产环境容器编排 (Postgres, Redis, 后端)
+├── Dockerfile.backend          # 📦 后端服务生产环境镜像构建配置
+├── pom.xml                     # 🐘 Maven 依赖管理
+└── .env.example                # ⚙️ 环境变量配置模板
+
 ---
 
 <a id="日本語"></a>
