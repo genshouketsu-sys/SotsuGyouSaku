@@ -338,5 +338,14 @@ graph TD
 
 本プロジェクトは「最高」のシステムではなく、「最高のコスト・パフォーマンス」を備えるシステムです。
 
+## 🚀 Quick Start (ローカル環境構築)
+```bash
+git clone ...
+docker-compose up -d
+# フロントエンド
+cd frontend && npm install && npm run dev
+# バックエンド (Spring Boot)
+./mvnw spring-boot:run
+
 ---
 
